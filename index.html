@@ -2,51 +2,246 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>차세대 노코드 게임 스튜디오</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>차세대 노코드 게임 스튜디오 - 고급 에디터</title>
     <style>
-        body { font-family: 'Malgun Gothic', sans-serif; background-color: #2c2c2c; color: white; padding: 20px; }
-        .panel { background-color: #3d3d3d; padding: 20px; border-radius: 10px; width: 400px; }
-        h3 { border-bottom: 1px solid #555; padding-bottom: 10px; }
-        button { 
-            background-color: #4CAF50; color: white; border: none; 
-            padding: 10px 15px; margin: 5px; border-radius: 5px; cursor: pointer;
-            font-size: 14px; font-weight: bold;
+        /* 전체 테마 (다크 모드 기반의 전문 소프트웨어 스타일) */
+        :root {
+            --bg-color: #1e1e1e;
+            --panel-bg: #252526;
+            --section-bg: #333333;
+            --text-main: #cccccc;
+            --text-highlight: #ffffff;
+            --accent-blue: #0e639c;
+            --accent-blue-hover: #1177bb;
+            --accent-green: #4CAF50;
+            --accent-green-hover: #45a049;
+            --accent-red: #d32f2f;
+            --border-color: #444444;
         }
-        button:hover { background-color: #45a049; }
-        .input-group { margin-top: 15px; }
-        input { padding: 5px; width: 60px; border-radius: 3px; border: none; }
+
+        body { 
+            font-family: 'Segoe UI', 'Malgun Gothic', sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-main); 
+            margin: 0; 
+            display: flex; 
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 레이아웃 분할 */
+        .sidebar {
+            width: 450px;
+            background-color: var(--panel-bg);
+            border-right: 1px solid var(--border-color);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .main-view {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #1a1a1a;
+            padding: 20px;
+        }
+
+        h2 { color: var(--text-highlight); font-size: 20px; margin-top: 0; border-bottom: 2px solid var(--accent-blue); padding-bottom: 10px; }
+        h3 { color: var(--text-highlight); font-size: 15px; margin-bottom: 10px; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
+
+        /* 입력 그룹 및 폼 요소 */
+        .section { background-color: var(--section-bg); padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        
+        label { font-size: 13px; font-weight: 600; }
+        select, input[type="number"], input[type="text"] { 
+            background-color: #3c3c3c; color: white; border: 1px solid #555; 
+            padding: 6px 10px; border-radius: 4px; outline: none; font-size: 13px;
+        }
+        select { width: 100%; margin-top: 5px; cursor: pointer; }
+        select:focus, input:focus { border-color: var(--accent-blue); }
+
+        /* 버튼 스타일링 */
+        .btn-group { display: flex; flex-wrap: wrap; gap: 8px; }
+        button { 
+            background-color: #3a3a3a; color: white; border: 1px solid #555; 
+            padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 13px;
+            transition: all 0.2s ease; flex: 1 1 30%;
+        }
+        button:hover { background-color: #4a4a4a; border-color: #888; }
+        
+        .btn-primary { background-color: var(--accent-blue); border: none; font-weight: bold; width: 100%; margin-top: 10px; }
+        .btn-primary:hover { background-color: var(--accent-blue-hover); }
+        
+        .btn-ability { background-color: var(--accent-green); border: none; font-weight: bold; }
+        .btn-ability:hover { background-color: var(--accent-green-hover); }
+
+        /* 우측 콘솔 패널 */
+        .console-header { color: var(--text-highlight); font-weight: bold; margin-bottom: 10px; display: flex; justify-content: space-between;}
+        .console-window {
+            background-color: #000000; color: #00ff00; font-family: 'Consolas', 'Courier New', monospace;
+            flex: 1; padding: 15px; border-radius: 8px; border: 1px solid #444;
+            overflow-y: auto; font-size: 14px; white-space: pre-wrap; line-height: 1.5;
+        }
+        .log-entry { margin-bottom: 10px; border-bottom: 1px dashed #333; padding-bottom: 10px; }
+        .log-time { color: #888; font-size: 12px; }
+        .log-action { color: #ff9800; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div class="panel">
-        <h2>블록 / 플레이어 속성 에디터</h2>
+    <!-- 좌측: 속성 에디터 패널 -->
+    <aside class="sidebar">
+        <h2>블록/플레이어 속성 인스펙터</h2>
         
         <!-- 대상 선택 -->
-        <div>
-            <label>선택된 오브젝트: </label>
+        <div class="section">
+            <label>현재 수정 중인 오브젝트</label>
             <select id="objectSelect">
-                <option value="player">기본 플레이어</option>
-                <option value="custom_block">날아다니는 마법 블록</option>
+                <option value="Player_Main">기본 플레이어 (Player_Main)</option>
+                <option value="Block_Magic">날아다니는 마법 블록 (Block_Magic)</option>
+                <option value="Enemy_Slime">적 몬스터 (Enemy_Slime)</option>
             </select>
         </div>
 
-        <!-- 스크립트 없이 버튼으로 능력 추가 -->
-        <div class="input-group">
-            <h3>⚡ 능력 추가 (자동 애니메이션 포함)</h3>
-            <button onclick="sendToJava('addAbility', 'fly')">🕊️ 날 수 있음</button>
-            <button onclick="sendToJava('addAbility', 'attack')">⚔️ 공격함</button>
-            <button onclick="sendToJava('addAbility', 'health')">❤️ 체력/살아있음</button>
+        <!-- 시각적 속성 (추가된 기능) -->
+        <div class="section">
+            <h3>🎨 시각 및 형태 속성</h3>
+            <div class="row">
+                <label>오브젝트 색상</label>
+                <input type="color" id="objColor" value="#ff0000">
+            </div>
+            <div class="row">
+                <label>크기 비율 (Scale)</label>
+                <input type="number" id="objScale" value="1.0" step="0.1" min="0.1">
+            </div>
+            <button class="btn-primary" onclick="sendToJava('setVisuals', null)">시각 속성 적용</button>
         </div>
 
-        <!-- 물리 속성 직접 설정 -->
-        <div class="input-group">
-            <h3>🌍 물리 및 이동 속성</h3>
-            <label>점프력 (중력 하강 적용): <input type="number" id="jumpPower" value="50"></label><br><br>
-            <label>이동 속도: <input type="number" id="speed" value="15"></label><br><br>
-            <button onclick="sendToJava('setPhysics', null)" style="background-color: #2196F3;">적용하기</button>
+        <!-- 능력치 부여 -->
+        <div class="section">
+            <h3>⚡ 노코드 능력 추가 (애니메이션 자동 연동)</h3>
+            <div class="btn-group">
+                <button class="btn-ability" onclick="sendToJava('addAbility', 'fly')">🕊️ 비행 능력</button>
+                <button class="btn-ability" onclick="sendToJava('addAbility', 'attack')">⚔️ 공격 모션</button>
+                <button class="btn-ability" onclick="sendToJava('addAbility', 'health')">❤️ 체력 시스템</button>
+                <button class="btn-ability" onclick="sendToJava('addAbility', 'particle')">✨ 파티클 효과</button>
+                <button class="btn-ability" style="background-color: var(--accent-red);" onclick="sendToJava('removeAbility', 'all')">🗑️ 모두 초기화</button>
+            </div>
         </div>
-    </div>
 
+        <!-- 물리 엔진 설정 -->
+        <div class="section">
+            <h3>🌍 물리 및 이동 속성 (RigidBody)</h3>
+            <div class="row">
+                <label>점프력 (중력 곡선 적용)</label>
+                <input type="number" id="jumpPower" value="50">
+            </div>
+            <div class="row">
+                <label>이동 속도 (Speed)</label>
+                <input type="number" id="speed" value="15">
+            </div>
+            <div class="row">
+                <label>무게 (Mass)</label>
+                <input type="number" id="mass" value="10">
+            </div>
+            <button class="btn-primary" onclick="sendToJava('setPhysics', null)">물리 엔진 적용</button>
+        </div>
+    </aside>
+
+    <!-- 우측: 시스템 및 통신 로그 확인 패널 -->
+    <main class="main-view">
+        <div class="console-header">
+            <span>[시스템] Java 백엔드 통신 로그</span>
+            <button onclick="clearConsole()" style="padding: 2px 10px; margin:0;">로그 지우기</button>
+        </div>
+        <div class="console-window" id="consoleWindow">
+            <span style="color:#888;">엔진이 성공적으로 부팅되었습니다. 에디터에서 속성을 변경해보세요.</span><br><br>
+        </div>
+    </main>
+
+    <!-- Java 통신 및 UI 제어를 위한 JavaScript -->
+    <script>
+        // 화면 우측 콘솔에 로그를 예쁘게 찍어주는 함수
+        function logToConsole(action, jsonData) {
+            const consoleWin = document.getElementById('consoleWindow');
+            const time = new Date().toLocaleTimeString();
+            
+            // JSON 문자열을 보기 좋게 들여쓰기하여 포맷팅
+            const formattedJson = JSON.stringify(jsonData, null, 2);
+            
+            const logHTML = `
+                <div class="log-entry">
+                    <span class="log-time">[${time}]</span> 
+                    <span class="log-action">ACTION: ${action}</span><br>
+                    <span>${formattedJson}</span>
+                </div>
+            `;
+            
+            consoleWin.innerHTML += logHTML;
+            consoleWin.scrollTop = consoleWin.scrollHeight; // 스크롤을 항상 아래로 유지
+        }
+
+        // 콘솔 화면 지우기
+        function clearConsole() {
+            document.getElementById('consoleWindow').innerHTML = '';
+        }
+
+        // 버튼 클릭 시 호출되어 데이터를 모으고 Java로 전송하는 메인 함수
+        function sendToJava(action, value) {
+            const targetObject = document.getElementById('objectSelect').value;
+
+            // 기본 데이터 구조 세팅
+            const payload = {
+                target: targetObject,
+                action: action
+            };
+
+            // 액션의 종류에 따라 전송할 데이터를 다르게 구성
+            if (action === 'addAbility' || action === 'removeAbility') {
+                payload.ability = value;
+            } 
+            else if (action === 'setPhysics') {
+                payload.physics = {
+                    jumpPower: parseInt(document.getElementById('jumpPower').value, 10),
+                    speed: parseInt(document.getElementById('speed').value, 10),
+                    mass: parseInt(document.getElementById('mass').value, 10)
+                };
+            }
+            else if (action === 'setVisuals') {
+                payload.visual = {
+                    color: document.getElementById('objColor').value,
+                    scale: parseFloat(document.getElementById('objScale').value)
+                };
+            }
+
+            // 우측 화면 콘솔에 시각적 출력 (테스트 확인용)
+            logToConsole(action, payload);
+
+            // 최종 JSON 문자열 변환
+            const jsonString = JSON.stringify(payload);
+
+            // ----------------------------------------------------
+            // 🔗 실제 Java (데스크톱/안드로이드) 환경 연동 코드
+            // ----------------------------------------------------
+            try {
+                // 1. Android WebView 브릿지
+                if (window.AndroidBridge) {
+                    window.AndroidBridge.receiveFromWeb(jsonString);
+                }
+                // 2. JavaFX WebEngine 브릿지
+                if (window.javaApp) {
+                    window.javaApp.receiveData(jsonString);
+                }
+                // 3. C# / WebView2 등 기타 포스트 메시지
+                if (window.chrome && window.chrome.webview) {
+                    window.chrome.webview.postMessage(jsonString);
+                }
+            } catch (error) {
+                console.error("통신 오류:", error);
+            }
+        }
+    </script>
 </body>
 </html>
