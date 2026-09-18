@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebBlox - Ultimate Game Platform</title>
+    <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&family=Noto+Sans+KR:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6C5CE7;
+            --secondary: #00CEC9;
+            --dark: #0F172A;
+            --darker: #020617;
+            --panel: rgba(30, 41, 59, 0.7);
+            --text: #F8FAFC;
+            --gold: #FBBF24;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+        body { font-family: 'Poppins', 'Noto Sans KR', sans-serif; background-color: var(--darker); color: var(--text); overflow: hidden; }
+
+        /* UI Animations */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulseGlow { 0% { box-shadow: 0 0 10px var(--primary); } 50% { box-shadow: 0 0 30px var(--secondary); } 100% { box-shadow: 0 0 10px var(--primary); } }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-50px) scale(1.5); } }
+
+        /* Navigation */
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1); z-index: 100; position: relative; }
+        .logo { font-size: 28px; font-weight: 900; background: linear-gradient(45deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-info { display: flex; gap: 20px; align-items: center; }
+        .currency { font-size: 18px; font-weight: bold; color: var(--gold); background: rgba(251, 191, 36, 0.1); padding: 8px 15px; border-radius: 20px; border: 1px solid var(--gold); transition: all 0.3s; }
+        .btn { padding: 10px 20px; border-radius: 12px; border: none; background: linear-gradient(45deg, var(--primary), var(--secondary)); color: white; font-weight: bold; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4); }
+        .btn:hover { transform: translateY(-2px) scale(1.05); filter: brightness(1.2); }
+        
+        /* Screens */
+        .screen { position: absolute; top: 80px; left: 0; width: 100%; height: calc(100vh - 80px); display: none; padding: 40px; animation: fadeIn 0.4s ease-out; overflow-y: auto; }
+        .screen.active { display: block; }
+
+        /* Hub (Game List) */
+        .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; margin-top: 20px; }
+        .game-card { background: var(--panel); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 25px; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; backdrop-filter: blur(10px); }
+        .game-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.5); border-color: var(--secondary); }
+        .game-title { font-size: 22px; font-weight: bold; margin-bottom: 10px; color: var(--secondary); }
+        .game-desc { font-size: 14px; color: #94A3B8; margin-bottom: 20px; line-height: 1.5; }
+
+        /* Game Studio (Maker) */
+        .studio-layout { display: flex; gap: 20px; height: 100%; }
+        .toolbar { width: 250px; background: var(--panel); border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .tool-btn { padding: 15px; border-radius: 10px; background: rgba(255,255,255,0.05); border: 2px solid transparent; color: white; cursor: pointer; transition: 0.3s; font-weight: bold; }
+        .tool-btn.active { border-color: var(--secondary); background: rgba(0, 206, 201, 0.2); }
+        .canvas-container { flex: 1; background: #000; border-radius: 20px; position: relative; overflow: hidden; border: 2px solid rgba(255,255,255,0.1); display: grid; grid-template-columns: repeat(15, 1fr); grid-template-rows: repeat(10, 1fr); }
+        .grid-cell { border: 1px solid rgba(255,255,255,0.05); transition: 0.2s; }
+        .grid-cell:hover { background: rgba(255,255,255,0.1); }
+        
+        /* Game Objects */
+        .obj-wall { background: linear-gradient(45deg, #475569, #334155); border-radius: 4px; }
+        .obj-player { background: var(--secondary); border-radius: 50%; animation: pulseGlow 2s infinite; }
+        .obj-lava { background: #EF4444; border-radius: 4px; box-shadow: 0 0 10px #EF4444; }
+        .obj-goal { background: #10B981; border-radius: 50%; box-shadow: 0 0 15px #10B981; }
+
+        /* Clicker Game Specific */
+        .clicker-container { display: flex; height: 100%; gap: 30px; }
+        .click-area { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background: var(--panel); border-radius: 30px; position: relative; overflow: hidden; }
+        .click-box { width: 200px; height: 200px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 40px; cursor: pointer; transition: transform 0.1s; animation: pulseGlow 3s infinite; display: flex; justify-content: center; align-items: center; font-size: 80px; box-shadow: 0 20px 50px rgba(108, 92, 231, 0.5); border: 4px solid rgba(255,255,255,0.2); }
+        .click-box:active { transform: scale(0.9); }
+        .floating-text { position: absolute; font-size: 24px; font-weight: bold; color: var(--gold); pointer-events: none; animation: floatUp 1s forwards; text-shadow: 0 0 10px rgba(251, 191, 36, 0.8); }
+        .shop-area { width: 350px; background: var(--panel); border-radius: 30px; padding: 30px; overflow-y: auto; }
+        .upgrade-item { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; border: 1px solid rgba(255,255,255,0.1); }
+        .upgrade-item:hover { background: rgba(255,255,255,0.1); border-color: var(--gold); }
+
+        /* Multiplayer Chat overlay */
+        #chat-widget { position: fixed; bottom: 30px; right: 30px; width: 350px; height: 450px; background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; display: flex; flex-direction: column; backdrop-filter: blur(15px); box-shadow: 0 20px 40px rgba(0,0,0,0.6); z-index: 1000; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        #chat-widget.minimized { transform: translateY(380px); }
+        .chat-header { padding: 15px 20px; background: linear-gradient(90deg, var(--primary), var(--dark)); border-radius: 20px 20px 0 0; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: bold; }
+        .chat-messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .msg { padding: 10px 15px; border-radius: 15px; max-width: 80%; font-size: 14px; animation: fadeIn 0.3s ease-out; }
+        .msg.sys { background: rgba(255,255,255,0.1); color: #94A3B8; align-self: center; font-size: 12px; }
+        .msg.me { background: var(--primary); align-self: flex-end; border-bottom-right-radius: 2px; }
+        .msg.other { background: rgba(255,255,255,0.1); align-self: flex-start; border-bottom-left-radius: 2px; }
+        .chat-input { display: flex; padding: 15px; gap: 10px; border-top: 1px solid rgba(255,255,255,0.05); }
+        .chat-input input { flex: 1; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 10px 15px; border-radius: 20px; outline: none; transition: 0.3s; }
+        .chat-input input:focus { border-color: var(--secondary); }
+
+        /* Modals */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 2000; }
+        .modal { background: var(--dark); padding: 40px; border-radius: 20px; width: 400px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 25px 50px rgba(0,0,0,0.5); animation: fadeIn 0.3s; }
+        .modal h2 { margin-bottom: 20px; color: var(--secondary); }
+        .modal input, .modal textarea { width: 100%; padding: 15px; margin-bottom: 20px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 10px; font-family: inherit; }
+        .modal textarea { resize: none; height: 100px; }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation -->
+    <nav>
+        <div class="logo">WebBlox</div>
+        <div class="nav-info">
+            <div class="currency">🪙 <span id="andDisplay">0</span> And</div>
+            <button class="btn" onclick="nav('hub')">홈화면</button>
+            <button class="btn" onclick="openStudio()">🛠️ 게임 만들기</button>
+        </div>
+    </nav>
+
+    <!-- App Screens -->
+    <div id="app">
+        
+        <!-- 1. Hub Screen (Game List) -->
+        <div id="hub" class="screen active">
+            <h1 style="font-size: 36px; margin-bottom: 10px;">플레이할 게임을 선택하세요</h1>
+            <p style="color: #94A3B8; margin-bottom: 30px;">다른 유저들이 만든 게임을 플레이하거나 직접 제작해보세요!</p>
+            <div class="game-grid" id="gameGrid">
+                <!-- Games will be injected here -->
+            </div>
+        </div>
+
+        <!-- 2. Game Studio Screen (Maker) -->
+        <div id="studio" class="screen">
+            <div class="studio-layout">
+                <div class="toolbar">
+                    <h2 style="color: var(--secondary); margin-bottom: 10px;">스튜디오 툴</h2>
+                    <button class="tool-btn active" onclick="setTool('player')">🧍 플레이어 (시작점)</button>
+                    <button class="tool-btn" onclick="setTool('wall')">🧱 벽 (장애물)</button>
+                    <button class="tool-btn" onclick="setTool('lava')">🔥 용암 (위험)</button>
+                    <button class="tool-btn" onclick="setTool('goal')">🏁 목표 (클리어)</button>
+                    <div style="flex:1"></div>
+                    <button class="btn" onclick="showPublishModal()">🚀 게임 게시하기</button>
+                </div>
+                <div class="canvas-container" id="editorCanvas">
+                    <!-- 15x10 Grid generated by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Player Screen (Playing a Game) -->
+        <div id="player" class="screen">
+            <button class="btn" onclick="nav('hub')" style="margin-bottom: 20px;">← 나가기</button>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h1 id="playTitle">게임 제목</h1>
+                <button class="btn" id="buyPassBtn" style="background: linear-gradient(45deg, #F59E0B, #EF4444);">💎 VIP 패스 구매 (100 And)</button>
+            </div>
+            <p id="playDesc" style="color: #94A3B8; margin-bottom: 20px;">게임 설명</p>
+            <div class="canvas-container" id="playCanvas" style="height: 600px; border: 4px solid var(--secondary); box-shadow: 0 0 30px rgba(0, 206, 201, 0.2);">
+                <!-- Play Grid -->
+            </div>
+        </div>
+
+        <!-- 4. Default Clicker Game Screen -->
+        <div id="clicker" class="screen">
+            <button class="btn" onclick="nav('hub')" style="margin-bottom: 20px;">← 나가기</button>
+            <h1 style="margin-bottom: 20px; color: var(--gold);">자동으로 화폐 벌기 💸</h1>
+            <div class="clicker-container">
+                <div class="click-area" id="clickArea">
+                    <h2 style="position: absolute; top: 30px; font-size: 32px;">보유: <span id="clickerAnd">0</span> And</h2>
+                    <p style="position: absolute; top: 70px; color: #94A3B8;">초당 수입: <span id="cpsDisplay">0</span> | 클릭당: <span id="cpcDisplay">1</span></p>
+                    <div class="click-box" id="mainBox">💎</div>
+                </div>
+                <div class="shop-area">
+                    <h2 style="margin-bottom: 20px; border-bottom: 2px solid rgba(255,255,255,0.1); padding-bottom: 10px;">업그레이드 상점</h2>
+                    <div class="upgrade-item">
+                        <div>
+                            <h3>클릭 파워 +1</h3>
+                            <p style="color: #94A3B8; font-size: 14px;">클릭당 And 증가</p>
+                        </div>
+                        <button class="btn" onclick="buyUpgrade('click')" id="costClick">10 And</button>
+                    </div>
+                    <div class="upgrade-item">
+                        <div>
+                            <h3>자동 마이너</h3>
+                            <p style="color: #94A3B8; font-size: 14px;">초당 1 And 자동생산</p>
+                        </div>
+                        <button class="btn" onclick="buyUpgrade('auto')" id="costAuto">50 And</button>
+                    </div>
+                    <div class="upgrade-item">
+                        <div>
+                            <h3>초월의 네모</h3>
+                            <p style="color: #94A3B8; font-size: 14px;">초당 10 And 자동생산</p>
+                        </div>
+                        <button class="btn" onclick="buyUpgrade('mega')" id="costMega">500 And</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Multiplayer Chat Widget -->
+    <div id="chat-widget" class="minimized">
+        <div class="chat-header" onclick="toggleChat()">
+            <span>🌐 글로벌 멀티 채팅</span>
+            <span id="chatToggleIcon">▲</span>
+        </div>
+        <div style="padding: 10px; background: rgba(0,0,0,0.5); font-size: 12px; display: flex; gap: 10px;">
+            <input type="text" id="connectId" placeholder="친구 Peer ID 입력" style="flex:1; background: transparent; border: 1px solid #333; color: white; padding: 5px; border-radius: 5px;">
+            <button onclick="connectToPeer()" class="btn" style="padding: 5px 10px; font-size: 12px;">연결</button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="msg sys">채팅 서버에 연결 중...</div>
+        </div>
+        <div class="chat-input">
+            <input type="text" id="chatInput" placeholder="메시지 입력..." onkeypress="if(event.key === 'Enter') sendMsg()">
+            <button class="btn" onclick="sendMsg()">전송</button>
+        </div>
+    </div>
+
+    <!-- Publish Modal -->
+    <div class="modal-overlay" id="publishModal">
+        <div class="modal">
+            <h2>게임 게시하기</h2>
+            <input type="text" id="gameName" placeholder="초초초고퀄 게임 이름">
+            <textarea id="gameDesc" placeholder="이 게임에 대한 멋진 설명을 적어주세요."></textarea>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button class="btn" style="background: #475569;" onclick="closePublishModal()">취소</button>
+                <button class="btn" onclick="saveAndPublish()">출시하기!</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast (For high quality feel) -->
+    <div id="toast" style="position: fixed; top: 100px; left: 50%; transform: translateX(-50%) translateY(-20px); background: var(--secondary); color: var(--darker); padding: 15px 30px; border-radius: 30px; font-weight: bold; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 9999; box-shadow: 0 10px 20px rgba(0, 206, 201, 0.4);">
+        알림 메시지
+    </div>
+
+    <script>
+        /* =====================================================================
+           1. Core System (Local Storage & Currency)
+           ===================================================================== */
+        let andCurrency = parseInt(localStorage.getItem('webblox_and')) || 0;
+        let myGames = JSON.parse(localStorage.getItem('webblox_games')) || [];
+        
+        // Update UI Currency
+        function updateCurrency(amount) {
+            andCurrency += amount;
+            localStorage.setItem('webblox_and', andCurrency);
+            document.getElementById('andDisplay').innerText = formatNum(andCurrency);
+            document.getElementById('clickerAnd').innerText = formatNum(andCurrency);
+        }
+        updateCurrency(0); // init
+
+        function formatNum(num) {
+            return num.toLocaleString();
+        }
+
+        function showToast(msg, color = 'var(--secondary)') {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.style.background = color;
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateX(-50%) translateY(0)';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(-50%) translateY(-20px)';
+            }, 2500);
+        }
+
+        // Navigation
+        function nav(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            if(screenId === 'hub') loadGamesToHub();
+        }
+
+        /* =====================================================================
+           2. Hub & Game Data Management
+           ===================================================================== */
+        const defaultClicker = {
+            id: 'default_clicker',
+            title: '자동으로 화폐 벌기 💸',
+            desc: '클릭하여 And 화폐를 벌고, 업그레이드를 통해 자동으로 화폐를 모으는 공식 미니게임입니다!',
+            creator: 'System',
+            type: 'clicker'
+        };
+
+        function loadGamesToHub() {
+            const grid = document.getElementById('gameGrid');
+            grid.innerHTML = '';
+            
+            // Add Default Game
+            const allGames = [defaultClicker, ...myGames];
+
+            allGames.forEach(game => {
+                const card = document.createElement('div');
+                card.className = 'game-card';
+                card.innerHTML = `
+                    <div style="height: 120px; background: ${game.type === 'clicker' ? 'linear-gradient(45deg, #FBBF24, #F59E0B)' : 'linear-gradient(45deg, #6C5CE7, #00CEC9)'}; border-radius: 10px; margin-bottom: 15px; display: flex; justify-content:center; align-items:center; font-size:40px;">
+                        ${game.type === 'clicker' ? '💸' : '🎮'}
+                    </div>
+                    <div class="game-title">${game.title}</div>
+                    <div class="game-desc">${game.desc.substring(0, 50)}${game.desc.length > 50 ? '...' : ''}</div>
+                    <div style="color: var(--secondary); font-size: 12px; font-weight: bold;">@${game.creator}</div>
+                `;
+                card.onclick = () => playGame(game);
+                grid.appendChild(card);
+            });
+        }
+        loadGamesToHub();
+
+        /* =====================================================================
+           3. Default Clicker Game Logic
+           ===================================================================== */
+        let clickPower = parseInt(localStorage.getItem('wb_c_power')) || 1;
+        let autoCps = parseInt(localStorage.getItem('wb_c_auto')) || 0;
+        
+        let costClick = 10 * clickPower;
+        let costAuto = 50 + (autoCps * 20);
+        let costMega = 500;
+
+        function updateShopUI() {
+            document.getElementById('cpcDisplay').innerText = formatNum(clickPower);
+            document.getElementById('cpsDisplay').innerText = formatNum(autoCps);
+            document.getElementById('costClick').innerText = formatNum(costClick) + " And";
+            document.getElementById('costAuto').innerText = formatNum(costAuto) + " And";
+            document.getElementById('costMega').innerText = formatNum(costMega) + " And";
+        }
+        updateShopUI();
+
+        // Main Click Event with Animation
+        document.getElementById('mainBox').addEventListener('mousedown', function(e) {
+            updateCurrency(clickPower);
+            
+            // Floating text animation
+            const floater = document.createElement('div');
+            floater.className = 'floating-text';
+            floater.innerText = '+' + clickPower;
+            
+            const rect = this.getBoundingClientRect();
+            const x = e.clientX - rect.left - 10;
+            const y = e.clientY - rect.top - 20;
+            
+            floater.style.left = x + 'px';
+            floater.style.top = y + 'px';
+            this.appendChild(floater);
+            
+            setTimeout(() => floater.remove(), 1000);
+        });
+
+        // Auto mining loop
+        setInterval(() => {
+            if(autoCps > 0 && document.getElementById('clicker').classList.contains('active')) {
+                updateCurrency(autoCps);
+            }
+        }, 1000);
+
+        function buyUpgrade(type) {
+            if (type === 'click') {
+                if (andCurrency >= costClick) {
+                    updateCurrency(-costClick);
+                    clickPower++;
+                    costClick = Math.floor(costClick * 1.5);
+                    localStorage.setItem('wb_c_power', clickPower);
+                    showToast('클릭 파워 업그레이드 완료!', 'var(--secondary)');
+                } else showToast('And가 부족합니다!', '#EF4444');
+            } else if (type === 'auto') {
+                if (andCurrency >= costAuto) {
+                    updateCurrency(-costAuto);
+                    autoCps += 1;
+                    costAuto = Math.floor(costAuto * 1.5);
+                    localStorage.setItem('wb_c_auto', autoCps);
+                    showToast('자동 마이너 구매 완료!', 'var(--secondary)');
+                } else showToast('And가 부족합니다!', '#EF4444');
+            } else if (type === 'mega') {
+                if (andCurrency >= costMega) {
+                    updateCurrency(-costMega);
+                    autoCps += 10;
+                    costMega = Math.floor(costMega * 1.8);
+                    localStorage.setItem('wb_c_auto', autoCps);
+                    showToast('초월의 네모 구매 완료!', 'var(--gold)');
+                } else showToast('And가 부족합니다!', '#EF4444');
+            }
+            updateShopUI();
+        }
+
+        /* =====================================================================
+           4. No-Code Game Engine (Studio) & Player
+           ===================================================================== */
+        const rows = 10;
+        const cols = 15;
+        let currentTool = 'player';
+        let editorMap = Array(rows).fill().map(() => Array(cols).fill(0)); 
+        // 0: empty, 1: wall, 2: player, 3: lava, 4: goal
+        
+        function setTool(tool) {
+            currentTool = tool;
+            document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function openStudio() {
+            nav('studio');
+            initEditor();
+        }
+
+        function initEditor() {
+            const canvas = document.getElementById('editorCanvas');
+            canvas.innerHTML = '';
+            editorMap = Array(rows).fill().map(() => Array(cols).fill(0)); 
+
+            for(let r=0; r<rows; r++) {
+                for(let c=0; c<cols; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell';
+                    cell.dataset.r = r;
+                    cell.dataset.c = c;
+                    
+                    // Drawing logic
+                    const draw = (e) => {
+                        if(e.buttons !== 1 && e.type !== 'mousedown') return;
+                        let val = 0;
+                        if(currentTool==='wall') val = 1;
+                        if(currentTool==='player') {
+                            // Only one player allowed
+                            for(let i=0; i<rows; i++) for(let j=0; j<cols; j++) if(editorMap[i][j] === 2) { editorMap[i][j] = 0; refreshCell(i,j, canvas); }
+                            val = 2;
+                        }
+                        if(currentTool==='lava') val = 3;
+                        if(currentTool==='goal') val = 4;
+
+                        editorMap[r][c] = val;
+                        refreshCell(r, c, canvas);
+                    };
+
+                    cell.addEventListener('mousedown', draw);
+                    cell.addEventListener('mouseenter', draw);
+                    canvas.appendChild(cell);
+                }
+            }
+        }
+
+        function refreshCell(r, c, container) {
+            const index = r * cols + c;
+            const cell = container.children[index];
+            cell.className = 'grid-cell'; // reset
+            const val = container.id === 'editorCanvas' ? editorMap[r][c] : playMap[r][c];
+            
+            if(val === 1) cell.classList.add('obj-wall');
+            if(val === 2) cell.classList.add('obj-player');
+            if(val === 3) cell.classList.add('obj-lava');
+            if(val === 4) cell.classList.add('obj-goal');
+        }
+
+        // Publishing
+        function showPublishModal() {
+            let hasPlayer = false, hasGoal = false;
+            for(let r=0; r<rows; r++) for(let c=0; c<cols; c++) {
+                if(editorMap[r][c] === 2) hasPlayer = true;
+                if(editorMap[r][c] === 4) hasGoal = true;
+            }
+            if(!hasPlayer || !hasGoal) {
+                showToast("플레이어 시작점과 목표 지점을 배치해야 합니다!", "#EF4444");
+                return;
+            }
+            document.getElementById('publishModal').style.display = 'flex';
+        }
+        function closePublishModal() {
+            document.getElementById('publishModal').style.display = 'none';
+        }
+        function saveAndPublish() {
+            const title = document.getElementById('gameName').value || "이름 없는 갓겜";
+            const desc = document.getElementById('gameDesc').value || "설명이 없습니다.";
+            
+            const newGame = {
+                id: Date.now().toString(),
+                title: title,
+                desc: desc,
+                creator: '나(You)',
+                type: 'custom',
+                map: JSON.parse(JSON.stringify(editorMap)) // deep copy
+            };
+
+            myGames.push(newGame);
+            localStorage.setItem('webblox_games', JSON.stringify(myGames));
+            
+            closePublishModal();
+            showToast("게임이 성공적으로 게시되었습니다! 🎉", "var(--primary)");
+            nav('hub');
+        }
+
+        /* =====================================================================
+           5. Player Engine (Playing Custom Games)
+           ===================================================================== */
+        let playMap = [];
+        let playerPos = {r:0, c:0};
+        let isPlaying = false;
+
+        function playGame(game) {
+            if(game.type === 'clicker') {
+                nav('clicker');
+                return;
+            }
+            
+            nav('player');
+            document.getElementById('playTitle').innerText = game.title;
+            document.getElementById('playDesc').innerText = game.desc;
+            
+            // Pass System implementation
+            const btn = document.getElementById('buyPassBtn');
+            btn.onclick = () => {
+                if(andCurrency >= 100) {
+                    updateCurrency(-100);
+                    showToast("VIP 패스 구매 완료! (작동은 제작자가 설정해야 합니다)", "var(--gold)");
+                    btn.innerText = "VIP 보유중 ✔️";
+                    btn.disabled = true;
+                } else {
+                    showToast("And 화폐가 부족합니다! 화폐 벌기 맵에서 모아오세요.", "#EF4444");
+                }
+            };
+            btn.innerText = "💎 VIP 패스 구매 (100 And)";
+            btn.disabled = false;
+
+            playMap = JSON.parse(JSON.stringify(game.map));
+            const canvas = document.getElementById('playCanvas');
+            canvas.innerHTML = '';
+            
+            // Build play grid
+            for(let r=0; r<rows; r++) {
+                for(let c=0; c<cols; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell';
+                    canvas.appendChild(cell);
+                    if(playMap[r][c] === 2) playerPos = {r, c};
+                    refreshCell(r, c, canvas);
+                }
+            }
+            isPlaying = true;
+        }
+
+        // Movement Event
+        document.addEventListener('keydown', (e) => {
+            if(!isPlaying || document.getElementById('player').classList.contains('active') === false) return;
+            
+            let nr = playerPos.r, nc = playerPos.c;
+            if(e.key === 'ArrowUp' || e.key === 'w') nr--;
+            if(e.key === 'ArrowDown' || e.key === 's') nr++;
+            if(e.key === 'ArrowLeft' || e.key === 'a') nc--;
+            if(e.key === 'ArrowRight' || e.key === 'd') nc++;
+
+            if(nr >= 0 && nr < rows && nc >= 0 && nc < cols) {
+                const target = playMap[nr][nc];
+                if(target === 1) return; // Wall
+                
+                // Move player
+                playMap[playerPos.r][playerPos.c] = 0;
+                refreshCell(playerPos.r, playerPos.c, document.getElementById('playCanvas'));
+                
+                if(target === 3) {
+                    showToast("용암에 닿았습니다! 사망! 💀", "#EF4444");
+                    isPlaying = false;
+                    setTimeout(() => nav('hub'), 1500);
+                    return;
+                }
+                if(target === 4) {
+                    showToast("목표 도달! 게임 클리어! 🎉 보상: +50 And", "var(--primary)");
+                    updateCurrency(50);
+                    isPlaying = false;
+                    setTimeout(() => nav('hub'), 1500);
+                    return;
+                }
+
+                playerPos = {r: nr, c: nc};
+                playMap[nr][nc] = 2;
+                refreshCell(nr, nc, document.getElementById('playCanvas'));
+            }
+        });
+
+        /* =====================================================================
+           6. PeerJS Multiplayer Chat System
+           ===================================================================== */
+        const chatWidget = document.getElementById('chat-widget');
+        const chatMessages = document.getElementById('chatMessages');
+        let peer;
+        let connections = []; // Array of connected peers
+        let myPeerId = '';
+
+        function toggleChat() {
+            chatWidget.classList.toggle('minimized');
+            document.getElementById('chatToggleIcon').innerText = chatWidget.classList.contains('minimized') ? '▲' : '▼';
+        }
+
+        function initPeer() {
+            // Initialize PeerJS
+            peer = new Peer(); 
+
+            peer.on('open', function(id) {
+                myPeerId = id;
+                addChatMsg('sys', `서버 연결됨! 내 Peer ID: ${id}`);
+                document.getElementById('connectId').value = ''; 
+                document.getElementById('connectId').placeholder = `내 ID: ${id} (복사해서 친구에게 전달)`;
+            });
+
+            // When someone connects to me
+            peer.on('connection', function(conn) {
+                setupConnection(conn);
+                addChatMsg('sys', '누군가 채팅방에 입장했습니다!');
+            });
+
+            peer.on('error', function(err) {
+                addChatMsg('sys', `연결 오류: ${err.type}`);
+            });
+        }
+
+        function connectToPeer() {
+            const targetId = document.getElementById('connectId').value.trim();
+            if(!targetId) return showToast('ID를 입력하세요.', '#EF4444');
+            if(targetId === myPeerId) return showToast('자신에게는 연결할 수 없습니다.', '#EF4444');
+            
+            const conn = peer.connect(targetId);
+            setupConnection(conn);
+            addChatMsg('sys', `${targetId} 님에게 연결 요청 중...`);
+        }
+
+        function setupConnection(conn) {
+            connections.push(conn);
+            conn.on('open', function() {
+                addChatMsg('sys', '연결 성공! 이제 채팅이 가능합니다.');
+            });
+            conn.on('data', function(data) {
+                addChatMsg('other', data);
+            });
+            conn.on('close', function() {
+                addChatMsg('sys', '상대방과의 연결이 끊어졌습니다.');
+                connections = connections.filter(c => c !== conn);
+            });
+        }
+
+        function sendMsg() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if(!text) return;
+
+            // Broadcast to all connections
+            if(connections.length > 0) {
+                connections.forEach(conn => conn.send(text));
+                addChatMsg('me', text);
+            } else {
+                showToast('연결된 유저가 없습니다! 혼잣말...', '#EF4444');
+                addChatMsg('me', text); // Echo locally
+            }
+            input.value = '';
+        }
+
+        function addChatMsg(type, text) {
+            const div = document.createElement('div');
+            div.className = `msg ${type}`;
+            div.innerText = text;
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Initialize networking on load
+        window.addEventListener('load', initPeer);
+
+    </script>
+</body>
+</html>
