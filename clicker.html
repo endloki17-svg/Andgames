@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#050510">
+    
+    <title>NexBlock | 차원 채굴기 (AND 벌기)</title>
+
+    <!-- 최고급 웹 폰트 & 아이콘 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700;900&family=Poppins:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" />
+
+    <!-- 공통 및 클리커 전용 스타일시트 -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<!-- 클릭할 때 화면 전체에 피드백(흔들림 등)을 주기 위한 래퍼 클래스 추가 -->
+<body class="theme-dark clicker-mode" id="clicker-body">
+
+    <!-- 🌌 1. 동적 백그라운드 (우주/파티클 효과용) -->
+    <canvas id="clicker-bg-canvas" class="background-canvas"></canvas>
+
+    <!-- 🌟 2. 클릭 시 발생할 파티클 엔진 전용 캔버스 (마우스 좌표 위에 직접 그리기 위함) -->
+    <canvas id="clicker-fx-canvas" class="particle-canvas"></canvas>
+
+    <!-- 🖥️ 3. UI 및 메인 상호작용 레이어 -->
+    <div class="clicker-ui-layer">
+        
+        <!-- 상단 헤더 (진행 상황 및 나가기) -->
+        <header class="clicker-header glass-panel fade-in-down">
+            <button class="icon-btn-text" onclick="location.href='index.html'">
+                <span class="material-symbols-outlined">arrow_back</span>
+                <span>메인 로비</span>
+            </button>
+            
+            <div class="header-title">
+                <span class="material-symbols-outlined" style="color: #00ffcc; text-shadow: 0 0 10px #00ffcc;">auto_awesome</span>
+                <h2>차원 에너지 채굴장</h2>
+            </div>
+            
+            <!-- 현재 내 화폐 표시 (강조됨) -->
+            <div class="currency-display massive-display">
+                <span class="material-symbols-outlined icon-gold">monetization_on</span>
+                <span id="clicker-balance" class="currency-amount number-pop">0</span>
+                <span class="currency-label">AND</span>
+            </div>
+        </header>
+
+        <!-- 🎯 메인 클리커 영역 -->
+        <main class="clicker-main-area">
+            
+            <!-- 콤보 시스템 UI (빠르게 클릭할 때 나타남) -->
+            <div id="combo-display" class="combo-container fade-out">
+                <span class="combo-text">COMBO!</span>
+                <span id="combo-count" class="combo-number">x1</span>
+            </div>
+
+            <!-- 타겟 오브젝트 (클릭하는 네모/보석) -->
+            <div class="target-wrapper" id="click-target-wrapper">
+                <!-- CSS 애니메이션(둥둥 떠다님)과 클릭 상호작용이 결합될 오브젝트 -->
+                <div class="target-object" id="main-clicker-target" onmousedown="triggerClick(event)" ontouchstart="triggerClick(event)">
+                    <!-- 중심 코어 형태 -->
+                    <div class="target-core">
+                        <span class="core-icon">💰</span>
+                    </div>
+                    <!-- 클릭 타격감을 위한 외부 오라 효과 -->
+                    <div class="target-aura"></div>
+                </div>
+            </div>
+
+            <!-- 하단 통계/업그레이드 정보 (장식 또는 추후 확장용) -->
+            <div class="clicker-stats glass-panel fade-in-up">
+                <div class="stat-item">
+                    <span class="stat-label">클릭당 수익</span>
+                    <span class="stat-value text-gradient">+1 AND</span>
+                </div>
+                <div class="divider-vertical"></div>
+                <div class="stat-item">
+                    <span class="stat-label">채굴 효율</span>
+                    <span class="stat-value" style="color: #00ffcc;">100%</span>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 자바스크립트 연결 -->
+    <script src="script.js"></script>
+    <script>
+        // 클리커 페이지 전용 이벤트 리스너 설정 (임시 코드, script.js 연동용)
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof initClickerMode === 'function') {
+                initClickerMode();
+            }
+        });
+        
+        // 터치 기기에서 더블탭 시 화면 확대되는 현상 방지
+        document.addEventListener('dblclick', function(event) {
+            event.preventDefault();
+        }, { passive: false });
+    </script>
+</body>
+</html>
