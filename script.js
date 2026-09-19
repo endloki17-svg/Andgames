@@ -182,50 +182,47 @@ window.initClickerMode = function() {
 };
 
 window.triggerClick = function(event) {
-    event.preventDefault(); // 더블탭 줌 방지
+    event.preventDefault();
 
-    // 1. 재화 증가
-    let earnAmount = 1 + Math.floor(comboCount / 10); // 콤보 10당 1씩 추가 수익
+    const point = (event && event.touches && event.touches[0]) ||
+                  (event && event.changedTouches && event.changedTouches[0]) ||
+                  event || {};
+
+    const clientX = point.clientX ?? window.innerWidth / 2;
+    const clientY = point.clientY ?? window.innerHeight / 2;
+
+    let earnAmount = 1 + Math.floor(comboCount / 10);
     NexDB.addAND(earnAmount);
     UI.updateCurrencyUI();
 
-    // 2. 콤보 시스템
     comboCount++;
     const comboDisplay = document.getElementById('combo-display');
     const comboNum = document.getElementById('combo-count');
     
-    comboDisplay.classList.remove('fade-out');
-    comboDisplay.style.opacity = '1';
-    comboNum.innerText = `x${comboCount}`;
-    comboNum.classList.add('combo-bump');
-    setTimeout(() => comboNum.classList.remove('combo-bump'), 100);
+    if (comboDisplay) {
+        comboDisplay.classList.remove('fade-out');
+        comboDisplay.style.opacity = '1';
+    }
+    if (comboNum) {
+        comboNum.innerText = `x${comboCount}`;
+        comboNum.classList.add('combo-bump');
+        setTimeout(() => comboNum.classList.remove('combo-bump'), 100);
+    }
 
     clearTimeout(comboTimeout);
     comboTimeout = setTimeout(() => {
         comboCount = 0;
-        comboDisplay.style.opacity = '0';
-    }, 1500); // 1.5초간 클릭 없으면 콤보 초기화
+        if (comboDisplay) comboDisplay.style.opacity = '0';
+    }, 1500);
 
-    // 3. 화면 흔들림 효과 (Camera Shake)
     const body = document.getElementById('clicker-body');
-    body.classList.remove('shake-screen');
-    void body.offsetWidth; // DOM Reflow 강제 실행 (애니메이션 재시작 트릭)
-    body.classList.add('shake-screen');
-
-    // 4. 터치(클릭) 좌표 계산
-    let clientX, clientY;
-    if (event.touches && event.touches.length > 0) {
-        clientX = event.touches[0].clientX;
-        clientY = event.touches[0].clientY;
-    } else {
-        clientX = event.clientX;
-        clientY = event.clientY;
+    if (body) {
+        body.classList.remove('shake-screen');
+        void body.offsetWidth;
+        body.classList.add('shake-screen');
     }
 
-    // 5. 플로팅 텍스트 (+1 AND)
     spawnFloatingText(clientX, clientY, `+${earnAmount}`);
-    
-    // 6. 파티클 폭발 효과
     spawnParticles(clientX, clientY);
 };
 
@@ -263,7 +260,7 @@ function spawnParticles(x, y) {
         particles.push({
             x: x, y: y,
             vx: (Math.random() - 0.5) * 15,
-            vy: (Math.random() - 1.5) * 15, // 위로 솟구치게
+            vy: (Math.random() - 1.5) * 15,
             life: 1.0,
             color: Math.random() > 0.5 ? '#00ffcc' : '#ffd700'
         });
@@ -276,10 +273,10 @@ function renderParticles() {
     
     for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i];
-        p.vy += 0.5; // 중력
+        p.vy += 0.5;
         p.x += p.vx;
         p.y += p.vy;
-        p.life -= 0.02; // 수명 감소
+        p.life -= 0.02;
 
         if (p.life <= 0) {
             particles.splice(i, 1);
@@ -299,7 +296,7 @@ function renderParticles() {
 /* ==========================================================================
    5. 에디터 모드 (editor.html) - 그리드 스내핑 및 그리기
    ========================================================================== */
-let currentTool = 'block'; // block, spawn, erase
+let currentTool = 'block';
 let mapGrid = [];
 const TILE_SIZE = 40;
 let camX = 0, camY = 0;
@@ -314,55 +311,28 @@ window.initEditorMode = function() {
     window.addEventListener('resize', resize);
     resize();
 
-    // 툴 선택 로직
     document.querySelectorAll('.tool-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('selected'));
             e.currentTarget.classList.add('selected');
-            currentTool = e.currentTarget.dataset.tool;
+            currentTool = e.currentTarget.dataset.type || 'block';
+            if (currentTool === 'delete') currentTool = 'erase';
         });
     });
 
-    // 캔버스 마우스/터치 이벤트 (팬 & 줌, 그리기)
-    canvas.addEventListener('mousedown', editorPointerDown);
-    canvas.addEventListener('mousemove', editorPointerMove);
-    canvas.addEventListener('mouseup', () => isDragging = false);
-    
-    // 모바일 터치 대응
-    canvas.addEventListener('touchstart', (e) => editorPointerDown(e.touches[0]));
-    canvas.addEventListener('touchmove', (e) => editorPointerMove(e.touches[0]));
-    canvas.addEventListener('touchend', () => isDragging = false);
-
-    function editorPointerDown(e) {
-        lastMouseX = e.clientX;
-        lastMouseY = e.clientY;
-        if(e.button === 2) { isDragging = true; return; } // 우클릭(드래그)
-        
-        applyTool(e.clientX, e.clientY);
-        isDragging = true; // 좌클릭도 드래그하며 그리기 허용
+    function getCanvasPoint(clientX, clientY) {
+        const rect = canvas.getBoundingClientRect();
+        return {
+            x: clientX - rect.left,
+            y: clientY - rect.top
+        };
     }
-
-    function editorPointerMove(e) {
-        if (!isDragging) return;
-        
-        if (e.buttons === 2 || (e.touches && e.touches.length > 1)) { // 패닝 (카메라 이동)
-            camX += e.clientX - lastMouseX;
-            camY += e.clientY - lastMouseY;
-            lastMouseX = e.clientX; lastMouseY = e.clientY;
-        } else {
-            applyTool(e.clientX, e.clientY);
-        }
-    }
-
-    // 캔버스 우클릭 메뉴 방지
-    canvas.addEventListener('contextmenu', e => e.preventDefault());
 
     function applyTool(clientX, clientY) {
-        // 월드 좌표로 변환 후 그리드 인덱스 계산
-        const gridX = Math.floor((clientX - camX) / TILE_SIZE);
-        const gridY = Math.floor((clientY - camY) / TILE_SIZE);
+        const point = getCanvasPoint(clientX, clientY);
+        const gridX = Math.floor((point.x - camX) / TILE_SIZE);
+        const gridY = Math.floor((point.y - camY) / TILE_SIZE);
 
-        // 맵 데이터에서 해당 좌표 검색
         const existingIdx = mapGrid.findIndex(t => t.x === gridX && t.y === gridY);
 
         if (currentTool === 'erase') {
@@ -376,7 +346,50 @@ window.initEditorMode = function() {
         }
     }
 
-    // 에디터 렌더링 루프
+    function editorPointerDown(e) {
+        const point = (e && e.touches && e.touches[0]) || e || {};
+        lastMouseX = point.clientX ?? 0;
+        lastMouseY = point.clientY ?? 0;
+
+        if (e && (e.button === 2 || e.which === 3)) {
+            isDragging = true;
+            return;
+        }
+
+        applyTool(point.clientX, point.clientY);
+        isDragging = true;
+    }
+
+    function editorPointerMove(e) {
+        if (!isDragging) return;
+
+        const point = (e && e.touches && e.touches[0]) || e || {};
+        const clientX = point.clientX ?? lastMouseX;
+        const clientY = point.clientY ?? lastMouseY;
+
+        if (e && (e.button === 2 || e.which === 3)) {
+            camX += clientX - lastMouseX;
+            camY += clientY - lastMouseY;
+            lastMouseX = clientX;
+            lastMouseY = clientY;
+            return;
+        }
+
+        applyTool(clientX, clientY);
+    }
+
+    canvas.addEventListener('mousedown', editorPointerDown);
+    canvas.addEventListener('mousemove', editorPointerMove);
+    canvas.addEventListener('mouseup', () => isDragging = false);
+    canvas.addEventListener('mouseleave', () => isDragging = false);
+
+    canvas.addEventListener('touchstart', (e) => editorPointerDown(e.touches[0]), { passive: false });
+    canvas.addEventListener('touchmove', (e) => editorPointerMove(e.touches[0]), { passive: false });
+    canvas.addEventListener('touchend', () => isDragging = false);
+    canvas.addEventListener('touchcancel', () => isDragging = false);
+
+    canvas.addEventListener('contextmenu', e => e.preventDefault());
+
     function renderEditor() {
         ctx.fillStyle = '#0a0a1a';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -384,7 +397,6 @@ window.initEditorMode = function() {
         ctx.save();
         ctx.translate(camX, camY);
 
-        // 1. 그리드 라인 그리기 (배경)
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
         ctx.lineWidth = 1;
         const startX = Math.floor(-camX / TILE_SIZE) * TILE_SIZE;
@@ -396,7 +408,6 @@ window.initEditorMode = function() {
             ctx.beginPath(); ctx.moveTo(-camX, y); ctx.lineTo(canvas.width - camX, y); ctx.stroke();
         }
 
-        // 2. 배치된 블록 그리기
         mapGrid.forEach(tile => {
             const px = tile.x * TILE_SIZE;
             const py = tile.y * TILE_SIZE;
@@ -407,6 +418,9 @@ window.initEditorMode = function() {
                 ctx.shadowBlur = 10;
                 ctx.fillRect(px + 1, py + 1, TILE_SIZE - 2, TILE_SIZE - 2);
                 ctx.shadowBlur = 0;
+            } else if (tile.type === 'danger') {
+                ctx.fillStyle = '#ff4500';
+                ctx.fillRect(px + 1, py + 1, TILE_SIZE - 2, TILE_SIZE - 2);
             } else if (tile.type === 'spawn') {
                 ctx.fillStyle = '#ff00ff';
                 ctx.beginPath();
@@ -438,14 +452,12 @@ window.saveMap = function() {
 window.initPlayMode = function(gameId) {
     console.log("Loading Game:", gameId);
 
-    // 1. 로딩 스크린 해제
     setTimeout(() => {
         const loader = document.getElementById('loading-screen');
         if(loader) loader.classList.remove('active');
         UI.showToast('서버 접속 성공!', 'success');
-    }, 1500); // 1.5초 가짜 로딩 연출
+    }, 1500);
 
-    // 2. 캔버스 및 물리엔진 설정
     const canvas = document.getElementById('play-canvas');
     if(!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -454,13 +466,11 @@ window.initPlayMode = function(gameId) {
     window.addEventListener('resize', resize);
     resize();
 
-    // 맵 데이터 불러오기 (임시 생성)
     let blocks = [];
     for(let i=0; i<20; i++) {
         blocks.push({ x: i * 50, y: window.innerHeight - 100, w: 50, h: 50 });
     }
 
-    // 플레이어 객체 (AABB 물리)
     const player = {
         x: window.innerWidth / 2, y: 100, width: 30, height: 30,
         vx: 0, vy: 0,
@@ -468,11 +478,10 @@ window.initPlayMode = function(gameId) {
         isGrounded: false, color: '#00ffcc'
     };
 
-    // 3. 컨트롤 (키보드 & 모바일 조이스틱)
     const keys = { a: false, d: false, w: false };
     
     window.addEventListener('keydown', e => {
-        if(document.activeElement.id === 'chat-input') return; // 채팅중 이동 방지
+        if(document.activeElement.id === 'chat-input') return;
         if(e.key.toLowerCase() === 'a') keys.a = true;
         if(e.key.toLowerCase() === 'd') keys.d = true;
         if(e.key.toLowerCase() === 'w' || e.key === ' ') {
@@ -484,78 +493,78 @@ window.initPlayMode = function(gameId) {
         if(e.key.toLowerCase() === 'd') keys.d = false;
     });
 
-    // --- 조이스틱 로직 (Vector Math) ---
     const joyContainer = document.getElementById('play-joystick');
     const joyKnob = document.getElementById('play-knob');
     let joyActive = false;
-    let joyCX = 0, joyCY = 0; // 중심점
+    let joyPointerId = null;
 
     if(joyContainer) {
-        joyContainer.addEventListener('touchstart', e => {
-            e.preventDefault();
+        const maxRadius = 40;
+
+        const handleJoyMove = (clientX, clientY) => {
             const rect = joyContainer.getBoundingClientRect();
-            joyCX = rect.left + rect.width / 2;
-            joyCY = rect.top + rect.height / 2;
-            joyActive = true;
-            handleJoyMove(e.touches[0]);
-        }, {passive: false});
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
 
-        joyContainer.addEventListener('touchmove', e => {
-            e.preventDefault();
-            if(joyActive) handleJoyMove(e.touches[0]);
-        }, {passive: false});
+            let dx = clientX - centerX;
+            let dy = clientY - centerY;
+            const distance = Math.hypot(dx, dy) || 1;
+            const ratio = Math.min(1, maxRadius / distance);
+            dx *= ratio;
+            dy *= ratio;
 
-        joyContainer.addEventListener('touchend', e => {
-            joyActive = false;
-            joyKnob.style.transform = `translate(0px, 0px)`;
-            player.vx = 0; // 이동 중지
-        });
-
-        function handleJoyMove(touch) {
-            let dx = touch.clientX - joyCX;
-            let dy = touch.clientY - joyCY;
-            const maxRadius = 40;
-            const distance = Math.sqrt(dx*dx + dy*dy);
-            
-            if(distance > maxRadius) {
-                dx = (dx / distance) * maxRadius;
-                dy = (dy / distance) * maxRadius;
-            }
-            
             joyKnob.style.transform = `translate(${dx}px, ${dy}px)`;
-            // 좌우 이동 값 매핑 (-1 ~ 1) * 속도
             player.vx = (dx / maxRadius) * player.speed;
-        }
+        };
+
+        joyContainer.addEventListener('pointerdown', e => {
+            e.preventDefault();
+            joyActive = true;
+            joyPointerId = e.pointerId;
+            joyContainer.setPointerCapture?.(e.pointerId);
+            handleJoyMove(e.clientX, e.clientY);
+        }, { passive: false });
+
+        joyContainer.addEventListener('pointermove', e => {
+            if (!joyActive || e.pointerId !== joyPointerId) return;
+            e.preventDefault();
+            handleJoyMove(e.clientX, e.clientY);
+        }, { passive: false });
+
+        const stopJoy = () => {
+            if (!joyActive) return;
+            joyActive = false;
+            joyPointerId = null;
+            joyKnob.style.transform = 'translate(0px, 0px)';
+            player.vx = 0;
+        };
+
+        joyContainer.addEventListener('pointerup', stopJoy);
+        joyContainer.addEventListener('pointercancel', stopJoy);
+        joyContainer.addEventListener('pointerleave', stopJoy);
     }
 
-    // 모바일 점프 버튼
     const jumpBtn = document.getElementById('jump-btn');
     if(jumpBtn) {
-        jumpBtn.addEventListener('touchstart', e => {
+        jumpBtn.addEventListener('pointerdown', e => {
             e.preventDefault();
             if(player.isGrounded) player.vy = player.jumpForce;
         });
     }
 
-    // 4. 메인 게임 루프 (Physics & Rendering)
     function gameLoop() {
-        // Physics update
         if(keys.a) player.vx = -player.speed;
         else if(keys.d) player.vx = player.speed;
-        else if(!joyActive) player.vx *= 0.8; // 마찰력
+        else if(!joyActive) player.vx *= 0.8;
 
         player.vy += player.gravity;
         player.x += player.vx;
         player.y += player.vy;
 
-        // 바닥 충돌 처리 (매우 간소화된 AABB)
         player.isGrounded = false;
         blocks.forEach(b => {
-            // AABB Collision check
             if (player.x < b.x + b.w && player.x + player.width > b.x &&
                 player.y < b.y + b.h && player.y + player.height > b.y) {
-                
-                // 위에서 떨어질 때만 충돌 (플랫포머 방식)
                 if (player.vy > 0 && player.y + player.height - player.vy <= b.y) {
                     player.y = b.y - player.height;
                     player.vy = 0;
@@ -564,18 +573,15 @@ window.initPlayMode = function(gameId) {
             }
         });
 
-        // 화면 밖으로 나가면 부활
         if(player.y > canvas.height) {
             player.x = window.innerWidth / 2;
             player.y = 50;
             player.vy = 0;
         }
 
-        // Render
         ctx.fillStyle = '#050510';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // 맵 그리기 (네온 효과)
         ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
         ctx.strokeStyle = '#fff';
         blocks.forEach(b => {
@@ -583,7 +589,6 @@ window.initPlayMode = function(gameId) {
             ctx.strokeRect(b.x, b.y, b.w, b.h);
         });
 
-        // 플레이어 그리기 (글로우 효과)
         ctx.shadowColor = player.color;
         ctx.shadowBlur = 15;
         ctx.fillStyle = player.color;
@@ -594,7 +599,6 @@ window.initPlayMode = function(gameId) {
     }
     requestAnimationFrame(gameLoop);
 
-    // 5. 채팅 위젯 UI 제어
     window.toggleChat = function() {
         const body = document.getElementById('chat-body-container');
         const icon = document.getElementById('chat-toggle-icon');
@@ -615,13 +619,11 @@ window.initPlayMode = function(gameId) {
         appendChatMsg('나', text, true);
         input.value = '';
         
-        // 멀티플레이 데모용 가짜 자동응답
         setTimeout(() => {
             appendChatMsg('알 수 없는 유저', '안녕하세요! 멀티플레이 맵에 오신걸 환영합니다.', false);
         }, 1000);
     };
 
-    // 엔터키 채팅 전송
     const chatInput = document.getElementById('chat-input');
     if(chatInput) {
         chatInput.addEventListener('keypress', e => {
