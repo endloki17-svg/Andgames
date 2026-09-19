@@ -2,34 +2,472 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#050510">
-    <title>NexBlock | 차원 채굴기 (AND 벌기)</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700;900&family=Poppins:wght@400;600;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>차원 광물 채굴기 - 하이엔드 클리커</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* [클리커 전용 초고퀄리티 스타일] */
+        :root {
+            --primary-glow: #00f0ff;
+            --secondary-glow: #ff007f;
+            --accent-gold: #ffd700;
+        }
+
+        body {
+            background: radial-gradient(circle at center, #1b1b3a 0%, #0b0b1a 100%);
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: #fff;
+            user-select: none;
+            -webkit-user-select: none;
+            overflow: hidden;
+        }
+
+        .clicker-container {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 20px;
+            max-width: 1100px;
+            width: 95vw;
+            height: 85vh;
+            margin: 60px auto 0;
+        }
+
+        /* 왼쪽: 메인 채굴 영역 */
+        .mining-stage {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 30px rgba(0, 240, 255, 0.05);
+        }
+
+        /* 상단 자산 표시 */
+        .asset-board {
+            text-align: center;
+            margin-bottom: 20px;
+            z-index: 2;
+        }
+
+        .coin-val {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: var(--accent-gold);
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.6), 0 0 40px rgba(255, 215, 0, 0.2);
+            letter-spacing: 1px;
+        }
+
+        .cps-val {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 5px;
+        }
+
+        /* 콤보 게이지 */
+        .combo-container {
+            width: 200px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .combo-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #00f0ff, #ff007f);
+            transition: width 0.1s linear;
+            box-shadow: 0 0 10px #00f0ff;
+        }
+
+        .combo-text {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: var(--primary-glow);
+            margin-top: 4px;
+        }
+
+        /* 중앙 차원 광물 결정체 (크리스탈) */
+        .crystal-wrapper {
+            position: relative;
+            cursor: pointer;
+            z-index: 2;
+            margin: 20px 0;
+        }
+
+        .crystal {
+            width: 220px;
+            height: 220px;
+            background: linear-gradient(135deg, #00f0ff 0%, #7000ff 50%, #ff007f 100%);
+            clip-path: polygon(50% 0%, 100% 25%, 85% 85%, 50% 100%, 15% 85%, 0% 25%);
+            box-shadow: 0 0 50px rgba(0, 240, 255, 0.4);
+            transition: transform 0.08s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: floatCrystal 4s ease-in-out infinite;
+            filter: drop-shadow(0 0 25px rgba(255, 0, 127, 0.6));
+        }
+
+        .crystal:hover {
+            filter: drop-shadow(0 0 35px rgba(0, 240, 255, 0.9));
+        }
+
+        .crystal:active {
+            transform: scale(0.88) rotate(-3deg) !important;
+        }
+
+        @keyframes floatCrystal {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(3deg); }
+        }
+
+        /* 오른쪽: 상점 및 업그레이드 패널 */
+        .shop-panel {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+        }
+
+        .shop-title {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #fff;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .upgrade-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .upgrade-card:hover:not(.disabled) {
+            background: rgba(0, 240, 255, 0.1);
+            border-color: var(--primary-glow);
+            transform: translateX(4px);
+        }
+
+        .upgrade-card.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            filter: grayscale(0.8);
+        }
+
+        .upgrade-info h4 { font-size: 1rem; margin-bottom: 4px; color: #fff; }
+        .upgrade-info p { font-size: 0.8rem; color: rgba(255, 255, 255, 0.6); }
+
+        .upgrade-cost {
+            text-align: right;
+            font-weight: 700;
+            color: var(--accent-gold);
+            font-size: 0.95rem;
+        }
+
+        .upgrade-level {
+            font-size: 0.75rem;
+            color: var(--primary-glow);
+            margin-top: 2px;
+        }
+
+        /* 팝업 데미지/획득 텍스트 (파티클 효과) */
+        .pop-text {
+            position: absolute;
+            font-weight: 900;
+            pointer-events: none;
+            animation: floatUp 0.8s ease-out forwards;
+            z-index: 10;
+            font-size: 1.5rem;
+            text-shadow: 0 0 10px rgba(0,0,0,0.8);
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            50% { transform: translateY(-40px) scale(1.3); }
+            100% { opacity: 0; transform: translateY(-80px) scale(0.8); }
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 850px) {
+            .clicker-container {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            .shop-panel { height: 400px; }
+        }
+    </style>
 </head>
-<body class="theme-dark clicker-mode" id="clicker-body">
-    <canvas id="clicker-bg-canvas" class="background-canvas"></canvas>
-    <canvas id="clicker-fx-canvas" class="particle-canvas"></canvas>
-    <div class="clicker-ui-layer">
-        <header class="clicker-header glass-panel fade-in-down">
-            <button class="icon-btn-text" onclick="location.href='index.html'"><span class="material-symbols-outlined">arrow_back</span><span>메인 로비</span></button>
-            <div class="header-title"><span class="material-symbols-outlined" style="color: #00ffcc; text-shadow: 0 0 10px #00ffcc;">auto_awesome</span><h2>차원 에너지 채굴장</h2></div>
-            <div class="currency-display massive-display"><span class="material-symbols-outlined icon-gold">monetization_on</span><span id="clicker-balance" class="currency-amount number-pop">0</span><span class="currency-label">AND</span></div>
-        </header>
-        <main class="clicker-main-area">
-            <div id="combo-display" class="combo-container fade-out"><span class="combo-text">COMBO!</span><span id="combo-count" class="combo-number">x1</span></div>
-            <div class="target-wrapper" id="click-target-wrapper"><div class="target-object" id="main-clicker-target" onmousedown="triggerClick(event)" ontouchstart="triggerClick(event)"><div class="target-core"><span class="core-icon">💰</span></div><div class="target-aura"></div></div></div>
-            <div class="clicker-stats glass-panel fade-in-up"><div class="stat-item"><span class="stat-label">클릭당 수익</span><span class="stat-value text-gradient">+1 AND</span></div><div class="divider-vertical"></div><div class="stat-item"><span class="stat-label">채굴 효율</span><span class="stat-value" style="color: #00ffcc;">100%</span></div></div>
-        </main>
+<body>
+    <div class="nav-bar">
+        <a href="index.html" class="btn">🏠 로비로 돌아가기</a>
     </div>
+    
+    <div class="clicker-container">
+        <!-- 왼쪽: 채굴 메인 스테이지 -->
+        <div class="mining-stage" id="miningStage">
+            <div class="asset-board">
+                <div class="coin-val"><span id="coinDisplay">0</span> 💎</div>
+                <div class="cps-val">자동 채굴량: 초당 <span id="cpsDisplay">0</span>개</div>
+                
+                <div style="display: flex; flex-direction: column; align-items: center; margin-top: 15px;">
+                    <div class="combo-container">
+                        <div class="combo-bar" id="comboBar"></div>
+                    </div>
+                    <div class="combo-text" id="comboText">COMBO x1.0</div>
+                </div>
+            </div>
+
+            <!-- 클릭 크리스탈 -->
+            <div class="crystal-wrapper">
+                <div class="crystal" id="crystal"></div>
+            </div>
+        </div>
+
+        <!-- 오른쪽: 업그레이드 상점 -->
+        <div class="shop-panel">
+            <div class="shop-title">
+                <span>⚡ 채굴 장비 연구소</span>
+            </div>
+
+            <!-- 업그레이드 1: 클릭 출력 강화 -->
+            <div class="upgrade-card" id="upgClick">
+                <div class="upgrade-info">
+                    <h4>플라즈마 곡괭이</h4>
+                    <p>클릭당 광물 수급 +<span id="clickAdd">1</span></p>
+                </div>
+                <div class="upgrade-cost">
+                    <div>💎 <span id="clickCost">10</span></div>
+                    <div class="upgrade-level">Lv.<span id="clickLvl">0</span></div>
+                </div>
+            </div>
+
+            <!-- 업그레이드 2: 자동 채굴 드론 -->
+            <div class="upgrade-card" id="upgAuto">
+                <div class="upgrade-info">
+                    <h4>자동 채굴 드론</h4>
+                    <p>초당 광물 수급 +<span id="autoAdd">1</span></p>
+                </div>
+                <div class="upgrade-cost">
+                    <div>💎 <span id="autoCost">50</span></div>
+                    <div class="upgrade-level">Lv.<span id="autoLvl">0</span></div>
+                </div>
+            </div>
+
+            <!-- 업그레이드 3: 크리티컬 모듈 -->
+            <div class="upgrade-card" id="upgCrit">
+                <div class="upgrade-info">
+                    <h4>양자 과충전기</h4>
+                    <p>크리티컬(5배) 확률 +<span id="critAdd">5</span>%</p>
+                </div>
+                <div class="upgrade-cost">
+                    <div>💎 <span id="critCost">200</span></div>
+                    <div class="upgrade-level">Lv.<span id="critLvl">0</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
-    <script src="fixes.js"></script>
     <script>
-        window.addEventListener('DOMContentLoaded', () => { if (typeof initClickerMode === 'function') initClickerMode(); });
-        document.addEventListener('dblclick', event => event.preventDefault(), { passive: false });
+        // --- Web Audio API (사운드 효과음 생성) ---
+        const AudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playMineSound(isCrit = false) {
+            if (AudioCtx.state === 'suspended') AudioCtx.resume();
+            
+            const osc = AudioCtx.createOscillator();
+            const gain = AudioCtx.createGain();
+            
+            osc.type = isCrit ? 'triangle' : 'sine';
+            osc.frequency.setValueAtTime(isCrit ? 800 : 300, AudioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(isCrit ? 200 : 80, AudioCtx.currentTime + (isCrit ? 0.25 : 0.1));
+            
+            gain.gain.setValueAtTime(0.3, AudioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, AudioCtx.currentTime + (isCrit ? 0.25 : 0.1));
+            
+            osc.connect(gain);
+            gain.connect(AudioCtx.destination);
+            
+            osc.start();
+            osc.stop(AudioCtx.currentTime + (isCrit ? 0.25 : 0.1));
+        }
+
+        // --- 게임 상태 데이터 ---
+        let state = {
+            clickLvl: parseInt(localStorage.getItem('ck_clickLvl')) || 0,
+            autoLvl: parseInt(localStorage.getItem('ck_autoLvl')) || 0,
+            critLvl: parseInt(localStorage.getItem('ck_critLvl')) || 0,
+            combo: 0,
+            comboMultiplier: 1,
+            lastClickTime: Date.now()
+        };
+
+        // DOM 요소
+        const crystal = document.getElementById('crystal');
+        const miningStage = document.getElementById('miningStage');
+        const coinDisplay = document.getElementById('coinDisplay');
+        const cpsDisplay = document.getElementById('cpsDisplay');
+        const comboBar = document.getElementById('comboBar');
+        const comboText = document.getElementById('comboText');
+
+        // 스탯 계산 함수
+        const getClickPower = () => (1 + state.clickLvl * 1) * state.comboMultiplier;
+        const getCPS = () => state.autoLvl * 2;
+        const getCritChance = () => Math.min(50, state.critLvl * 5); // 최대 50%
+
+        const getClickCost = () => Math.floor(10 * Math.pow(1.5, state.clickLvl));
+        const getAutoCost = () => Math.floor(50 * Math.pow(1.6, state.autoLvl));
+        const getCritCost = () => Math.floor(200 * Math.pow(2.2, state.critLvl));
+
+        // --- UI 업데이트 ---
+        function updateUI() {
+            const currentCoins = DataManager.getCoins();
+            coinDisplay.innerText = currentCoins.toLocaleString();
+            cpsDisplay.innerText = getCPS().toLocaleString();
+
+            // 업그레이드 카드 스탯 및 구매 가능 여부
+            updateUpgradeCard('upgClick', getClickCost(), state.clickLvl, 'clickCost', 'clickLvl', currentCoins);
+            updateUpgradeCard('upgAuto', getAutoCost(), state.autoLvl, 'autoCost', 'autoLvl', currentCoins);
+            updateUpgradeCard('upgCrit', getCritCost(), state.critLvl, 'critCost', 'critLvl', currentCoins);
+        }
+
+        function updateUpgradeCard(id, cost, level, costElId, lvlElId, currentCoins) {
+            const card = document.getElementById(id);
+            document.getElementById(costElId).innerText = cost.toLocaleString();
+            document.getElementById(lvlElId).innerText = level;
+
+            if (currentCoins >= cost) {
+                card.classList.remove('disabled');
+            } else {
+                card.classList.add('disabled');
+            }
+        }
+
+        // --- 채굴 클릭 액션 ---
+        crystal.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+
+            // 콤보 계산
+            const now = Date.now();
+            if (now - state.lastClickTime < 400) {
+                state.combo = Math.min(100, state.combo + 8);
+            }
+            state.lastClickTime = now;
+            
+            state.comboMultiplier = 1 + Math.floor(state.combo / 20) * 0.5; // 최대 3.5배
+            comboBar.style.width = `${state.combo}%`;
+            comboText.innerText = `COMBO x${state.comboMultiplier.toFixed(1)}`;
+
+            // 크리티컬 여부 계산
+            const isCrit = Math.random() * 100 < getCritChance();
+            let minedAmount = Math.round(getClickPower() * (isCrit ? 5 : 1));
+
+            // 코인 추가
+            DataManager.addCoins(minedAmount);
+
+            // 효과음 & 이펙트
+            playMineSound(isCrit);
+            spawnPopText(e.clientX, e.clientY, minedAmount, isCrit);
+
+            // UI 갱신
+            updateUI();
+        });
+
+        // 팝업 파티클 텍스트 생성
+        function spawnPopText(clientX, clientY, amount, isCrit) {
+            const rect = miningStage.getBoundingClientRect();
+            const x = clientX - rect.left;
+            const y = clientY - rect.top;
+
+            const pop = document.createElement('div');
+            pop.className = 'pop-text';
+            pop.style.left = `${x}px`;
+            pop.style.top = `${y}px`;
+
+            if (isCrit) {
+                pop.innerText = `CRITICAL! +${amount}💎`;
+                pop.style.color = '#ffd700';
+            } else {
+                pop.innerText = `+${amount}💎`;
+                pop.style.color = '#00f0ff';
+            }
+
+            miningStage.appendChild(pop);
+            setTimeout(() => pop.remove(), 800);
+        }
+
+        // --- 업그레이드 구매 이벤트 ---
+        document.getElementById('upgClick').addEventListener('click', () => {
+            const cost = getClickCost();
+            if (DataManager.getCoins() >= cost) {
+                DataManager.addCoins(-cost);
+                state.clickLvl++;
+                localStorage.setItem('ck_clickLvl', state.clickLvl);
+                updateUI();
+            }
+        });
+
+        document.getElementById('upgAuto').addEventListener('click', () => {
+            const cost = getAutoCost();
+            if (DataManager.getCoins() >= cost) {
+                DataManager.addCoins(-cost);
+                state.autoLvl++;
+                localStorage.setItem('ck_autoLvl', state.autoLvl);
+                updateUI();
+            }
+        });
+
+        document.getElementById('upgCrit').addEventListener('click', () => {
+            const cost = getCritCost();
+            if (DataManager.getCoins() >= cost) {
+                DataManager.addCoins(-cost);
+                state.critLvl++;
+                localStorage.setItem('ck_critLvl', state.critLvl);
+                updateUI();
+            }
+        });
+
+        // --- 루프 타이머 (자동 채굴 & 콤보 감쇄) ---
+        setInterval(() => {
+            // 자동 채굴 (CPS)
+            const cps = getCPS();
+            if (cps > 0) {
+                DataManager.addCoins(cps);
+            }
+
+            // 콤보 게이지 서서히 감소
+            if (Date.now() - state.lastClickTime > 600 && state.combo > 0) {
+                state.combo = Math.max(0, state.combo - 5);
+                state.comboMultiplier = 1 + Math.floor(state.combo / 20) * 0.5;
+                comboBar.style.width = `${state.combo}%`;
+                comboText.innerText = `COMBO x${state.comboMultiplier.toFixed(1)}`;
+            }
+
+            updateUI();
+        }, 1000);
+
+        // 초기화
+        updateUI();
     </script>
 </body>
 </html>
