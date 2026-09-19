@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <!-- 모바일 환경에서 캔버스 드래그 시 화면이 확대되거나 스크롤되는 것을 완벽 차단 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0a1a">
+    
+    <title>NexBlock Studio | 무한 맵 에디터</title>
+
+    <!-- 최고급 웹 폰트 & 아이콘 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700;900&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" />
+
+    <!-- 공통 및 에디터 전용 스타일시트 -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-dark editor-mode">
+
+    <!-- 🔔 1. 전역 알림 시스템 -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- 🎨 2. 무한 맵 에디터 캔버스 (가장 밑바닥 레이어) -->
+    <!-- 터치 및 마우스 이벤트를 완벽하게 받기 위해 꽉 찬 화면으로 구성됩니다. -->
+    <canvas id="editor-canvas" class="infinite-canvas"></canvas>
+
+    <!-- 🛠️ 3. 에디터 UI 레이어 (캔버스 위에 떠있는 글래스모피즘 패널들) -->
+    <div class="editor-ui-layer">
+        
+        <!-- 상단 컨트롤 바 -->
+        <header class="editor-topbar glass-panel fade-in-down">
+            <div class="topbar-left">
+                <button class="icon-btn-text tooltip" data-tooltip="저장하지 않고 로비로 돌아가기" onclick="location.href='index.html'">
+                    <span class="material-symbols-outlined">arrow_back_ios</span>
+                    <span>로비로</span>
+                </button>
+            </div>
+            
+            <div class="topbar-center hidden-mobile">
+                <!-- 개발 중인 맵 이름 임시 표시 -->
+                <div class="workspace-title">
+                    <span class="material-symbols-outlined" style="color: var(--primary);">architecture</span>
+                    <span>새로운 무한 월드 작업 중...</span>
+                </div>
+            </div>
+
+            <div class="topbar-right">
+                <button class="btn btn-secondary pulse-anim" onclick="openModal('publish-modal')">
+                    <span class="material-symbols-outlined">rocket_launch</span>
+                    게시하기
+                </button>
+            </div>
+        </header>
+
+        <!-- 좌측 플로팅 툴박스 (블록 팔레트) -->
+        <aside class="floating-toolbox glass-panel fade-in-left" id="editor-toolbar">
+            <div class="toolbox-header">도구</div>
+            
+            <div class="tool-list">
+                <!-- 일반 블록들 -->
+                <button class="tool-btn selected tooltip-right" data-tooltip="흙 블록" data-type="block" data-color="#8B4513">
+                    <div class="block-preview" style="background: #8B4513;"></div>
+                </button>
+                <button class="tool-btn tooltip-right" data-tooltip="잔디 블록" data-type="block" data-color="#32CD32">
+                    <div class="block-preview" style="background: #32CD32;"></div>
+                </button>
+                <button class="tool-btn tooltip-right" data-tooltip="강철 블록" data-type="block" data-color="#4682B4">
+                    <div class="block-preview" style="background: #4682B4;"></div>
+                </button>
+                
+                <div class="divider"></div>
+                
+                <!-- 기믹 블록 (예: 닿으면 죽는 용암) -->
+                <button class="tool-btn tooltip-right" data-tooltip="용암 (위험 블록)" data-type="danger" data-color="#FF4500">
+                    <div class="block-preview glow-danger" style="background: #FF4500;">
+                        <span class="material-symbols-outlined" style="font-size: 16px; color: white;">local_fire_department</span>
+                    </div>
+                </button>
+                
+                <div class="divider"></div>
+                
+                <!-- 지우개 툴 -->
+                <button class="tool-btn tool-eraser tooltip-right" data-tooltip="블록 지우기" data-type="delete" data-color="null">
+                    <span class="material-symbols-outlined">ink_eraser</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- 하단 모바일 컨트롤 / 가이드 (PC에서는 WASD 안내, 모바일에서는 조이스틱) -->
+        <div class="editor-bottom-controls fade-in-up">
+            <div class="joystick-container" id="editor-joystick">
+                <div class="joystick-knob" id="editor-knob"></div>
+            </div>
+            
+            <div class="keyboard-guide glass-panel hidden-mobile">
+                <span class="material-symbols-outlined">keyboard</span>
+                <span><b>WASD</b> 또는 우클릭 드래그로 맵 이동</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🚀 4. 세상에 게임 게시하기 모달 (Publish Modal) -->
+    <dialog id="publish-modal" class="glass-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🚀 월드 게시하기</h3>
+                <button class="icon-btn close-btn" onclick="closeModal('publish-modal')">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>게임 이름 <span class="required">*</span></label>
+                    <input type="text" id="pub-name" placeholder="예: 지옥의 용암 점프맵" autocomplete="off">
+                </div>
+                
+                <div class="form-group">
+                    <label>게임 설명</label>
+                    <textarea id="pub-desc" rows="3" placeholder="어떤 게임인지 플레이어들에게 설명해주세요!"></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>대표 아이콘 (이모지)</label>
+                        <input type="text" id="pub-icon" placeholder="🌋" maxlength="2" value="🎮" style="text-align: center; font-size: 1.5rem;">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="premium-label">
+                            VIP 패스 가격 
+                            <span class="material-symbols-outlined" style="font-size: 14px; color: #ffd700;">monetization_on</span>
+                        </label>
+                        <div class="input-with-suffix">
+                            <input type="number" id="pub-pass" placeholder="0" min="0">
+                            <span class="suffix">AND</span>
+                        </div>
+                        <small class="helper-text">0으로 설정하면 누구나 무료로 즐길 수 있습니다.</small>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="display: flex; gap: 10px;">
+                <button class="btn btn-ghost" style="flex: 1;" onclick="closeModal('publish-modal')">취소</button>
+                <button class="btn btn-primary" style="flex: 2;" id="publish-submit-btn">서버에 업로드</button>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- 자바스크립트 연결 -->
+    <script src="script.js"></script>
+</body>
+</html>
