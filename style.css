@@ -1,367 +1,344 @@
-/* ==========================================================================
-   NexBlock - Ultimate Game Engine Stylesheet (초고퀄리티 디자인 코어)
-   ========================================================================== */
-
-/* 1. 디자인 토큰 (CSS 변수) - 색상, 그림자, 애니메이션 타이밍 일괄 관리 */
+/* =========================================
+   1. 글로벌 변수 및 리셋 (Design System)
+========================================= */
 :root {
-    /* 색상 테마 (Neon Cyberpunk & Dark Mode) */
-    --primary: #00ffcc;
-    --primary-glow: rgba(0, 255, 204, 0.5);
-    --secondary: #ff00ff;
-    --secondary-glow: rgba(255, 0, 255, 0.5);
-    --bg-dark: #0a0a1a;
-    --bg-darker: #050510;
-    --text-main: #ffffff;
-    --text-muted: #8892b0;
-    --gold: #ffd700;
-    --gold-glow: rgba(255, 215, 0, 0.5);
-    --danger: #ff4500;
+    --bg-dark: #0f172a;          /* 깊은 우주 같은 배경색 */
+    --surface: #1e293b;          /* 카드 및 모달 기본 색상 */
+    --glass-bg: rgba(30, 41, 59, 0.65); /* 반투명 유리 배경 */
+    --glass-border: rgba(255, 255, 255, 0.1); /* 유리 테두리 */
     
-    /* 글래스모피즘(반투명 유리) 배경색 */
-    --glass-bg: rgba(20, 20, 40, 0.6);
-    --glass-border: rgba(255, 255, 255, 0.1);
+    --primary: #6366f1;          /* 메인 브랜드 컬러 (인디고) */
+    --primary-hover: #4f46e5;
+    --success: #10b981;          /* 성공 및 플레이 컬러 (에메랄드) */
+    --success-hover: #059669;
+    --gold: #fbbf24;             /* 화폐 및 강조 컬러 */
+    --danger: #ef4444;           /* 경고 및 나가기 컬러 */
     
-    /* 그림자 및 타이밍 */
-    --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-    --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    
+    --shadow-soft: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    --shadow-glow: 0 0 15px rgba(99, 102, 241, 0.5);
 }
 
-/* ==========================================================================
-   2. 기본 리셋 및 공통 유틸리티
-   ========================================================================== */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    /* 게임 UI이므로 텍스트 드래그(선택) 방지 */
-    user-select: none;
-    -webkit-user-select: none;
-    -webkit-tap-highlight-color: transparent;
+    font-family: 'Pretendard', -apple-system, sans-serif;
+    user-select: none; /* 드래그 방지 */
 }
 
 body {
-    background-color: var(--bg-darker);
+    background-color: var(--bg-dark);
     color: var(--text-main);
-    font-family: 'Noto Sans KR', 'Poppins', sans-serif;
-    overflow: hidden; /* 모든 스크롤은 내부 컨테이너에서 처리 */
+    overflow: hidden; /* 앱처럼 스크롤 방지 */
     width: 100vw;
     height: 100vh;
 }
 
-/* 스크롤바 커스텀 (사이버펑크 스타일) */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 4px; }
-::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; box-shadow: 0 0 10px var(--primary-glow); }
-
-/* 배경 캔버스 (별빛/파티클이 그려질 공간) */
-.background-canvas {
-    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1;
-    background: radial-gradient(circle at center, var(--bg-dark) 0%, var(--bg-darker) 100%);
+/* 커스텀 스크롤바 (얇고 투명하게) */
+.scrollable { overflow-y: auto; }
+.scrollable::-webkit-scrollbar { width: 6px; }
+.scrollable::-webkit-scrollbar-track { background: transparent; }
+.scrollable::-webkit-scrollbar-thumb { 
+    background: rgba(255,255,255,0.2); 
+    border-radius: 10px; 
 }
+.scrollable::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
 
-/* 텍스트 그라데이션 유틸 */
-.text-gradient {
-    background: linear-gradient(90deg, var(--primary), var(--secondary));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    font-weight: 900;
+/* =========================================
+   2. 공통 애니메이션 및 유틸리티
+========================================= */
+.hidden { display: none !important; }
+.active { z-index: 10; }
+
+.pop { transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1); }
+.pop:active { transform: scale(0.92); }
+
+.slide-down { animation: slideDown 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.fade-in { animation: fadeIn 0.4s ease forwards; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+@keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes slideUpModal { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes coinFloat { 0% { transform: scale(0.5) translateY(0); opacity: 0; } 20% { transform: scale(1.2) translateY(-20px); opacity: 1; } 100% { transform: scale(1) translateY(-60px); opacity: 0; } }
+
+/* 텍스트 컬러 유틸 */
+.text-primary { color: var(--primary); }
+.text-gold { color: var(--gold); }
+
+/* =========================================
+   3. 로딩 스크린
+========================================= */
+#loading-screen {
+    position: absolute;
+    inset: 0;
+    background: var(--bg-dark);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+    transition: opacity 0.5s;
 }
+.loader-content { text-align: center; }
+.logo-icon { font-size: 50px; color: var(--primary); margin-bottom: 20px; filter: drop-shadow(var(--shadow-glow)); }
+.loader-content h1 { font-size: 28px; font-weight: 800; letter-spacing: 2px; margin-bottom: 10px; }
+.loader-content p { color: var(--text-muted); margin-bottom: 30px; font-size: 14px; }
+.progress-bar { width: 200px; height: 6px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; margin: 0 auto; }
+.progress-fill { width: 0%; height: 100%; background: var(--primary); transition: width 0.3s; }
 
-/* ==========================================================================
-   3. 글래스모피즘 (유리 효과) 컴포넌트 코어
-   ========================================================================== */
-.glass-panel {
+/* =========================================
+   4. 메인 메뉴 & 네비게이션
+========================================= */
+#app-container { width: 100%; height: 100%; position: relative; }
+.screen { width: 100%; height: 100%; position: absolute; top: 0; left: 0; background: var(--bg-dark); }
+.glass-panel, .glass-nav {
     background: var(--glass-bg);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--glass-border);
-    border-radius: 16px;
-    box-shadow: var(--shadow-glass);
-}
-
-/* 최상단 네비게이션 (로비) */
-.glass-navbar {
-    background: rgba(10, 10, 26, 0.8);
     backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+}
+
+.top-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 25px;
     border-bottom: 1px solid var(--glass-border);
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 15px 30px; height: 70px;
-    position: fixed; top: 0; width: 100%; z-index: 100;
+    position: absolute;
+    top: 0; left: 0; width: 100%;
+    z-index: 50;
 }
-
-/* ==========================================================================
-   4. 버튼 (Buttons) - 상호작용 피드백 극대화
-   ========================================================================== */
-button { font-family: inherit; border: none; outline: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: var(--transition-smooth); }
-button:active { transform: scale(0.95); }
-
-.btn {
-    padding: 10px 20px; border-radius: 12px; font-weight: 700; font-size: 0.95rem;
+.brand { font-size: 22px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+.user-dashboard { display: flex; align-items: center; gap: 15px; }
+.currency-badge {
+    background: rgba(0,0,0,0.3);
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
 }
-.btn-large { padding: 15px 30px; font-size: 1.1rem; border-radius: 16px; }
-.full-width { width: 100%; }
+.balance-text { font-size: 18px; color: #fff; }
+.currency-unit { font-size: 12px; color: var(--gold); }
 
-.btn-primary {
-    background: var(--primary); color: #000;
-    box-shadow: 0 4px 15px var(--primary-glow);
+/* =========================================
+   5. 게임 리스트 (그리드 레이아웃)
+========================================= */
+.content-area {
+    padding: 90px 25px 40px;
+    height: 100%;
 }
-.btn-primary:hover { background: #fff; box-shadow: 0 6px 20px rgba(255,255,255,0.6); transform: translateY(-2px); }
+.header-banner { margin-bottom: 30px; }
+.header-banner h2 { font-size: 26px; font-weight: 800; margin-bottom: 8px; }
+.header-banner p { color: var(--text-muted); }
 
-.btn-secondary {
-    background: linear-gradient(45deg, #1a1a3a, #2a2a5a);
-    border: 1px solid var(--secondary); color: #fff;
-    box-shadow: 0 4px 15px var(--secondary-glow);
+.game-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+    padding-bottom: 50px;
 }
-.btn-secondary:hover { background: var(--secondary); transform: translateY(-2px); }
-
-.btn-vip {
-    background: linear-gradient(45deg, #ffa500, #ffd700);
-    color: #000; font-weight: 900;
-    box-shadow: 0 0 15px var(--gold-glow);
-}
-
-.icon-btn, .icon-btn-small {
-    background: rgba(255,255,255,0.1); color: #fff;
-    border-radius: 50%; display: flex; align-items: center; justify-content: center;
-}
-.icon-btn { width: 45px; height: 45px; }
-.icon-btn-small { width: 30px; height: 30px; }
-.icon-btn:hover { background: var(--primary); color: #000; }
-
-/* ==========================================================================
-   5. 메인 로비 (index.html) 전용 스타일
-   ========================================================================== */
-.app-wrapper { padding-top: 70px; height: 100vh; overflow-y: auto; overflow-x: hidden; }
-.main-content { max-width: 1200px; margin: 0 auto; padding: 20px; }
-
-/* 대문(Hero) 영역 */
-.hero-section {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 60px 0; min-height: 400px; position: relative;
-}
-.hero-title { font-size: 3.5rem; line-height: 1.2; margin-bottom: 20px; font-family: 'Poppins', sans-serif; font-weight: 900; }
-.hero-subtitle { font-size: 1.1rem; color: var(--text-muted); margin-bottom: 30px; max-width: 500px; line-height: 1.6; }
-.hero-actions { display: flex; gap: 15px; }
-
-/* 3D 큐브 애니메이션 장식 */
-.hero-graphics { position: relative; width: 400px; height: 400px; }
-.floating-cube {
-    position: absolute; width: 100px; height: 100px;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
-    border-radius: 20px; box-shadow: 0 0 30px var(--primary-glow);
-    animation: float 6s ease-in-out infinite;
-}
-.cube-1 { top: 20%; left: 20%; animation-delay: 0s; }
-.cube-2 { bottom: 20%; right: 20%; width: 60px; height: 60px; opacity: 0.7; animation-delay: -3s; animation-direction: reverse; }
-
-/* 게임 리스트 그리드 */
-.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.filter-group { display: flex; gap: 10px; background: rgba(255,255,255,0.05); padding: 5px; border-radius: 20px; }
-.filter-btn { background: transparent; color: var(--text-muted); padding: 5px 15px; border-radius: 15px; font-size: 0.9rem; }
-.filter-btn.active { background: var(--primary); color: #000; font-weight: bold; }
-
-.games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; padding-bottom: 50px; }
-
 .game-card {
-    background: var(--glass-bg); border: 1px solid var(--glass-border);
-    border-radius: 20px; padding: 20px;
-    transition: var(--transition-bounce);
-    display: flex; flex-direction: column; gap: 15px;
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 20px;
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-soft);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    cursor: pointer;
 }
-.game-card:hover { transform: translateY(-10px) scale(1.02); border-color: var(--primary); box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 20px var(--primary-glow); }
-.card-header { display: flex; justify-content: space-between; align-items: flex-start; }
-.game-icon { font-size: 3rem; background: rgba(255,255,255,0.05); width: 70px; height: 70px; display: flex; justify-content: center; align-items: center; border-radius: 16px; }
-.pass-badge { background: rgba(255, 215, 0, 0.1); border: 1px solid var(--gold); color: var(--gold); padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; display: flex; align-items: center; gap: 5px; font-weight: bold; }
-.game-title { font-size: 1.4rem; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.game-desc { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-
-/* 스켈레톤 로딩 (데이터 오기 전) */
-.skeleton .sk-icon, .skeleton .sk-title, .skeleton .sk-desc, .skeleton .sk-btn {
-    background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
-    background-size: 200% 100%;
-    animation: skeleton-loading 1.5s infinite; border-radius: 8px;
+.game-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--primary);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.6), inset 0 0 0 1px var(--primary);
 }
-.skeleton .sk-icon { width: 70px; height: 70px; border-radius: 16px; }
-.skeleton .sk-title { height: 24px; width: 70%; margin-top: 10px; }
-.skeleton .sk-desc { height: 40px; width: 100%; margin-top: 10px; }
-.skeleton .sk-btn { height: 45px; width: 100%; margin-top: auto; border-radius: 12px; }
+.card-icon { font-size: 45px; text-align: center; margin: 10px 0; }
+.card-info { flex-grow: 1; }
+.card-title { font-size: 18px; font-weight: 700; margin-bottom: 5px; }
+.card-desc { font-size: 13px; color: var(--text-muted); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.card-actions { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px; }
 
-/* ==========================================================================
-   6. 에디터 및 플레이 화면 공통 (캔버스 베이스)
-   ========================================================================== */
-.infinite-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; touch-action: none; /* 모바일 확대 방지 */ }
-.editor-ui-layer, .hud-layer, .clicker-ui-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; display: flex; flex-direction: column; pointer-events: none; /* 하위 요소에서만 클릭 허용 */ }
+/* =========================================
+   6. 폼 및 버튼 (UI 컴포넌트)
+========================================= */
+.btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #fff;
+    transition: 0.2s;
+}
+.btn-primary { background: var(--primary); box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); }
+.btn-primary:hover { background: var(--primary-hover); }
+.btn-success { background: var(--success); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); }
+.btn-success:hover { background: var(--success-hover); }
+.btn-outline { background: transparent; border: 1px solid var(--text-muted); color: var(--text-main); }
+.btn-outline:hover { background: rgba(255,255,255,0.1); }
 
-/* 포인터 이벤트 유틸 */
-.pointer-events-auto { pointer-events: auto; }
-.pointer-events-none { pointer-events: none; }
+.icon-btn { background: transparent; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; transition: 0.2s; }
+.icon-btn:hover { color: #fff; transform: rotate(90deg); }
 
-/* ==========================================================================
-   7. 에디터 화면 (editor.html) 전용
-   ========================================================================== */
-.editor-topbar { pointer-events: auto; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; margin: 10px; border-radius: 16px; }
-.floating-toolbox {
-    pointer-events: auto; position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
-    padding: 15px; display: flex; flex-direction: column; gap: 15px; border-radius: 20px;
+/* =========================================
+   7. 모달 창 (새 게임 만들기)
+========================================= */
+.modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s ease;
+}
+.modal-window {
+    background: var(--surface);
+    width: 90%;
+    max-width: 450px;
+    border-radius: 24px;
+    border: 1px solid rgba(255,255,255,0.15);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+    animation: slideUpModal 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    overflow: hidden;
+}
+.modal-header { padding: 20px 25px; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); }
+.modal-header h2 { font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+.modal-body { padding: 25px; display: flex; flex-direction: column; gap: 20px; }
+.modal-footer { padding: 20px 25px; border-top: 1px solid var(--glass-border); display: flex; justify-content: flex-end; gap: 12px; background: rgba(0,0,0,0.2); }
+
+.input-group { display: flex; flex-direction: column; gap: 8px; }
+.input-row { display: flex; gap: 15px; }
+.input-group.half { flex: 1; }
+.input-group label { font-size: 13px; font-weight: 600; color: var(--text-muted); }
+.input-group input, .input-group textarea {
+    background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
+    color: #fff; padding: 14px; border-radius: 12px; outline: none; transition: 0.3s; font-size: 14px;
+}
+.input-group input:focus, .input-group textarea:focus { border-color: var(--primary); box-shadow: inset 0 0 0 1px var(--primary); }
+.center-text { text-align: center; font-size: 20px !important; }
+.price-input { display: flex; align-items: center; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding-left: 14px; transition: 0.3s; }
+.price-input:focus-within { border-color: var(--gold); box-shadow: inset 0 0 0 1px var(--gold); }
+.price-input input { border: none; background: transparent; flex: 1; padding: 14px 14px 14px 10px; }
+.price-input input:focus { box-shadow: none; }
+
+/* =========================================
+   8. 게임 엔진 화면 & 에디터 UI
+========================================= */
+#game-canvas { display: block; width: 100%; height: 100%; background: #000; }
+.game-ui-layer { position: absolute; inset: 0; pointer-events: none; }
+
+.editor-toolbar {
+    position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+    padding: 8px; border-radius: 100px; display: flex; align-items: center; gap: 8px;
+    pointer-events: auto; box-shadow: var(--shadow-soft);
 }
 .tool-btn {
-    width: 55px; height: 55px; border-radius: 14px; background: rgba(0,0,0,0.5);
-    border: 2px solid transparent; transition: 0.2s; position: relative;
+    background: transparent; border: none; color: var(--text-muted);
+    padding: 10px 16px; border-radius: 100px; font-size: 14px; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.3s;
 }
-.tool-btn.selected { border-color: var(--primary); transform: scale(1.15); box-shadow: 0 0 20px var(--primary-glow); }
-.block-preview { width: 35px; height: 35px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.2); margin: auto; display:flex; justify-content:center; align-items:center; }
-.divider { height: 2px; background: rgba(255,255,255,0.1); width: 100%; border-radius: 1px; }
+.tool-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.tool-btn.active { background: var(--primary); color: #fff; box-shadow: 0 4px 10px rgba(99, 102, 241, 0.4); }
+.tool-btn.special.active { background: var(--gold); color: #000; box-shadow: 0 4px 10px rgba(251, 191, 36, 0.4); }
+.toolbar-divider { width: 1px; height: 24px; background: rgba(255,255,255,0.2); margin: 0 4px; }
+.toolbar-spacer { width: 30px; }
+.camera-hint { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 5px; margin-right: 15px; }
 
-.editor-bottom-controls { position: absolute; bottom: 20px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: flex-end; pointer-events: none; }
-.keyboard-guide { pointer-events: auto; padding: 10px 20px; display: flex; align-items: center; gap: 10px; font-size: 0.9rem; border-radius: 30px; }
-
-/* ==========================================================================
-   8. 플레이 화면 (play.html) 전용 & 로딩 연출
-   ========================================================================== */
-.play-header { margin: 10px 20px; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; border-radius: 20px; }
-.game-title-glow { font-size: 1.5rem; text-shadow: 0 0 10px #fff; text-align: center; }
-.server-status { display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.8rem; color: var(--text-muted); }
-.status-dot { width: 8px; height: 8px; border-radius: 50%; }
-.status-dot.online { background: #32cd32; box-shadow: 0 0 10px #32cd32; animation: blink 2s infinite; }
-
-/* 접속 로딩 스크린 */
-.loading-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-darker);
-    z-index: 1000; display: flex; justify-content: center; align-items: center; flex-direction: column;
-    opacity: 0; visibility: hidden; transition: 0.5s ease;
+/* =========================================
+   9. 플레이 화면 UI (채팅, 조이스틱)
+========================================= */
+.btn-back {
+    position: absolute; top: 20px; left: 20px; padding: 12px 20px;
+    border-radius: 12px; border: none; color: #fff; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; gap: 8px; pointer-events: auto;
 }
-.loading-overlay.active { opacity: 1; visibility: visible; }
-.spinner { width: 50px; height: 50px; border: 4px solid rgba(0, 255, 204, 0.2); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
 
-/* 채팅 위젯 */
-.chat-widget {
-    position: absolute; left: 20px; top: 80px; width: 320px; max-height: 300px;
-    display: flex; flex-direction: column; overflow: hidden; border-radius: 16px;
-    background: rgba(10, 10, 20, 0.7);
+/* 채팅 패널 (우측 상단) */
+.chat-panel {
+    position: absolute; top: 20px; right: 20px; width: 320px; height: 300px;
+    border-radius: 16px; display: flex; flex-direction: column; pointer-events: auto;
+    box-shadow: var(--shadow-soft);
 }
-.chat-header { padding: 10px 15px; background: rgba(0,0,0,0.5); display: flex; align-items: center; gap: 10px; font-weight: bold; font-size: 0.9rem; border-bottom: 1px solid var(--glass-border); }
-.chat-body { display: flex; flex-direction: column; height: 250px; transition: 0.3s; }
-.chat-messages { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 5px; font-size: 0.85rem; }
-.chat-msg { padding: 5px 10px; border-radius: 8px; background: rgba(255,255,255,0.05); display: inline-block; word-break: break-all; }
-.system-msg { color: var(--primary); border-left: 2px solid var(--primary); }
-.chat-input-area { display: flex; padding: 10px; background: rgba(0,0,0,0.5); }
-.chat-input-area input { flex: 1; background: transparent; border: none; color: white; outline: none; padding-left: 5px; }
+#chat-messages { flex: 1; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+.chat-msg { font-size: 13px; line-height: 1.4; background: rgba(0,0,0,0.4); padding: 8px 12px; border-radius: 12px; width: fit-content; max-width: 90%; }
+.chat-msg.system { background: rgba(99, 102, 241, 0.2); color: #a5b4fc; margin: 0 auto; text-align: center; font-size: 12px; }
+.chat-msg .author { font-weight: 800; color: var(--gold); margin-bottom: 2px; display: block; font-size: 11px; }
 
-/* ==========================================================================
-   9. 모바일 컨트롤러 (조이스틱 & 점프)
-   ========================================================================== */
-.mobile-controls { position: absolute; bottom: 30px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: flex-end; }
-.joystick-container { width: 140px; height: 140px; background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1); border-radius: 50%; position: relative; pointer-events: auto; touch-action: none; }
-.joystick-knob { width: 60px; height: 60px; background: radial-gradient(circle at center, rgba(255,255,255,0.8), rgba(255,255,255,0.4)); border-radius: 50%; position: absolute; top: 50%; left: 50%; margin-top: -30px; margin-left: -30px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); pointer-events: none; }
-
-.action-btn-container { display: flex; gap: 15px; align-items: flex-end; }
-.action-btn { width: 90px; height: 90px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.3); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; color: white; transition: 0.1s; pointer-events: auto; touch-action: none; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-.action-btn:active { transform: scale(0.85); background: rgba(255,255,255,0.3); box-shadow: 0 0 20px var(--primary-glow); border-color: var(--primary); }
-.small-action { width: 60px; height: 60px; }
-
-/* ==========================================================================
-   10. 클리커 모드 (clicker.html) 전용 타격감 연출
-   ========================================================================== */
-.clicker-header { margin: 20px; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-radius: 20px; }
-.massive-display { font-size: 2rem; font-weight: 900; color: var(--gold); text-shadow: 0 0 20px var(--gold-glow); display: flex; align-items: center; gap: 10px; }
-
-.clicker-main-area { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; }
-.target-wrapper { position: relative; display: flex; justify-content: center; align-items: center; width: 300px; height: 300px; }
-
-.target-object {
-    position: relative; cursor: pointer; transition: 0.05s ease-out; /* 즉각적인 반응성 */
-    animation: float-object 4s ease-in-out infinite;
-    -webkit-tap-highlight-color: transparent; z-index: 20;
+.chat-input-box {
+    display: flex; padding: 10px; border-top: 1px solid var(--glass-border); gap: 8px;
+    background: rgba(0,0,0,0.2); border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;
 }
-.target-core { width: 160px; height: 160px; background: linear-gradient(135deg, #111, #333); border: 4px solid var(--primary); border-radius: 30px; display: flex; justify-content: center; align-items: center; font-size: 4rem; box-shadow: 0 0 50px var(--primary-glow), inset 0 0 20px rgba(255,255,255,0.2); transform: rotate(45deg); }
-.core-icon { transform: rotate(-45deg); /* 마름모 안의 아이콘은 똑바로 */ }
-.target-aura { position: absolute; top: -20px; left: -20px; right: -20px; bottom: -20px; background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%); border-radius: 50%; z-index: -1; animation: pulse-aura 2s infinite; }
-
-.target-object:active { transform: scale(0.85); /* 강렬한 타격감 축소 */ animation: none; }
-.target-object:active .target-core { border-color: #fff; background: var(--primary); box-shadow: 0 0 100px var(--primary); }
-
-/* 클릭 시 터져나오는 텍스트 효과 (JS에서 동적 생성) */
-.floating-text { position: absolute; font-size: 2rem; font-weight: 900; color: #fff; text-shadow: 0 0 10px var(--primary); pointer-events: none; animation: floatUp 1s cubic-bezier(0.25, 1, 0.5, 1) forwards; z-index: 100; }
-
-/* 콤보 시스템 */
-.combo-container { position: absolute; top: 10%; display: flex; flex-direction: column; align-items: center; pointer-events: none; }
-.combo-text { font-size: 1.5rem; font-weight: 900; color: var(--secondary); letter-spacing: 5px; font-style: italic; }
-.combo-number { font-size: 4rem; font-weight: 900; text-shadow: 0 0 30px var(--secondary-glow); color: #fff; transform: scale(1); transition: 0.1s; }
-.combo-bump { transform: scale(1.3); color: var(--gold); }
-
-/* 화면 흔들림 효과 (JS에서 body에 클래스 추가) */
-.shake-screen { animation: screen-shake 0.2s cubic-bezier(.36,.07,.19,.97) both; }
-
-/* ==========================================================================
-   11. 모달 및 폼 요소 (Forms & Dialogs)
-   ========================================================================== */
-.glass-modal {
-    margin: auto; padding: 0; background: transparent; border: none;
-    max-width: 500px; width: 90%;
+.chat-input-box input {
+    flex: 1; background: rgba(255,255,255,0.1); border: none; border-radius: 8px;
+    color: #fff; padding: 0 12px; outline: none; font-size: 13px;
 }
-.glass-modal::backdrop { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); }
-.modal-content { background: var(--bg-dark); border: 1px solid var(--primary); border-radius: 24px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 30px var(--primary-glow); }
-.modal-header { padding: 20px 25px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); }
-.modal-body { padding: 25px; display: flex; flex-direction: column; gap: 20px; }
-.modal-footer { padding: 20px 25px; border-top: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); }
-
-.form-group { display: flex; flex-direction: column; gap: 8px; }
-label { font-size: 0.9rem; font-weight: bold; color: var(--text-muted); }
-input[type="text"], input[type="number"], input[type="color"], textarea {
-    width: 100%; padding: 12px 15px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; color: white; font-family: inherit; transition: var(--transition-smooth); outline: none;
+.chat-send-btn {
+    width: 40px; height: 40px; border-radius: 8px; border: none;
+    background: var(--primary); color: #fff; cursor: pointer;
 }
-input:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 15px rgba(0,255,204,0.3); background: rgba(0,0,0,0.8); }
 
-/* 모달 내 인풋 특수 구조 */
-.input-with-suffix { display: flex; align-items: center; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; overflow: hidden; }
-.input-with-suffix input { border: none; background: transparent; border-radius: 0; box-shadow: none; }
-.input-with-suffix .suffix { padding: 0 15px; font-weight: bold; color: var(--gold); border-left: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); height: 100%; display: flex; align-items: center; }
+/* 모바일 컨트롤 (조이스틱 & 점프) */
+.mobile-controls-layer {
+    position: absolute; bottom: 0; left: 0; width: 100%; height: 50%;
+    display: flex; justify-content: space-between; align-items: flex-end; padding: 40px; pointer-events: none;
+}
+.joystick-base {
+    width: 140px; height: 140px; background: rgba(255,255,255,0.1); border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.2); position: relative; pointer-events: auto; backdrop-filter: blur(4px);
+}
+.joystick-stick {
+    width: 60px; height: 60px; background: rgba(255,255,255,0.9); border-radius: 50%;
+    position: absolute; top: 40px; left: 40px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); pointer-events: none;
+    transition: transform 0.05s linear;
+}
+.btn-jump {
+    width: 90px; height: 90px; border-radius: 50%; background: rgba(255,255,255,0.15);
+    border: 2px solid rgba(255,255,255,0.3); color: #fff; font-size: 28px; pointer-events: auto;
+    backdrop-filter: blur(4px); display: flex; justify-content: center; align-items: center;
+}
+.btn-jump:active { background: rgba(255,255,255,0.3); transform: scale(0.9); }
 
-/* ==========================================================================
-   12. 애니메이션 키프레임 정의
-   ========================================================================== */
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes fadeInLeft { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
-@keyframes float { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-20px) rotate(10deg); } }
-@keyframes float-object { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
-@keyframes pulse-aura { 0% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.1); opacity: 0.8; } 100% { transform: scale(1); opacity: 0.5; } }
-@keyframes skeleton-loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-@keyframes spin { 100% { transform: rotate(360deg); } }
-@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-@keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-50px) scale(1.5); } }
-@keyframes screen-shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-3px, 0, 0); } 40%, 60% { transform: translate3d(3px, 0, 0); } }
+/* =========================================
+   10. 파티클 및 토스트 애니메이션
+========================================= */
+.floating-coin-text {
+    position: absolute; font-size: 22px; font-weight: 900; color: var(--gold);
+    text-shadow: 0 2px 5px rgba(0,0,0,0.8); pointer-events: none; z-index: 1000;
+    animation: coinFloat 1s ease-out forwards;
+}
 
-.fade-in { animation: fadeIn 0.8s ease-out forwards; }
-.fade-in-up { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-.fade-in-down { animation: fadeInDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-.fade-in-left { animation: fadeInLeft 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-.pulse-anim { animation: pulse-aura 2s infinite; }
+#toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+.toast { background: var(--surface); color: #fff; padding: 12px 24px; border-radius: 100px; box-shadow: var(--shadow-soft); font-size: 14px; font-weight: 600; border: 1px solid var(--glass-border); animation: slideUpModal 0.3s ease, fadeOut 0.3s ease 2.7s forwards; }
 
-/* ==========================================================================
-   13. 반응형 (Media Queries) - PC vs Mobile 최적화
-   ========================================================================== */
+/* =========================================
+   11. 모바일 반응형 처리
+========================================= */
 @media (max-width: 768px) {
-    .hidden-mobile { display: none !important; }
+    .editor-toolbar {
+        width: 95%; flex-wrap: wrap; justify-content: center;
+        border-radius: 20px; top: 10px; padding: 15px;
+    }
+    .camera-hint, .toolbar-spacer { display: none; }
+    .tool-btn span { display: none; /* 모바일선 아이콘만 표시 */ }
     
-    /* 로비 모바일 */
-    .hero-section { flex-direction: column; text-align: center; padding: 20px 0; }
-    .hero-title { font-size: 2.5rem; }
-    .hero-actions { justify-content: center; flex-direction: column; width: 100%; }
-    .hero-graphics { display: none; } /* 모바일 공간 절약 */
-    
-    /* 네비게이션 모바일 */
-    .glass-navbar { padding: 10px 15px; }
-    
-    /* 에디터 툴바 (세로->가로 변경) */
-    .floating-toolbox { left: 10px; right: 10px; top: 80px; transform: none; flex-direction: row; justify-content: space-around; padding: 10px; overflow-x: auto; border-radius: 15px; }
-    .divider { width: 2px; height: 100%; }
-    
-    /* 조이스틱 위치 조정 */
-    .mobile-controls { bottom: 20px; }
-    
-    /* 채팅창 접기 (모바일 화면 가림 방지) */
-    .chat-widget { top: 70px; left: 10px; width: 250px; }
+    .chat-panel { top: 80px; right: 10px; width: 220px; height: 200px; background: rgba(30, 41, 59, 0.4); }
+    .mobile-controls-layer { padding: 20px; }
+    .joystick-base { width: 120px; height: 120px; }
+    .joystick-stick { width: 50px; height: 50px; top: 35px; left: 35px; }
+    .btn-jump { width: 70px; height: 70px; font-size: 20px; }
 }
