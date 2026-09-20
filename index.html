@@ -2,251 +2,488 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CreateVerse Studio - Pro Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>CreateVerse Studio - Ultimate Pro Engine</title>
     
-    <!-- 프리텐다드 폰트 & 폰트어썸 아이콘 -->
+    <!-- UI 폰트 및 아이콘 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     
-    <!-- PeerJS -->
+    <!-- 네트워크 엔진 -->
     <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
 </head>
-<body>
-    <div id="app-container">
+<body class="studio-dark-theme unselectable" oncontextmenu="return false;">
+
+    <!-- ==========================================
+         1. 최상단 글로벌 시스템 메뉴바 (File, Edit...)
+    =========================================== -->
+    <nav id="system-menu-bar" class="system-menu-bar">
+        <div class="menu-brand">
+            <i class="fa-solid fa-layer-group text-primary"></i> <span>CreateVerse Studio</span>
+        </div>
+        <ul class="system-menu-list">
+            <li class="dropdown-parent">
+                <span>File</span>
+                <div class="dropdown-content">
+                    <div class="dropdown-item"><i class="fa-solid fa-file"></i> New Project <span class="shortcut">Ctrl+N</span></div>
+                    <div class="dropdown-item"><i class="fa-solid fa-folder-open"></i> Open from Cloud... <span class="shortcut">Ctrl+O</span></div>
+                    <div class="dropdown-item"><i class="fa-solid fa-floppy-disk"></i> Save <span class="shortcut">Ctrl+S</span></div>
+                    <div class="dropdown-item"><i class="fa-solid fa-cloud-arrow-up"></i> Publish to CreateVerse <span class="shortcut">Alt+P</span></div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item"><i class="fa-solid fa-gear"></i> Game Settings</div>
+                    <div class="dropdown-item"><i class="fa-solid fa-door-open"></i> Exit <span class="shortcut">Alt+F4</span></div>
+                </div>
+            </li>
+            <li class="dropdown-parent">
+                <span>Edit</span>
+                <div class="dropdown-content">
+                    <div class="dropdown-item"><i class="fa-solid fa-rotate-left"></i> Undo <span class="shortcut">Ctrl+Z</span></div>
+                    <div class="dropdown-item"><i class="fa-solid fa-rotate-right"></i> Redo <span class="shortcut">Ctrl+Y</span></div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item"><i class="fa-solid fa-scissors"></i> Cut <span class="shortcut">Ctrl+X</span></div>
+                    <div class="dropdown-item"><i class="fa-solid fa-copy"></i> Copy <span class="shortcut">Ctrl+C</span></div>
+                    <div class="dropdown-item"><i class="fa-solid fa-paste"></i> Paste <span class="shortcut">Ctrl+V</span></div>
+                    <div class="dropdown-item"><i class="fa-solid fa-clone"></i> Duplicate <span class="shortcut">Ctrl+D</span></div>
+                    <div class="dropdown-item text-danger"><i class="fa-solid fa-trash"></i> Delete <span class="shortcut">Del</span></div>
+                </div>
+            </li>
+            <li class="dropdown-parent"><span>View</span></li>
+            <li class="dropdown-parent"><span>Plugins</span></li>
+            <li class="dropdown-parent"><span>Help</span></li>
+        </ul>
+        <div class="system-menu-right">
+            <button class="btn-icon" title="Settings"><i class="fa-solid fa-gear"></i></button>
+            <div class="user-profile">
+                <img src="https://ui-avatars.com/api/?name=Creator&background=6366f1&color=fff" alt="User" class="avatar-sm">
+                <span>Creator_01</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ==========================================
+         2. 리본 툴바 (Roblox 스타일 복합 탭 메뉴)
+    =========================================== -->
+    <header id="ribbon-toolbar" class="ribbon-toolbar">
         
-        <!-- 1. 로딩 스크린 -->
-        <div id="loading-screen" class="screen active">
-            <div class="loader-content">
-                <i class="fa-solid fa-cube fa-spin logo-icon"></i>
-                <h1>Studio <span class="text-primary">Pro</span></h1>
-                <p>워크스페이스와 물리 엔진을 초기화하는 중...</p>
-                <div class="progress-bar"><div class="progress-fill"></div></div>
-            </div>
+        <!-- 리본 탭 -->
+        <div class="ribbon-tabs">
+            <div class="ribbon-tab active" data-target="ribbon-home">Home</div>
+            <div class="ribbon-tab" data-target="ribbon-model">Model</div>
+            <div class="ribbon-tab" data-target="ribbon-test">Test</div>
+            <div class="ribbon-tab" data-target="ribbon-view">View</div>
         </div>
 
-        <!-- 2. 메인 로비 -->
-        <div id="main-menu" class="screen hidden">
-            <header class="top-nav">
-                <div class="brand">
-                    <i class="fa-solid fa-laptop-code text-primary"></i> 
-                    <span>CreateVerse</span>
-                </div>
-                <div class="user-dashboard">
-                    <div class="currency-badge pop">
-                        <i class="fa-solid fa-coins text-gold"></i>
-                        <span id="and-balance" class="balance-text">0</span>
-                        <span class="currency-unit">and</span>
-                    </div>
-                    <button class="btn btn-primary pop" onclick="UI.showPublishModal()">
-                        <i class="fa-solid fa-plus"></i> <span>새 프로젝트</span>
-                    </button>
-                </div>
-            </header>
+        <!-- 리본 탭 내용: HOME -->
+        <div class="ribbon-content active" id="ribbon-home">
             
-            <main class="content-area scrollable">
-                <div class="header-banner">
-                    <h2>내 프로젝트</h2>
-                    <p>로블록스 스튜디오처럼 정교한 2D 샌드박스를 구축하세요.</p>
+            <div class="ribbon-group">
+                <div class="ribbon-buttons">
+                    <button class="r-btn-large"><i class="fa-solid fa-arrow-pointer"></i><span>Select</span></button>
+                    <button class="r-btn-large"><i class="fa-solid fa-arrows-up-down-left-right"></i><span>Move</span></button>
+                    <button class="r-btn-large"><i class="fa-solid fa-maximize"></i><span>Scale</span></button>
+                    <button class="r-btn-large"><i class="fa-solid fa-rotate-right"></i><span>Rotate</span></button>
                 </div>
-                <div id="game-list" class="game-grid"></div>
-            </main>
-        </div>
+                <div class="ribbon-label">Tools</div>
+            </div>
+            
+            <div class="ribbon-divider"></div>
+            
+            <div class="ribbon-group">
+                <div class="ribbon-buttons">
+                    <div class="dropdown-ribbon">
+                        <button class="r-btn-large"><i class="fa-solid fa-cube text-primary"></i><span>Part <i class="fa-solid fa-caret-down text-xs"></i></span></button>
+                    </div>
+                    <button class="r-btn-large"><i class="fa-solid fa-palette text-gold"></i><span>Color</span></button>
+                    <button class="r-btn-large"><i class="fa-solid fa-cubes"></i><span>Material</span></button>
+                </div>
+                <div class="ribbon-label">Insert & Edit</div>
+            </div>
 
-        <!-- 3. 새 프로젝트 모달 -->
-        <div id="publish-modal" class="modal-backdrop hidden">
-            <div class="modal-window">
-                <div class="modal-header">
-                    <h2><i class="fa-solid fa-folder-plus"></i> 새 월드 생성</h2>
-                    <button class="icon-btn" onclick="UI.hidePublishModal()"><i class="fa-solid fa-xmark"></i></button>
+            <div class="ribbon-divider"></div>
+            
+            <div class="ribbon-group">
+                <div class="ribbon-buttons">
+                    <button class="r-btn-small" onclick="Editor.toggleAnchor()"><i class="fa-solid fa-anchor"></i> Anchor</button>
+                    <button class="r-btn-small"><i class="fa-solid fa-link-slash"></i> Group</button>
+                    <button class="r-btn-small"><i class="fa-solid fa-lock"></i> Lock</button>
                 </div>
-                <div class="modal-body">
-                    <div class="input-group">
-                        <label>프로젝트 명</label>
-                        <input type="text" id="game-name" placeholder="예: 무한의 계단 점프맵">
-                    </div>
-                    <div class="input-group">
-                        <label>프로젝트 설명</label>
-                        <textarea id="game-desc" placeholder="어떤 규칙의 게임인가요?" rows="2"></textarea>
-                    </div>
-                    <div class="input-row">
-                        <div class="input-group half">
-                            <label>아이콘 설정</label>
-                            <input type="text" id="game-icon" value="🧩" class="center-text">
-                        </div>
-                        <div class="input-group half">
-                            <label>입장 패스 (and)</label>
-                            <div class="price-input">
-                                <i class="fa-solid fa-coins text-gold"></i>
-                                <input type="number" id="game-pass-price" value="0" min="0">
-                            </div>
-                        </div>
-                    </div>
+                <div class="ribbon-label">Edit</div>
+            </div>
+
+            <div class="ribbon-divider"></div>
+
+            <div class="ribbon-group">
+                <div class="ribbon-buttons">
+                    <button class="r-btn-large play-accent" onclick="GameApp.testPlay()"><i class="fa-solid fa-play"></i><span>Play</span></button>
+                    <button class="r-btn-large"><i class="fa-solid fa-stop"></i><span>Stop</span></button>
                 </div>
-                <div class="modal-footer">
-                    <button class="btn btn-outline" onclick="UI.hidePublishModal()">취소</button>
-                    <button class="btn btn-primary pop" onclick="GameApp.createNewGame()">
-                        <i class="fa-solid fa-hammer"></i> 워크스페이스 열기
-                    </button>
+                <div class="ribbon-label">Test</div>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- ==========================================
+         3. 메인 워크스페이스 레이아웃 (좌/중/우 패널)
+    =========================================== -->
+    <div id="studio-workspace" class="studio-workspace">
+        
+        <!-- [좌측 패널] 툴박스 (Toolbox / Asset Manager) -->
+        <aside class="dock-panel left-panel">
+            <div class="panel-header">
+                <span>Toolbox</span>
+                <div class="panel-controls"><i class="fa-solid fa-minus"></i> <i class="fa-solid fa-xmark"></i></div>
+            </div>
+            <div class="toolbox-body">
+                <div class="toolbox-searchbar">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="Search models, audio, plugins...">
+                </div>
+                <div class="toolbox-categories">
+                    <div class="tb-cat active">Models</div>
+                    <div class="tb-cat">Audio</div>
+                    <div class="tb-cat">Images</div>
+                    <div class="tb-cat">Meshes</div>
+                </div>
+                <div class="toolbox-asset-list scrollable">
+                    <!-- 방대한 에셋 리스트 하드코딩 -->
+                    <div class="asset-card" onclick="Editor.insertPart('normal')">
+                        <div class="asset-thumbnail" style="background: #e2e8f0;"><i class="fa-solid fa-cube text-primary"></i></div>
+                        <div class="asset-info"><span class="asset-name">Basic Part</span><span class="asset-creator">By Roblox</span></div>
+                    </div>
+                    <div class="asset-card" onclick="Editor.insertPart('bounce')">
+                        <div class="asset-thumbnail" style="background: #bbf7d0;"><i class="fa-solid fa-angles-up text-success"></i></div>
+                        <div class="asset-info"><span class="asset-name">Bounce Pad (Jump)</span><span class="asset-creator">By CreateVerse</span></div>
+                    </div>
+                    <div class="asset-card" onclick="Editor.insertPart('lava')">
+                        <div class="asset-thumbnail" style="background: #fecdd3;"><i class="fa-solid fa-fire text-danger"></i></div>
+                        <div class="asset-info"><span class="asset-name">Kill Brick (Lava)</span><span class="asset-creator">By CreateVerse</span></div>
+                    </div>
+                    <div class="asset-card" onclick="Editor.insertPart('clicker')">
+                        <div class="asset-thumbnail" style="background: #fef08a;"><i class="fa-solid fa-sack-dollar text-gold"></i></div>
+                        <div class="asset-info"><span class="asset-name">Infinite Coin Box</span><span class="asset-creator">By EconomySystem</span></div>
+                    </div>
+                    <div class="asset-card" onclick="Editor.insertPart('spawn')">
+                        <div class="asset-thumbnail" style="background: transparent; border: 2px dashed #f59e0b;"><i class="fa-solid fa-flag text-gold"></i></div>
+                        <div class="asset-info"><span class="asset-name">Spawn Location</span><span class="asset-creator">By Roblox</span></div>
+                    </div>
+                    <div class="asset-card">
+                        <div class="asset-thumbnail" style="background: #bfdbfe;"><i class="fa-solid fa-water text-primary"></i></div>
+                        <div class="asset-info"><span class="asset-name">Water Volume</span><span class="asset-creator">By Terrain</span></div>
+                    </div>
+                    <div class="asset-card">
+                        <div class="asset-thumbnail" style="background: #e9d5ff;"><i class="fa-solid fa-door-open text-purple"></i></div>
+                        <div class="asset-info"><span class="asset-name">Teleporter</span><span class="asset-creator">By LogicTools</span></div>
+                    </div>
                 </div>
             </div>
-        </div>
+        </aside>
 
-        <!-- 4. [핵심] 분리형 스튜디오 워크스페이스 -->
-        <!-- UI와 캔버스가 겹치지 않도록 구역을 완벽히 분할했습니다. -->
-        <div id="editor-ui" class="screen editor-layout hidden">
+        <!-- [중앙 패널] 뷰포트 (Viewport / Scene) -->
+        <main class="dock-panel center-panel">
+            <!-- 뷰포트 탭 (코드 에디터와 스크린 스왑용) -->
+            <div class="viewport-tabs">
+                <div class="vp-tab active">
+                    <i class="fa-solid fa-globe"></i> Baseplate 
+                    <button class="close-tab"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="vp-tab">
+                    <i class="fa-solid fa-file-code text-gold"></i> MainServerScript
+                    <button class="close-tab"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
             
-            <!-- 상단 메뉴바 (File, Play 등) -->
-            <header class="studio-header">
-                <div class="header-left">
-                    <div class="studio-logo"><i class="fa-solid fa-cube"></i> Studio</div>
-                    <button class="menu-btn" onclick="GameApp.saveAndExit()"><i class="fa-solid fa-folder-open"></i> 저장 및 나가기</button>
-                </div>
-                <div class="header-center">
-                    <span class="camera-hint"><i class="fa-solid fa-arrows-up-down-left-right"></i> WASD 키로 화면 이동</span>
-                </div>
-                <div class="header-right">
-                    <button class="btn btn-success pop test-play-btn" onclick="GameApp.testPlay()">
-                        <i class="fa-solid fa-play"></i> 테스트 플레이
-                    </button>
-                </div>
-            </header>
-
-            <div class="studio-body">
-                <!-- 좌측: 도구 모음 (툴바) -->
-                <aside class="panel-left">
-                    <div class="panel-title">Tools</div>
-                    <div class="tool-grid">
-                        <button class="tool-btn active" id="tool-select" onclick="Editor.setTool('select')">
-                            <i class="fa-solid fa-arrow-pointer"></i><span>선택</span>
-                        </button>
-                        <button class="tool-btn" id="tool-draw" onclick="Editor.setTool('draw')">
-                            <i class="fa-solid fa-pen-ruler"></i><span>생성</span>
-                        </button>
-                        <button class="tool-btn" id="tool-erase" onclick="Editor.setTool('erase')">
-                            <i class="fa-solid fa-eraser"></i><span>삭제</span>
-                        </button>
+            <!-- 실제 렌더링 엔진 영역 -->
+            <div id="viewport-container" class="viewport-container">
+                <!-- 뷰포트 오버레이 UI (축 가이드, 스냅 표시 등) -->
+                <div class="viewport-overlay">
+                    <div class="overlay-left">
+                        <span id="coord-display">X: 0.0, Y: 0.0</span> | 
+                        <span id="snap-display">Snap: 50px</span>
                     </div>
-                </aside>
-
-                <!-- 중앙: 독립된 캔버스 뷰포트 -->
-                <!-- 이 영역 안에서만 클릭 이벤트가 발생하므로 버그가 완벽 차단됩니다. -->
-                <main class="panel-center" id="viewport-container">
-                    <div class="viewport-tab">
-                        <i class="fa-solid fa-gamepad"></i> Viewport
-                        <span id="canvas-coords">X: 0, Y: 0</span>
+                    <div class="overlay-right">
+                        <button class="view-btn"><i class="fa-solid fa-video"></i> 2D</button>
+                        <button class="view-btn"><i class="fa-solid fa-border-all"></i> Grid</button>
                     </div>
-                    <!-- 캔버스 영역 -->
-                    <canvas id="game-canvas"></canvas>
-                </main>
+                </div>
+                
+                <!-- 물리 엔진 캔버스 -->
+                <canvas id="game-canvas"></canvas>
 
-                <!-- 우측: 정밀 속성창 (Properties) -->
-                <aside class="panel-right" id="properties-panel">
-                    <div class="panel-title">Properties</div>
+                <!-- 테스트 플레이 전용 인게임 UI (오버레이) -->
+                <div id="play-ui" class="play-ui-layer hidden">
                     
-                    <div id="no-selection-msg" class="prop-empty">
-                        <i class="fa-solid fa-cube"></i>
-                        <p>블록을 선택하여<br>속성을 편집하세요.</p>
+                    <!-- 플레이어 리더보드 -->
+                    <div class="leaderboard-ui">
+                        <div class="lb-header">
+                            <span>Players</span>
+                            <span>Score (AND)</span>
+                        </div>
+                        <ul class="lb-players" id="player-list">
+                            <li>
+                                <div class="p-info"><img src="https://ui-avatars.com/api/?name=Me" class="p-icon"> <span>Me (Host)</span></div>
+                                <div class="p-score text-gold">100</div>
+                            </li>
+                        </ul>
                     </div>
-                    
-                    <div id="prop-content" class="prop-form hidden scrollable">
-                        <!-- 기본 속성 -->
-                        <div class="prop-category">Data</div>
-                        <div class="prop-group">
-                            <label>ID</label>
-                            <input type="text" id="prop-id" readonly disabled>
-                        </div>
-                        <div class="prop-group">
-                            <label>Type (기능)</label>
-                            <select id="prop-type" onchange="Editor.updateProp('type')">
-                                <option value="normal">일반 블록 (Normal)</option>
-                                <option value="bounce">바운스 (Bounce)</option>
-                                <option value="lava">용암 (Lava/Damage)</option>
-                                <option value="clicker">화폐 상자 (Clicker)</option>
-                                <option value="spawn">스폰 포인트 (Spawn)</option>
-                            </select>
-                        </div>
 
-                        <!-- 크기 및 위치 -->
-                        <div class="prop-category">Transform</div>
-                        <div class="prop-group">
-                            <label>크기 (Size W / H)</label>
+                    <!-- 채팅 시스템 -->
+                    <div class="chat-system">
+                        <div class="chat-messages scrollable" id="chat-messages">
+                            <div class="msg system">Welcome to CreateVerse!</div>
+                        </div>
+                        <div class="chat-input-bar">
+                            <span class="chat-tag">To: All</span>
+                            <input type="text" id="chat-input" placeholder="Tap here to chat">
+                        </div>
+                    </div>
+
+                    <!-- 모바일 컨트롤러 -->
+                    <div class="virtual-controls">
+                        <div class="joypad-area">
+                            <div class="joy-base" id="joystick"><div class="joy-stick" id="knob"></div></div>
+                        </div>
+                        <div class="action-area">
+                            <button class="action-btn jump-btn pop" id="jump-btn"><i class="fa-solid fa-arrow-up"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- [우측 패널] 익스플로러 & 인스펙터 (Hierarchy & Properties) -->
+        <aside class="dock-panel right-panel">
+            
+            <!-- 익스플로러 영역 -->
+            <div class="explorer-section">
+                <div class="panel-header">
+                    <span>Explorer</span>
+                    <div class="panel-controls"><i class="fa-solid fa-filter"></i></div>
+                </div>
+                <div class="explorer-search">
+                    <input type="text" placeholder="Filter workspace...">
+                </div>
+                
+                <!-- 방대한 트리 노드 구조 하드코딩 -->
+                <div class="explorer-tree scrollable" id="hierarchy-list">
+                    
+                    <div class="tree-node root open">
+                        <i class="fa-solid fa-caret-down toggle-btn"></i>
+                        <i class="fa-solid fa-globe node-icon text-primary"></i> <span class="node-name">Workspace</span>
+                    </div>
+                    <div class="tree-children" id="workspace-children">
+                        <div class="tree-node"><i class="fa-solid fa-video node-icon text-muted"></i> <span class="node-name">Camera</span></div>
+                        <div class="tree-node"><i class="fa-solid fa-mountain node-icon text-success"></i> <span class="node-name">Terrain</span></div>
+                        <div class="tree-node"><i class="fa-solid fa-cube node-icon"></i> <span class="node-name">Baseplate</span></div>
+                        <div class="tree-node"><i class="fa-solid fa-flag node-icon text-gold"></i> <span class="node-name">SpawnLocation</span></div>
+                    </div>
+
+                    <div class="tree-node root">
+                        <i class="fa-solid fa-caret-right toggle-btn"></i>
+                        <i class="fa-solid fa-users node-icon text-primary"></i> <span class="node-name">Players</span>
+                    </div>
+                    <div class="tree-node root">
+                        <i class="fa-solid fa-caret-right toggle-btn"></i>
+                        <i class="fa-solid fa-lightbulb node-icon text-gold"></i> <span class="node-name">Lighting</span>
+                    </div>
+                    <div class="tree-node root">
+                        <i class="fa-solid fa-caret-right toggle-btn"></i>
+                        <i class="fa-solid fa-server node-icon"></i> <span class="node-name">ServerScriptService</span>
+                    </div>
+                    <div class="tree-node root">
+                        <i class="fa-solid fa-caret-right toggle-btn"></i>
+                        <i class="fa-solid fa-database node-icon"></i> <span class="node-name">ServerStorage</span>
+                    </div>
+                    <div class="tree-node root">
+                        <i class="fa-solid fa-caret-right toggle-btn"></i>
+                        <i class="fa-solid fa-desktop node-icon text-primary"></i> <span class="node-name">StarterGui</span>
+                    </div>
+                    <div class="tree-node root">
+                        <i class="fa-solid fa-caret-right toggle-btn"></i>
+                        <i class="fa-solid fa-box node-icon text-gold"></i> <span class="node-name">StarterPack</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 프로퍼티(인스펙터) 영역 -->
+            <div class="properties-section">
+                <div class="panel-header">
+                    <span>Properties</span>
+                </div>
+                <div class="properties-search">
+                    <span class="selected-target" id="prop-target-name">Part</span>
+                    <input type="text" placeholder="Filter properties...">
+                </div>
+                
+                <!-- 방대한 속성 리스트 -->
+                <div class="properties-list scrollable" id="prop-content">
+                    
+                    <!-- Appearance 카테고리 -->
+                    <div class="prop-cat">
+                        <div class="cat-header"><i class="fa-solid fa-caret-down"></i> Appearance</div>
+                        <div class="cat-body">
                             <div class="prop-row">
-                                <input type="number" id="prop-w" onchange="Editor.updateProp('w')">
-                                <input type="number" id="prop-h" onchange="Editor.updateProp('h')">
+                                <label>BrickColor</label>
+                                <div class="prop-val"><div class="color-box" style="background:#a5b4fc;"></div> Medium stone grey</div>
+                            </div>
+                            <div class="prop-row">
+                                <label>Color</label>
+                                <div class="prop-val"><input type="color" id="prop-color" value="#a5b4fc" onchange="Editor.updateProp('color')"></div>
+                            </div>
+                            <div class="prop-row">
+                                <label>Material</label>
+                                <div class="prop-val">
+                                    <select class="prop-select">
+                                        <option>Plastic</option><option>Wood</option><option>Neon</option><option>Metal</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="prop-row">
+                                <label>Reflectance</label>
+                                <div class="prop-val"><input type="number" value="0.0" step="0.1" max="1"></div>
+                            </div>
+                            <div class="prop-row">
+                                <label>Transparency</label>
+                                <div class="prop-val"><input type="number" id="prop-alpha" value="0.0" step="0.1" max="1" onchange="Editor.updateProp('alpha')"></div>
                             </div>
                         </div>
-
-                        <!-- 외형 디자인 -->
-                        <div class="prop-category">Appearance</div>
-                        <div class="prop-group">
-                            <label>색상 (Color)</label>
-                            <div class="color-picker-wrap">
-                                <input type="color" id="prop-color" onchange="Editor.updateProp('color')">
-                                <span id="prop-color-hex">#ffffff</span>
-                            </div>
-                        </div>
-
-                        <!-- 물리 엔진 -->
-                        <div class="prop-category">Physics</div>
-                        <div class="prop-group toggle-group">
-                            <label>고정됨 (Anchored)</label>
-                            <label class="switch">
-                                <input type="checkbox" id="prop-anchored" onchange="Editor.updateProp('anchored')">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="prop-desc">체크 해제 시 중력을 받아 떨어집니다.</div>
-                        
-                        <div class="prop-group toggle-group">
-                            <label>충돌 (CanCollide)</label>
-                            <label class="switch">
-                                <input type="checkbox" id="prop-collide" onchange="Editor.updateProp('canCollide')">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="prop-desc">체크 해제 시 통과할 수 있습니다.</div>
-
-                        <button class="btn btn-danger block-btn" onclick="Editor.deleteSelected()">
-                            <i class="fa-solid fa-trash"></i> 블록 삭제 (Delete)
-                        </button>
                     </div>
-                </aside>
-            </div>
-        </div>
 
-        <!-- 5. 플레이 모드 UI (기존과 동일하게 유지하되 퀄리티 업) -->
-        <div id="play-ui" class="screen play-layout hidden">
-            <!-- 캔버스는 엔진에서 위치를 이동시켜 재사용합니다 -->
-            <button class="btn-back pop" onclick="GameApp.exitPlay()">
-                <i class="fa-solid fa-right-from-bracket"></i> 스튜디오로 복귀
-            </button>
-            
-            <div id="chat-widget" class="chat-panel">
-                <div id="chat-messages" class="scrollable"></div>
-                <div class="chat-input-box">
-                    <input type="text" id="chat-input" placeholder="채팅 입력..." autocomplete="off">
-                    <button class="chat-send-btn pop" onclick="Network.sendChat()"><i class="fa-solid fa-paper-plane"></i></button>
-                </div>
-            </div>
+                    <!-- Data 카테고리 -->
+                    <div class="prop-cat">
+                        <div class="cat-header"><i class="fa-solid fa-caret-down"></i> Data</div>
+                        <div class="cat-body">
+                            <div class="prop-row">
+                                <label>Name</label>
+                                <div class="prop-val"><input type="text" id="prop-name" value="Part"></div>
+                            </div>
+                            <div class="prop-row">
+                                <label>Orientation</label>
+                                <div class="prop-val vector-3">
+                                    <input type="number" value="0">, <input type="number" value="0">, <input type="number" value="0">
+                                </div>
+                            </div>
+                            <div class="prop-row">
+                                <label>Position</label>
+                                <div class="prop-val vector-2">
+                                    X: <input type="number" id="prop-x" value="0" onchange="Editor.updateProp('x')"> 
+                                    Y: <input type="number" id="prop-y" value="0" onchange="Editor.updateProp('y')">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-            <div class="mobile-controls-layer">
-                <div class="joystick-base" id="joystick">
-                    <div class="joystick-stick" id="knob"></div>
-                </div>
-                <div class="action-buttons">
-                    <button class="btn-jump pop" id="jump-btn">
-                        <i class="fa-solid fa-arrow-up"></i>
-                    </button>
+                    <!-- Behavior 카테고리 -->
+                    <div class="prop-cat">
+                        <div class="cat-header"><i class="fa-solid fa-caret-down"></i> Behavior</div>
+                        <div class="cat-body">
+                            <div class="prop-row">
+                                <label>Type (Logic)</label>
+                                <div class="prop-val">
+                                    <select class="prop-select" id="prop-type" onchange="Editor.updateProp('type')">
+                                        <option value="normal">Normal</option>
+                                        <option value="bounce">Bounce</option>
+                                        <option value="lava">Lava / Kill</option>
+                                        <option value="clicker">Coin Box</option>
+                                        <option value="spawn">SpawnPoint</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Part 카테고리 -->
+                    <div class="prop-cat">
+                        <div class="cat-header"><i class="fa-solid fa-caret-down"></i> Part</div>
+                        <div class="cat-body">
+                            <div class="prop-row">
+                                <label>Anchored</label>
+                                <div class="prop-val"><input type="checkbox" id="prop-anchored" checked onchange="Editor.updateProp('anchored')"></div>
+                            </div>
+                            <div class="prop-row">
+                                <label>CanCollide</label>
+                                <div class="prop-val"><input type="checkbox" id="prop-collide" checked onchange="Editor.updateProp('canCollide')"></div>
+                            </div>
+                            <div class="prop-row">
+                                <label>CanTouch</label>
+                                <div class="prop-val"><input type="checkbox" checked></div>
+                            </div>
+                            <div class="prop-row">
+                                <label>Massless</label>
+                                <div class="prop-val"><input type="checkbox"></div>
+                            </div>
+                            <div class="prop-row">
+                                <label>Size</label>
+                                <div class="prop-val vector-2">
+                                    W: <input type="number" id="prop-w" value="50" onchange="Editor.updateProp('w')"> 
+                                    H: <input type="number" id="prop-h" value="50" onchange="Editor.updateProp('h')">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 삭제 컨트롤 -->
+                    <div class="prop-actions">
+                        <button class="btn-full text-danger" onclick="Editor.deleteSelected()"><i class="fa-solid fa-trash"></i> Delete Object</button>
+                    </div>
+
                 </div>
             </div>
-        </div>
-        
-        <div id="particle-container"></div>
-        <div id="toast-container"></div>
+        </aside>
+
     </div>
 
+    <!-- ==========================================
+         4. 하단 콘솔 & 디버거 패널 (Output)
+    =========================================== -->
+    <footer id="studio-footer" class="studio-footer">
+        <div class="footer-tabs">
+            <div class="f-tab active">Output</div>
+            <div class="f-tab">Find Results</div>
+            <div class="f-tab">Script Analysis</div>
+        </div>
+        <div class="output-content">
+            <div class="output-toolbar">
+                <button><i class="fa-solid fa-ban"></i> Clear</button>
+                <div class="filter-toggles">
+                    <button class="active"><i class="fa-solid fa-info-circle text-primary"></i> Info</button>
+                    <button class="active"><i class="fa-solid fa-triangle-exclamation text-gold"></i> Warnings</button>
+                    <button class="active"><i class="fa-solid fa-circle-xmark text-danger"></i> Errors</button>
+                </div>
+            </div>
+            <div class="output-logs scrollable" id="console-logs">
+                <div class="log-line info"><span class="timestamp">16:40:00.000</span> - CreateVerse Studio Engine v2.5 Initialized.</div>
+                <div class="log-line info"><span class="timestamp">16:40:00.015</span> - Loading Workspace assets... OK.</div>
+                <div class="log-line warning"><span class="timestamp">16:40:01.002</span> - ServerScriptService: Waiting for PeerJS connection to establish.</div>
+                <div class="log-line info"><span class="timestamp">16:40:02.100</span> - Rendering Context 2D attached successfully.</div>
+            </div>
+            <div class="command-bar">
+                <span class="cmd-prompt">Run a command ></span>
+                <input type="text" placeholder="e.g. print('Hello World')">
+            </div>
+        </div>
+    </footer>
+
+    <!-- ==========================================
+         5. 상태 표시줄 (Status Bar)
+    =========================================== -->
+    <div class="status-bar">
+        <div class="status-left">
+            <span><i class="fa-solid fa-check"></i> Ready</span>
+        </div>
+        <div class="status-right">
+            <span>Local Server: 127.0.0.1</span>
+            <span>Memory: 45 MB</span>
+            <span>FPS: 60</span>
+        </div>
+    </div>
+
+    <!-- 파티클 및 토스트 모달 컨테이너 -->
+    <div id="particle-container"></div>
+    <div id="toast-container"></div>
+
+    <!-- 궁극의 엔진 스크립트 연결 -->
     <script src="script.js"></script>
 </body>
 </html>
