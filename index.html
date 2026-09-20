@@ -3,39 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CreateVerse - 궁극의 샌드박스 메이커</title>
+    <title>CreateVerse Studio - 2D 로블록스 메이커</title>
     
-    <!-- 초고퀄리티 UI를 위한 프리텐다드 폰트 적용 -->
+    <!-- 프리텐다드 폰트 & 폰트어썸 아이콘 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css">
-    <!-- 직관적인 UI를 위한 폰트어썸 아이콘 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- ⚠️ 바로 이 파일(style.css)이 있어야 완벽한 디자인이 나옵니다 ⚠️ -->
     <link rel="stylesheet" href="style.css">
     
-    <!-- 멀티플레이를 위한 PeerJS 라이브러리 -->
+    <!-- 멀티플레이 라이브러리 -->
     <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
 </head>
 <body>
-    <!-- 앱 전체를 감싸는 메인 컨테이너 -->
     <div id="app-container">
         
-        <!-- 1. 로딩 스크린 (초반 진입 시 고급스러움 강조) -->
+        <!-- 1. 로딩 스크린 -->
         <div id="loading-screen" class="screen active">
             <div class="loader-content">
                 <i class="fa-solid fa-cube fa-spin logo-icon"></i>
-                <h1>CreateVerse</h1>
-                <p>무한한 세계를 불러오는 중...</p>
+                <h1>Studio Engine</h1>
+                <p>에셋과 물리 엔진을 불러오는 중...</p>
                 <div class="progress-bar"><div class="progress-fill"></div></div>
             </div>
         </div>
 
-        <!-- 2. 메인 로비 (게임 목록 및 내 정보) -->
+        <!-- 2. 메인 로비 -->
         <div id="main-menu" class="screen hidden">
-            <!-- 상단 네비게이션 바 -->
             <header class="top-nav glass-nav">
                 <div class="brand">
-                    <i class="fa-solid fa-cube text-primary"></i> 
+                    <i class="fa-solid fa-layer-group text-primary"></i> 
                     <span>CreateVerse</span>
                 </div>
                 <div class="user-dashboard">
@@ -45,43 +40,40 @@
                         <span class="currency-unit">and</span>
                     </div>
                     <button class="btn btn-primary pop" onclick="UI.showPublishModal()">
-                        <i class="fa-solid fa-plus"></i> <span>새 게임 만들기</span>
+                        <i class="fa-solid fa-plus"></i> <span>스튜디오 열기</span>
                     </button>
                 </div>
             </header>
             
-            <!-- 게임 리스트 영역 (스크롤 가능) -->
             <main class="content-area scrollable">
                 <div class="header-banner">
-                    <h2>지금 뜨고 있는 세계들</h2>
-                    <p>다른 유저가 만든 맵을 탐험하거나, 나만의 규칙을 만들어보세요.</p>
+                    <h2>창작의 세계</h2>
+                    <p>로블록스처럼 자유롭게 만들고, 친구들과 실시간으로 플레이하세요.</p>
                 </div>
-                <div id="game-list" class="game-grid">
-                    <!-- 자바스크립트를 통해 게임 카드들이 여기에 생성됩니다 -->
-                </div>
+                <div id="game-list" class="game-grid"></div>
             </main>
         </div>
 
-        <!-- 3. 새 게임 만들기 (모달 팝업) -->
+        <!-- 3. 새 게임(월드) 만들기 모달 -->
         <div id="publish-modal" class="modal-backdrop hidden">
             <div class="modal-window">
                 <div class="modal-header">
-                    <h2><i class="fa-solid fa-rocket"></i> 새로운 세계 창조</h2>
+                    <h2><i class="fa-solid fa-earth-asia"></i> 새 월드 설정</h2>
                     <button class="icon-btn" onclick="UI.hidePublishModal()"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="modal-body">
                     <div class="input-group">
                         <label>게임 이름</label>
-                        <input type="text" id="game-name" placeholder="예: 무한 클릭커 키우기" autocomplete="off">
+                        <input type="text" id="game-name" placeholder="멋진 이름을 지어주세요">
                     </div>
                     <div class="input-group">
                         <label>게임 설명</label>
-                        <textarea id="game-desc" placeholder="플레이어들에게 이 게임의 규칙을 설명해주세요" rows="3"></textarea>
+                        <textarea id="game-desc" placeholder="어떤 게임인가요?" rows="2"></textarea>
                     </div>
                     <div class="input-row">
                         <div class="input-group half">
-                            <label>대표 아이콘</label>
-                            <input type="text" id="game-icon" value="🎮" maxlength="2" class="center-text">
+                            <label>아이콘</label>
+                            <input type="text" id="game-icon" value="🎮" class="center-text">
                         </div>
                         <div class="input-group half">
                             <label>입장 패스 (and)</label>
@@ -95,63 +87,121 @@
                 <div class="modal-footer">
                     <button class="btn btn-outline" onclick="UI.hidePublishModal()">취소</button>
                     <button class="btn btn-primary pop" onclick="GameApp.createNewGame()">
-                        <i class="fa-solid fa-hammer"></i> 에디터 열기
+                        <i class="fa-solid fa-hammer"></i> 에디터 시작
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- 4. 게임 엔진 화면 (실제 플레이 및 편집 캔버스) -->
+        <!-- 4. 게임 & 스튜디오 엔진 화면 -->
         <div id="game-screen" class="screen hidden">
-            <!-- 렌더링 캔버스 -->
             <canvas id="game-canvas"></canvas>
             
-            <!-- (A) 편집 모드 전용 UI -->
+            <!-- (A) 진짜 로블록스 스튜디오 같은 편집 UI -->
             <div id="editor-ui" class="game-ui-layer hidden">
-                <div class="editor-toolbar glass-panel slide-down">
-                    <button class="tool-btn active pop" id="tool-draw" onclick="Editor.setTool('draw')" title="블록 생성">
-                        <i class="fa-solid fa-cube"></i><span>블록</span>
-                    </button>
-                    <button class="tool-btn pop" id="tool-erase" onclick="Editor.setTool('erase')" title="블록 지우기">
-                        <i class="fa-solid fa-eraser"></i><span>지우개</span>
-                    </button>
-                    <div class="toolbar-divider"></div>
-                    <button class="tool-btn special pop" id="tool-clicker" onclick="Editor.setTool('clicker')" title="화폐 박스">
-                        <i class="fa-solid fa-sack-dollar"></i><span>and 화폐함</span>
-                    </button>
-                    
-                    <div class="toolbar-spacer"></div>
-                    
-                    <div class="camera-hint">
-                        <i class="fa-solid fa-arrows-up-down-left-right"></i> WASD 무한 이동
+                
+                <!-- 상단 컨트롤 바 -->
+                <div class="studio-topbar glass-panel slide-down">
+                    <div class="topbar-left">
+                        <button class="btn btn-outline pop" onclick="GameApp.saveAndExit()">
+                            <i class="fa-solid fa-right-from-bracket"></i> 나가기
+                        </button>
+                        <span class="camera-hint"><i class="fa-solid fa-arrows-up-down-left-right"></i> WASD (이동)</span>
                     </div>
-                    <button class="btn btn-success pop" onclick="GameApp.saveAndExit()">
-                        <i class="fa-solid fa-floppy-disk"></i> 저장 및 나가기
+                    <div class="topbar-right">
+                        <button class="btn btn-success pop test-play-btn" onclick="GameApp.testPlay()">
+                            <i class="fa-solid fa-play"></i> 테스트 플레이
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 좌측 툴바 (도구 선택) -->
+                <div class="studio-leftbar glass-panel slide-right">
+                    <button class="tool-btn active pop" id="tool-select" onclick="Editor.setTool('select')" title="선택/이동">
+                        <i class="fa-solid fa-arrow-pointer"></i><span>선택</span>
                     </button>
+                    <button class="tool-btn pop" id="tool-draw" onclick="Editor.setTool('draw')" title="블록 그리기">
+                        <i class="fa-solid fa-pen"></i><span>그리기</span>
+                    </button>
+                    <button class="tool-btn pop" id="tool-erase" onclick="Editor.setTool('erase')" title="지우개">
+                        <i class="fa-solid fa-eraser"></i><span>지우기</span>
+                    </button>
+                </div>
+
+                <!-- 하단 에셋 팔레트 (블록 종류) -->
+                <div class="studio-bottombar glass-panel slide-up">
+                    <div class="palette-scroll">
+                        <button class="asset-btn active" id="asset-normal" onclick="Editor.setAsset('normal')">
+                            <div class="asset-preview" style="background:#a5b4fc;"></div> 기본 블록
+                        </button>
+                        <button class="asset-btn" id="asset-bounce" onclick="Editor.setAsset('bounce')">
+                            <div class="asset-preview" style="background:#34d399;"></div> 바운스
+                        </button>
+                        <button class="asset-btn" id="asset-lava" onclick="Editor.setAsset('lava')">
+                            <div class="asset-preview" style="background:#f87171;"></div> 용암(데스)
+                        </button>
+                        <button class="asset-btn" id="asset-spawn" onclick="Editor.setAsset('spawn')">
+                            <div class="asset-preview" style="border: 2px dashed #fbbf24;"></div> 스폰 포인트
+                        </button>
+                        <button class="asset-btn" id="asset-clicker" onclick="Editor.setAsset('clicker')">
+                            <div class="asset-preview" style="background:#fbbf24; display:flex; align-items:center; justify-content:center; color:#000; font-weight:bold; font-size:10px;">$</div> 화폐 박스
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 우측 속성(Properties) 창 -->
+                <div class="studio-rightbar glass-panel slide-left" id="properties-panel">
+                    <div class="prop-header">속성 (Properties)</div>
+                    <div id="no-selection-msg" class="prop-empty">블록을 선택해주세요.</div>
+                    
+                    <div id="prop-content" class="hidden">
+                        <div class="prop-group">
+                            <label>크기 (W / H)</label>
+                            <div class="prop-row">
+                                <input type="number" id="prop-w" onchange="Editor.updateProp('w')">
+                                <input type="number" id="prop-h" onchange="Editor.updateProp('h')">
+                            </div>
+                        </div>
+                        <div class="prop-group">
+                            <label>색상 (Color)</label>
+                            <input type="color" id="prop-color" onchange="Editor.updateProp('color')">
+                        </div>
+                        <div class="prop-group">
+                            <label class="toggle-label">
+                                <span>고정됨 (Anchored)</span>
+                                <input type="checkbox" id="prop-anchored" onchange="Editor.updateProp('anchored')">
+                            </label>
+                            <span class="prop-desc">체크 해제 시 중력을 받아 떨어집니다.</span>
+                        </div>
+                        <div class="prop-group">
+                            <label class="toggle-label">
+                                <span>충돌 가능 (CanCollide)</span>
+                                <input type="checkbox" id="prop-collide" onchange="Editor.updateProp('canCollide')">
+                            </label>
+                            <span class="prop-desc">체크 해제 시 통과할 수 있습니다.</span>
+                        </div>
+                        <button class="btn btn-outline text-danger pop" style="width:100%; margin-top:10px;" onclick="Editor.deleteSelected()">
+                            <i class="fa-solid fa-trash"></i> 블록 삭제
+                        </button>
+                    </div>
                 </div>
             </div>
 
             <!-- (B) 플레이 모드 전용 UI -->
             <div id="play-ui" class="game-ui-layer hidden">
-                <!-- 뒤로가기 버튼 -->
                 <button class="btn-back glass-panel pop" onclick="GameApp.exitPlay()">
                     <i class="fa-solid fa-chevron-left"></i> 나가기
                 </button>
                 
-                <!-- 멀티플레이 실시간 채팅창 -->
                 <div id="chat-widget" class="chat-panel glass-panel">
-                    <div id="chat-messages" class="scrollable">
-                        <!-- 채팅 내용 추가됨 -->
-                    </div>
+                    <div id="chat-messages" class="scrollable"></div>
                     <div class="chat-input-box">
                         <input type="text" id="chat-input" placeholder="채팅 입력..." autocomplete="off">
-                        <button class="chat-send-btn pop" onclick="Network.sendChat()">
-                            <i class="fa-solid fa-paper-plane"></i>
-                        </button>
+                        <button class="chat-send-btn pop" onclick="Network.sendChat()"><i class="fa-solid fa-paper-plane"></i></button>
                     </div>
                 </div>
 
-                <!-- 모바일 터치 컨트롤 (조이스틱 & 점프) -->
+                <!-- 조이스틱 및 액션 버튼 -->
                 <div class="mobile-controls-layer">
                     <div class="joystick-base" id="joystick">
                         <div class="joystick-stick" id="knob"></div>
@@ -164,16 +214,12 @@
                 </div>
             </div>
             
-            <!-- 동적 파티클 효과 (코인 획득 시 텍스트 등) 컨테이너 -->
             <div id="particle-container"></div>
         </div>
         
-        <!-- 토스트 알림창 -->
         <div id="toast-container"></div>
-        
     </div>
 
-    <!-- 핵심 로직 파일 (현재는 아직 생성 전) -->
     <script src="script.js"></script>
 </body>
 </html>
