@@ -1,39 +1,71 @@
 /**
  * ============================================================================
- * CreateVerse Studio Pro - Ultimate Engine Core v2.5
- * Architecture: OOP-based, Modular Event-Driven System
- * Components: Math, Physics, Renderer, GUI, Network, Editor Workspace
+ * CreateVerse Studio Pro - Ultimate Engine Core v3.0
+ * Architecture: Entity-Component System (ECS) Inspired, OOP, Event-Driven
+ * Modules: Math, Time, Logger, Physics, Renderer, GUI, Network, Input
  * ============================================================================
  */
 
-/* =========================================
-   [1] Core Math & Utilities
-========================================= */
+/* ----------------------------------------------------------------------------
+   [1] CORE MATH & UTILITIES
+   ---------------------------------------------------------------------------- */
 class Vector2 {
     constructor(x = 0, y = 0) { this.x = x; this.y = y; }
     add(v) { return new Vector2(this.x + v.x, this.y + v.y); }
     sub(v) { return new Vector2(this.x - v.x, this.y - v.y); }
     mult(n) { return new Vector2(this.x * n, this.y * n); }
+    div(n) { return new Vector2(this.x / n, this.y / n); }
     mag() { return Math.sqrt(this.x * this.x + this.y * this.y); }
+    normalize() { const m = this.mag(); return m === 0 ? new Vector2(0, 0) : this.div(m); }
     clone() { return new Vector2(this.x, this.y); }
+    static distance(v1, v2) { return v1.sub(v2).mag(); }
 }
 
 const Utils = {
-    generateId: () => 'part_' + Math.random().toString(36).substr(2, 9),
+    generateUUID: () => 'part_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36),
     clamp: (val, min, max) => Math.max(min, Math.min(max, val)),
-    colorToHex: (color) => color // 확장 가능
+    lerp: (start, end, amt) => (1 - amt) * start + amt * end,
+    hexToRgb: (hex) => {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : null;
+    }
 };
 
-/* =========================================
-   [2] Output Console Logger
-========================================= */
+/* ----------------------------------------------------------------------------
+   [2] ENGINE TIME & SYSTEM LOGGER
+   ---------------------------------------------------------------------------- */
+const Time = {
+    deltaTime: 0,
+    lastTime: 0,
+    frameCount: 0,
+    fps: 0,
+    update: (currentTime) => {
+        Time.deltaTime = (currentTime - Time.lastTime) / 1000; // in seconds
+        Time.lastTime = currentTime;
+        Time.frameCount++;
+        if (Time.frameCount % 10 === 0) {
+            Time.fps = Math.round(1 / Time.deltaTime);
+            const fpsDisplay = document.getElementById('fps-display');
+            if (fpsDisplay) fpsDisplay.innerText = `${Time.fps} FPS`;
+        }
+    }
+};
+
 const Logger = {
     log: (msg, type = 'info') => {
         const consoleEl = document.getElementById('console-logs');
         if (!consoleEl) return;
-        const time = new Date().toISOString().substring(11, 23);
-        const logHtml = `<div class="log-line ${type}"><span class="timestamp">${time}</span> - ${msg}</div>`;
-        consoleEl.innerHTML += logHtml;
+        const timeStr = new Date().toISOString().substring(11, 23);
+        
+        let icon = '<i class="fa-solid fa-circle-info text-primary"></i>';
+        if (type === 'warning') icon = '<i class="fa-solid fa-triangle-exclamation text-gold"></i>';
+        if (type === 'error') icon = '<i class="fa-solid fa-circle-xmark text-danger"></i>';
+
+        const logHtml = `
+            <div class="log-line ${type}">
+                <span class="log-time">${timeStr}</span> ${icon} ${msg}
+            </div>`;
+        consoleEl.insertAdjacentHTML('beforeend', logHtml);
         consoleEl.scrollTop = consoleEl.scrollHeight;
     },
     info: (msg) => Logger.log(msg, 'info'),
@@ -42,118 +74,120 @@ const Logger = {
     clear: () => { document.getElementById('console-logs').innerHTML = ''; }
 };
 
-/* =========================================
-   [3] Game Objects (Classes)
-========================================= */
+/* ----------------------------------------------------------------------------
+   [3] GAME OBJECT MODEL (Entities)
+   ---------------------------------------------------------------------------- */
 class BasePart {
     constructor(config) {
-        this.id = config.id || Utils.generateId();
+        this.id = config.id || Utils.generateUUID();
         this.name = config.name || 'Part';
-        this.type = config.type || 'normal';
+        this.type = config.type || 'normal'; // normal, bounce, lava, clicker, spawn
+        
+        // Transform
         this.pos = new Vector2(config.x || 0, config.y || 0);
         this.size = new Vector2(config.w || 50, config.h || 50);
-        this.color = config.color || '#a5b4fc';
-        this.alpha = config.alpha !== undefined ? config.alpha : 1.0;
+        this.rotation = 0;
         
-        // Physics Properties
+        // Appearance
+        this.color = config.color || '#a5b4fc';
+        this.alpha = config.alpha !== undefined ? config.alpha : 0.0; // 0 = 불투명, 1 = 투명 (Roblox 방식)
+        this.material = config.material || 'Plastic';
+        
+        // Physics
         this.anchored = config.anchored !== undefined ? config.anchored : true;
         this.canCollide = config.canCollide !== undefined ? config.canCollide : true;
         this.velocity = new Vector2(0, 0);
+        this.mass = (this.size.x * this.size.y) / 100;
     }
 }
 
-/* =========================================
-   [4] Global Data & State Management
-========================================= */
-const STORAGE_KEY = 'CreateVerse_Pro_Data';
+/* ----------------------------------------------------------------------------
+   [4] GLOBAL STATE MANAGEMENT
+   ---------------------------------------------------------------------------- */
+const STORAGE_KEY = 'CreateVerse_Studio_Pro_Data';
+
 const AppState = {
-    userData: { and: 0, peerId: Utils.generateId(), games: [] },
-    workspace: {
-        blocks: [],
-        spawnPoint: new Vector2(0, 0)
-    },
+    user: { peerId: Utils.generateUUID(), andBalance: 0 },
+    workspace: { parts: [] },
     engine: {
         mode: 'edit', // 'edit' | 'play'
         camera: new Vector2(0, 0),
         zoom: 1.0,
-        gridSize: 50
+        gridSnap: 25,
+        gravity: 1200 // pixels per second squared
     },
     editor: {
-        selectedPart: null,
-        activeTool: 'select', // select, move, scale, draw, erase
+        selectedPartId: null,
+        activeTool: 'select', // select, move, scale
         isDragging: false,
         dragOffset: new Vector2(0, 0)
     }
 };
 
-/* Data Initialization */
-function initData() {
-    try {
+/* ----------------------------------------------------------------------------
+   [5] EDITOR GUI & DATA BINDING (Inspector & Explorer)
+   ---------------------------------------------------------------------------- */
+const EditorGUI = {
+    init: () => {
+        // 데이터 로드
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
-            AppState.userData = JSON.parse(saved);
-            Logger.info('User data loaded from LocalStorage.');
+            const parsed = JSON.parse(saved);
+            AppState.user.andBalance = parsed.and || 0;
+            if (parsed.parts && parsed.parts.length > 0) {
+                AppState.workspace.parts = parsed.parts.map(p => new BasePart(p));
+            } else {
+                EditorGUI.createDefaultBaseplate();
+            }
         } else {
-            AppState.userData.games.push(createDefaultWorld());
-            saveData();
-            Logger.info('New user profile created.');
+            EditorGUI.createDefaultBaseplate();
         }
-        document.getElementById('and-balance').innerText = `${AppState.userData.and} AND`;
-    } catch (e) {
-        Logger.error('Failed to load data: ' + e.message);
-    }
-}
+        
+        document.getElementById('and-balance').innerText = `${AppState.user.andBalance} AND`;
+        EditorGUI.syncExplorer();
+        Logger.info('Workspace loaded successfully.');
+    },
 
-function saveData() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(AppState.userData));
-    document.getElementById('and-balance').innerText = `${AppState.userData.and} AND`;
-}
-
-function createDefaultWorld() {
-    return {
-        id: 'world_default_1',
-        name: 'My First Baseplate',
-        desc: '로블록스 스튜디오 스타일의 기본 맵입니다.',
-        icon: '🌍',
-        passPrice: 0,
-        creator: AppState.userData.peerId,
-        blocks: [
-            new BasePart({ name: 'Baseplate', x: -500, y: 150, w: 1000, h: 50, color: '#1e293b', anchored: true }),
+    createDefaultBaseplate: () => {
+        AppState.workspace.parts = [
+            new BasePart({ name: 'Baseplate', x: -1000, y: 150, w: 2000, h: 50, color: '#1e293b', anchored: true }),
             new BasePart({ name: 'SpawnLocation', x: 0, y: 100, w: 50, h: 50, type: 'spawn', color: 'transparent', anchored: true, canCollide: false }),
             new BasePart({ name: 'CoinBox', x: 200, y: -50, w: 100, h: 100, type: 'clicker', color: '#ffb300', anchored: true })
-        ]
-    };
-}
+        ];
+    },
 
-/* =========================================
-   [5] Explorer & Inspector (UI Binding)
-========================================= */
-const GUI = {
+    saveData: () => {
+        const dataToSave = {
+            and: AppState.user.andBalance,
+            parts: AppState.workspace.parts
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+    },
+
     syncExplorer: () => {
         const container = document.getElementById('workspace-children');
         if (!container) return;
         container.innerHTML = '';
         
-        AppState.workspace.blocks.forEach(part => {
-            const isSelected = AppState.editor.selectedPart && AppState.editor.selectedPart.id === part.id;
+        AppState.workspace.parts.forEach(part => {
+            const isSelected = AppState.editor.selectedPartId === part.id;
             const node = document.createElement('div');
             node.className = `tree-node ${isSelected ? 'selected' : ''}`;
             
-            // 타입별 아이콘 분기
             let icon = 'fa-cube text-main';
-            if(part.type === 'spawn') icon = 'fa-flag text-gold';
-            if(part.type === 'lava') icon = 'fa-fire text-danger';
-            if(part.type === 'bounce') icon = 'fa-angles-up text-success';
-            if(part.type === 'clicker') icon = 'fa-sack-dollar text-gold';
+            if (part.type === 'spawn') icon = 'fa-flag text-gold';
+            if (part.type === 'lava') icon = 'fa-fire text-danger';
+            if (part.type === 'bounce') icon = 'fa-angles-up text-success';
+            if (part.type === 'clicker') icon = 'fa-sack-dollar text-gold';
             
-            node.innerHTML = `<i class="fa-solid ${icon} node-icon"></i> <span class="node-name">${part.name}</span>`;
-            node.onclick = () => Editor.selectPart(part.id);
+            node.innerHTML = `<i class="fa-solid ${icon} node-icon"></i> ${part.name}`;
+            node.onclick = () => EditorCore.selectPart(part.id);
             container.appendChild(node);
         });
     },
 
     syncInspector: () => {
-        const part = AppState.editor.selectedPart;
+        const part = AppState.workspace.parts.find(p => p.id === AppState.editor.selectedPartId);
         const emptyState = document.getElementById('prop-empty-state');
         const contentState = document.getElementById('prop-content');
         const targetName = document.getElementById('prop-target-name');
@@ -161,7 +195,7 @@ const GUI = {
         if (!part) {
             emptyState.classList.remove('hidden');
             contentState.classList.add('hidden');
-            targetName.innerText = 'None';
+            targetName.innerText = 'Workspace';
             return;
         }
 
@@ -169,7 +203,7 @@ const GUI = {
         contentState.classList.remove('hidden');
         targetName.innerText = part.name;
 
-        // 양방향 데이터 바인딩 (DOM 업데이트)
+        // 양방향 데이터 바인딩 적용
         document.getElementById('prop-name').value = part.name;
         document.getElementById('prop-type').value = part.type;
         document.getElementById('prop-color').value = part.color !== 'transparent' ? part.color : '#ffffff';
@@ -186,64 +220,76 @@ const GUI = {
 
     showToast: (msg, isError = false) => {
         const container = document.getElementById('toast-container');
-        if(!container) return;
-        const t = document.createElement('div');
-        t.className = 'toast';
-        t.innerHTML = `<i class="fa-solid ${isError ? 'fa-triangle-exclamation text-danger' : 'fa-check text-success'}"></i> ${msg}`;
-        container.appendChild(t);
-        setTimeout(() => t.remove(), 3000);
+        if (!container) return;
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = `<i class="fa-solid ${isError ? 'fa-triangle-exclamation text-danger' : 'fa-check text-success'}"></i> ${msg}`;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    },
+
+    spawnParticle: (x, y, text, color = '#ffd54f') => {
+        const container = document.getElementById('particle-container');
+        if (!container) return;
+        const el = document.createElement('div');
+        el.className = 'floating-coin-text';
+        el.innerText = text;
+        el.style.color = color;
+        el.style.left = x + 'px';
+        el.style.top = y + 'px';
+        container.appendChild(el);
+        setTimeout(() => el.remove(), 1000);
     }
 };
 
-/* =========================================
-   [6] Editor Actions (Logic)
-========================================= */
-const Editor = {
+/* ----------------------------------------------------------------------------
+   [6] EDITOR CORE LOGIC (Tools & Manipulation)
+   ---------------------------------------------------------------------------- */
+const EditorCore = {
     setTool: (tool) => {
         AppState.editor.activeTool = tool;
-        document.querySelectorAll('.r-btn, .tool-btn').forEach(b => b.classList.remove('active'));
-        const btn1 = document.getElementById('tool-' + tool);
-        if(btn1) btn1.classList.add('active');
-        Logger.info(`Tool changed to: ${tool.toUpperCase()}`);
+        document.querySelectorAll('.r-btn-large').forEach(b => b.classList.remove('active'));
+        const btn = document.getElementById('tool-' + tool);
+        if(btn) btn.classList.add('active');
+        Logger.info(`Tool selected: ${tool.toUpperCase()}`);
     },
 
     selectPart: (id) => {
-        const part = AppState.workspace.blocks.find(b => b.id === id);
-        AppState.editor.selectedPart = part || null;
-        GUI.syncExplorer();
-        GUI.syncInspector();
+        AppState.editor.selectedPartId = id;
+        EditorGUI.syncExplorer();
+        EditorGUI.syncInspector();
     },
 
     insertPart: (type) => {
         const cam = AppState.engine.camera;
-        // 화면 중앙(카메라 위치 근처)에 스폰
+        const colors = { normal: '#5c6bc0', bounce: '#4caf50', lava: '#f44336', clicker: '#ffb300', spawn: 'transparent' };
+        
         const newPart = new BasePart({
             type: type,
             name: type.charAt(0).toUpperCase() + type.slice(1) + 'Part',
-            x: Math.floor(cam.x / 50) * 50,
-            y: Math.floor(cam.y / 50) * 50,
+            x: Math.floor(cam.x / AppState.engine.gridSnap) * AppState.engine.gridSnap,
+            y: Math.floor(cam.y / AppState.engine.gridSnap) * AppState.engine.gridSnap,
             w: type === 'clicker' ? 100 : 50,
             h: type === 'clicker' ? 100 : 50,
-            color: Editor.getDefaultColor(type),
-            anchored: true,
+            color: colors[type] || '#ffffff',
             canCollide: type !== 'spawn'
         });
         
-        AppState.workspace.blocks.push(newPart);
-        Editor.selectPart(newPart.id);
-        Editor.setTool('move');
-        Logger.info(`Inserted new ${type} part into Workspace.`);
+        AppState.workspace.parts.push(newPart);
+        EditorCore.selectPart(newPart.id);
+        EditorCore.setTool('move');
+        Logger.info(`Inserted new ${type} part.`);
     },
 
     deleteSelected: () => {
-        if (!AppState.editor.selectedPart) return;
-        AppState.workspace.blocks = AppState.workspace.blocks.filter(b => b.id !== AppState.editor.selectedPart.id);
-        Logger.warn(`Deleted part: ${AppState.editor.selectedPart.name}`);
-        Editor.selectPart(null);
+        if (!AppState.editor.selectedPartId) return;
+        AppState.workspace.parts = AppState.workspace.parts.filter(p => p.id !== AppState.editor.selectedPartId);
+        Logger.warn('Object deleted from Workspace.');
+        EditorCore.selectPart(null);
     },
 
     updateProp: (key) => {
-        const p = AppState.editor.selectedPart;
+        const p = AppState.workspace.parts.find(part => part.id === AppState.editor.selectedPartId);
         if (!p) return;
         
         try {
@@ -257,76 +303,64 @@ const Editor = {
             
             if (key === 'type') {
                 p.type = document.getElementById('prop-type').value;
-                p.name = p.type + 'Part'; // 이름 자동 변경
+                p.name = p.type + 'Part'; // 이름 연동 변경
+                document.getElementById('prop-name').value = p.name;
             }
             
             if (key === 'anchored') p.anchored = document.getElementById('prop-anchored').checked;
             if (key === 'canCollide') p.canCollide = document.getElementById('prop-collide').checked;
 
-            GUI.syncExplorer();
+            EditorGUI.syncExplorer();
         } catch (e) {
-            Logger.error('Property update error: ' + e);
+            Logger.error('Property update failed.');
         }
     },
 
     toggleAnchor: () => {
-        if(AppState.editor.selectedPart) {
-            AppState.editor.selectedPart.anchored = !AppState.editor.selectedPart.anchored;
-            GUI.syncInspector();
-            Logger.info(`Toggled Anchor to ${AppState.editor.selectedPart.anchored}`);
-        }
+        const p = AppState.workspace.parts.find(part => part.id === AppState.editor.selectedPartId);
+        if (p) { p.anchored = !p.anchored; EditorGUI.syncInspector(); Logger.info(`Anchored: ${p.anchored}`); }
     },
 
     toggleCollide: () => {
-        if(AppState.editor.selectedPart) {
-            AppState.editor.selectedPart.canCollide = !AppState.editor.selectedPart.canCollide;
-            GUI.syncInspector();
-        }
-    },
-
-    getDefaultColor: (type) => {
-        const colors = { normal: '#5c6bc0', bounce: '#4caf50', lava: '#f44336', clicker: '#ffb300', spawn: 'transparent' };
-        return colors[type] || '#ffffff';
+        const p = AppState.workspace.parts.find(part => part.id === AppState.editor.selectedPartId);
+        if (p) { p.canCollide = !p.canCollide; EditorGUI.syncInspector(); Logger.info(`CanCollide: ${p.canCollide}`); }
     }
 };
 
-/* =========================================
-   [7] Physics Engine & Player Controller
-========================================= */
+/* ----------------------------------------------------------------------------
+   [7] PHYSICS ENGINE (Delta-Time Based AABB Collision)
+   ---------------------------------------------------------------------------- */
 const Physics = {
-    player: {
-        pos: new Vector2(0, 0),
-        size: new Vector2(35, 35),
-        vel: new Vector2(0, 0),
-        grounded: false
-    },
+    player: { pos: new Vector2(0,0), size: new Vector2(35, 35), vel: new Vector2(0,0), grounded: false },
     otherPlayers: {},
 
-    update: () => {
+    update: (dt) => {
         if (AppState.engine.mode !== 'play') return;
 
         const p = Physics.player;
-        const blocks = AppState.workspace.blocks;
-        const speed = 7;
-        const friction = 0.82;
-        const gravity = 0.8;
-        const jumpForce = -15;
+        const parts = AppState.workspace.parts;
+        
+        const moveSpeed = 400; // pixels per second
+        const friction = 0.85;
+        const jumpForce = -600;
 
-        // 1. Input Processing
-        if (Input.keys['a'] || Input.joyX < -20) p.vel.x = -speed;
-        else if (Input.keys['d'] || Input.joyX > 20) p.vel.x = speed;
-        else p.vel.x *= friction; // 관성 마찰
+        // 1. Input & Horizontal Movement
+        let targetVx = 0;
+        if (Input.keys['a'] || Input.joyX < -20) targetVx = -moveSpeed;
+        else if (Input.keys['d'] || Input.joyX > 20) targetVx = moveSpeed;
+        
+        p.vel.x = Utils.lerp(p.vel.x, targetVx, 1 - Math.pow(friction, dt * 60));
 
+        // 2. Vertical Movement & Gravity
         if ((Input.keys['w'] || Input.keys[' '] || Input.jump) && p.grounded) {
             p.vel.y = jumpForce;
             p.grounded = false;
         }
+        p.vel.y += AppState.engine.gravity * dt;
 
-        p.vel.y += gravity;
-
-        // 2. AABB Collision Detection & Resolution (X축 처리)
-        p.pos.x += p.vel.x;
-        blocks.forEach(b => {
+        // 3. Collision Detection & Resolution (X-Axis)
+        p.pos.x += p.vel.x * dt;
+        parts.forEach(b => {
             if (b.canCollide && Physics.checkAABB(p, b)) {
                 if (p.vel.x > 0) p.pos.x = b.pos.x - p.size.x;
                 else if (p.vel.x < 0) p.pos.x = b.pos.x + b.size.x;
@@ -334,88 +368,81 @@ const Physics = {
             }
         });
 
-        // 3. AABB Collision (Y축 처리)
-        p.pos.y += p.vel.y;
+        // 4. Collision Detection & Resolution (Y-Axis)
+        p.pos.y += p.vel.y * dt;
         p.grounded = false;
-        blocks.forEach(b => {
-            // 트리거(센서) 블록 검사
+        
+        parts.forEach(b => {
+            // Trigger Volumes (Lava, etc)
             if (Physics.checkAABB(p, b)) {
                 if (b.type === 'lava') {
-                    Logger.warn('Player touched Lava! Respawning...');
+                    Logger.warn('Player killed by LavaBlock.');
                     GameApp.respawn();
                     return;
                 }
             }
 
-            // 물리 충돌 처리
+            // Solid Collision
             if (b.canCollide && Physics.checkAABB(p, b)) {
-                if (p.vel.y > 0) {
+                if (p.vel.y > 0) { // Falling down onto block
                     p.pos.y = b.pos.y - p.size.y;
                     p.grounded = true;
-                    // 바운스 블록 로직
-                    if (b.type === 'bounce') p.vel.y = -22; 
+                    if (b.type === 'bounce') p.vel.y = jumpForce * 1.5; // 슈퍼 점프
                     else p.vel.y = 0;
-                } else if (p.vel.y < 0) {
+                } 
+                else if (p.vel.y < 0) { // Hitting ceiling
                     p.pos.y = b.pos.y + b.size.y;
                     p.vel.y = 0;
                 }
             }
         });
 
-        // 4. 언앵커 파트 물리 연산 (간이 추락)
-        blocks.forEach(b => {
+        // 5. Unanchored Parts Physics
+        parts.forEach(b => {
             if (!b.anchored) {
-                b.velocity.y += gravity;
-                b.pos.y += b.velocity.y;
+                b.velocity.y += AppState.engine.gravity * dt;
+                b.pos.y += b.velocity.y * dt;
             }
         });
 
-        // 5. 카메라 추적 (Lerp interpolation)
-        const targetX = p.pos.x - window.innerWidth / 2;
-        const targetY = p.pos.y - window.innerHeight / 2;
-        AppState.engine.camera.x += (targetX - AppState.engine.camera.x) * 0.1;
-        AppState.engine.camera.y += (targetY - AppState.engine.camera.y) * 0.1;
+        // 6. Camera Follow (Smooth Lerp)
+        const targetCamX = p.pos.x - window.innerWidth / 2;
+        const targetCamY = p.pos.y - window.innerHeight / 2;
+        AppState.engine.camera.x = Utils.lerp(AppState.engine.camera.x, targetCamX, 5 * dt);
+        AppState.engine.camera.y = Utils.lerp(AppState.engine.camera.y, targetCamY, 5 * dt);
 
-        // 6. Network Sync (초당 약 10회 브로드캐스트)
-        if (Math.random() < 0.15) {
-            Network.broadcast({ type: 'move', id: AppState.userData.peerId, pos: p.pos });
+        // 7. Network Sync
+        if (Math.random() < 0.2) {
+            Network.broadcast({ type: 'move', id: AppState.user.peerId, pos: p.pos });
         }
     },
 
-    checkAABB: (rect1, rect2) => {
-        return rect1.pos.x < rect2.pos.x + rect2.size.x &&
-               rect1.pos.x + rect1.size.x > rect2.pos.x &&
-               rect1.pos.y < rect2.pos.y + rect2.size.y &&
-               rect1.pos.y + rect1.size.y > rect2.pos.y;
+    checkAABB: (r1, r2) => {
+        return r1.pos.x < r2.pos.x + r2.size.x &&
+               r1.pos.x + r1.size.x > r2.pos.x &&
+               r1.pos.y < r2.pos.y + r2.size.y &&
+               r1.pos.y + r1.size.y > r2.pos.y;
     }
 };
 
-/* =========================================
-   [8] Graphics Rendering Pipeline
-========================================= */
+/* ----------------------------------------------------------------------------
+   [8] RENDERING PIPELINE (Canvas 2D Context)
+   ---------------------------------------------------------------------------- */
 const Renderer = {
     canvas: document.getElementById('game-canvas'),
     ctx: null,
-    loopId: null,
 
     init: () => {
-        if(!Renderer.canvas) return;
-        Renderer.ctx = Renderer.canvas.getContext('2d');
+        if (!Renderer.canvas) return;
+        Renderer.ctx = Renderer.canvas.getContext('2d', { alpha: false }); // 최적화
         window.addEventListener('resize', Renderer.resize);
         Renderer.resize();
     },
 
     resize: () => {
-        if(!Renderer.canvas) return;
         const parent = Renderer.canvas.parentElement;
         Renderer.canvas.width = parent.clientWidth;
         Renderer.canvas.height = parent.clientHeight;
-    },
-
-    loop: () => {
-        Physics.update();
-        Renderer.draw();
-        Renderer.loopId = requestAnimationFrame(Renderer.loop);
     },
 
     draw: () => {
@@ -424,15 +451,18 @@ const Renderer = {
         const h = Renderer.canvas.height;
         const cam = AppState.engine.camera;
 
-        ctx.clearRect(0, 0, w, h);
+        // Background Clear (Sky color based on mode)
+        ctx.fillStyle = AppState.engine.mode === 'edit' ? '#1a1a2e' : '#87CEEB'; // 에디터는 다크, 플레이는 하늘색
+        ctx.fillRect(0, 0, w, h);
+        
         ctx.save();
-        ctx.translate(-cam.x, -cam.y);
+        ctx.translate(Math.floor(-cam.x), Math.floor(-cam.y));
 
-        // 1. Draw Grid (Edit Mode Only)
+        // Draw Grid (Edit Mode Only)
         if (AppState.engine.mode === 'edit') {
             ctx.strokeStyle = 'rgba(255,255,255,0.05)';
             ctx.lineWidth = 1;
-            const grid = AppState.engine.gridSize;
+            const grid = AppState.engine.gridSnap;
             const startX = Math.floor(cam.x / grid) * grid;
             const startY = Math.floor(cam.y / grid) * grid;
             
@@ -442,76 +472,85 @@ const Renderer = {
             ctx.stroke();
         }
 
-        // 2. Draw Blocks (Parts)
-        AppState.workspace.blocks.forEach(b => {
-            ctx.globalAlpha = b.alpha;
+        // Draw Parts (Workspace)
+        AppState.workspace.parts.forEach(b => {
+            const realAlpha = 1.0 - b.alpha; // 0 = opaque in Roblox
+            if (realAlpha <= 0) return;
+            
+            ctx.globalAlpha = realAlpha;
             ctx.fillStyle = b.color;
 
+            // Decals & Textures based on type
             if (b.type === 'spawn') {
                 ctx.strokeStyle = '#f59e0b'; ctx.setLineDash([5, 5]); ctx.lineWidth = 2;
                 ctx.strokeRect(b.pos.x, b.pos.y, b.size.x, b.size.y); ctx.setLineDash([]);
-                ctx.fillStyle = '#f59e0b'; ctx.font = '10px Arial'; ctx.fillText('SPAWN', b.pos.x + 5, b.pos.y + 15);
+                ctx.fillStyle = '#f59e0b'; ctx.font = '10px Arial'; ctx.textAlign = 'center';
+                ctx.fillText('SPAWN', b.pos.x + b.size.x/2, b.pos.y + b.size.y/2 + 4);
             } 
             else if (b.type === 'clicker') {
                 ctx.fillRect(b.pos.x, b.pos.y, b.size.x, b.size.y);
-                ctx.fillStyle = '#000'; ctx.font = 'bold 24px Pretendard'; ctx.textAlign = 'center';
+                ctx.fillStyle = '#000'; ctx.font = 'bold 24px Arial'; ctx.textAlign = 'center';
                 ctx.fillText('$', b.pos.x + b.size.x/2, b.pos.y + b.size.y/2 + 8);
-                ctx.textAlign = 'left';
             }
             else {
                 ctx.fillRect(b.pos.x, b.pos.y, b.size.x, b.size.y);
-                if (b.alpha === 1) {
-                    ctx.strokeStyle = 'rgba(0,0,0,0.3)'; ctx.lineWidth = 1;
-                    ctx.strokeRect(b.pos.x, b.pos.y, b.size.x, b.size.y);
-                }
+                // Bevel effect
+                ctx.strokeStyle = 'rgba(0,0,0,0.3)'; ctx.lineWidth = 1;
+                ctx.strokeRect(b.pos.x, b.pos.y, b.size.x, b.size.y);
+                ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+                ctx.beginPath(); ctx.moveTo(b.pos.x, b.pos.y + b.size.y); ctx.lineTo(b.pos.x, b.pos.y); ctx.lineTo(b.pos.x + b.size.x, b.pos.y); ctx.stroke();
             }
+            
             ctx.globalAlpha = 1.0;
 
-            // Selection Highlight & Resize Handles (Studio Style)
-            if (AppState.engine.mode === 'edit' && AppState.editor.selectedPart && AppState.editor.selectedPart.id === b.id) {
+            // Draw Editor Gizmos (Selection)
+            if (AppState.engine.mode === 'edit' && AppState.editor.selectedPartId === b.id) {
                 ctx.strokeStyle = '#007acc'; ctx.lineWidth = 2;
-                ctx.strokeRect(b.pos.x - 1, b.pos.y - 1, b.size.x + 2, b.size.y + 2);
+                ctx.strokeRect(b.pos.x - 2, b.pos.y - 2, b.size.x + 4, b.size.y + 4);
                 
-                // Draw 4 corner handles
-                ctx.fillStyle = '#fff'; ctx.strokeStyle = '#007acc';
-                const hSize = 6;
+                // Corner handles
+                ctx.fillStyle = '#fff';
+                const hs = 6;
                 const corners = [
                     {x: b.pos.x, y: b.pos.y}, {x: b.pos.x + b.size.x, y: b.pos.y},
                     {x: b.pos.x, y: b.pos.y + b.size.y}, {x: b.pos.x + b.size.x, y: b.pos.y + b.size.y}
                 ];
                 corners.forEach(c => {
-                    ctx.fillRect(c.x - hSize/2, c.y - hSize/2, hSize, hSize);
-                    ctx.strokeRect(c.x - hSize/2, c.y - hSize/2, hSize, hSize);
+                    ctx.fillRect(c.x - hs/2, c.y - hs/2, hs, hs);
+                    ctx.strokeRect(c.x - hs/2, c.y - hs/2, hs, hs);
                 });
             }
         });
 
-        // 3. Draw Players (Play Mode Only)
+        // Draw Players (Play Mode)
         if (AppState.engine.mode === 'play') {
-            // Other players
+            // Network Players
             ctx.fillStyle = '#ef4444';
+            ctx.textAlign = 'center'; ctx.font = '10px Arial';
             for (let id in Physics.otherPlayers) {
                 let p = Physics.otherPlayers[id];
                 ctx.fillRect(p.x, p.y, Physics.player.size.x, Physics.player.size.y);
-                ctx.fillStyle = '#fff'; ctx.font='10px Arial'; ctx.fillText(id.substring(0,5), p.x, p.y - 5);
-                ctx.fillStyle = '#ef4444';
+                ctx.fillText(id.substring(0,5), p.x + Physics.player.size.x/2, p.y - 5);
             }
             // Local Player
             const lp = Physics.player;
             ctx.fillStyle = '#5c6bc0';
-            ctx.shadowColor = '#5c6bc0'; ctx.shadowBlur = 10;
             ctx.fillRect(lp.pos.x, lp.pos.y, lp.size.x, lp.size.y);
-            ctx.shadowBlur = 0;
-            ctx.fillStyle = '#fff'; ctx.font='10px Arial'; ctx.fillText('Me', lp.pos.x, lp.pos.y - 5);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText('Me', lp.pos.x + lp.size.x/2, lp.pos.y - 5);
         }
 
         ctx.restore();
+        
+        // Update Viewport HUD
+        const coordDisplay = document.getElementById('coord-display');
+        if (coordDisplay) coordDisplay.innerText = `X: ${Math.round(cam.x)}, Y: ${Math.round(cam.y)}`;
     }
 };
 
-/* =========================================
-   [9] Input Management (Keyboard, Mouse, Touch)
-========================================= */
+/* ----------------------------------------------------------------------------
+   [9] INPUT CONTROLLER (Mouse, Touch, Keyboard)
+   ---------------------------------------------------------------------------- */
 const Input = {
     keys: {}, joyX: 0, joyY: 0, jump: false,
 
@@ -520,7 +559,7 @@ const Input = {
         window.addEventListener('keyup', e => Input.keys[e.key.toLowerCase()] = false);
         
         const cvs = Renderer.canvas;
-        if(!cvs) return;
+        if (!cvs) return;
         
         cvs.addEventListener('mousedown', Input.onDown);
         window.addEventListener('mousemove', Input.onMove);
@@ -530,23 +569,24 @@ const Input = {
         window.addEventListener('touchmove', e => Input.onMove(e.touches[0]), {passive: false});
         window.addEventListener('touchend', Input.onUp);
 
-        // Mobile Controls
+        // Mobile Virtual Joystick
         const joyBase = document.getElementById('joystick');
         const knob = document.getElementById('knob');
         if (joyBase && knob) {
             const handleJoy = (e) => {
                 e.preventDefault();
                 const rect = joyBase.getBoundingClientRect();
-                let dx = e.touches[0].clientX - rect.left - 65; // radius
-                let dy = e.touches[0].clientY - rect.top - 65;
-                const dist = Math.min(Math.sqrt(dx*dx + dy*dy), 40);
+                let dx = e.touches[0].clientX - rect.left - rect.width/2;
+                let dy = e.touches[0].clientY - rect.top - rect.height/2;
+                const dist = Math.min(Math.sqrt(dx*dx + dy*dy), rect.width/2 - 10);
                 const angle = Math.atan2(dy, dx);
-                Input.joyX = Math.cos(angle) * dist; Input.joyY = Math.sin(angle) * dist;
+                Input.joyX = Math.cos(angle) * dist; 
+                Input.joyY = Math.sin(angle) * dist;
                 knob.style.transform = `translate(${Input.joyX}px, ${Input.joyY}px)`;
             };
             joyBase.addEventListener('touchstart', handleJoy, {passive: false});
             joyBase.addEventListener('touchmove', handleJoy, {passive: false});
-            joyBase.addEventListener('touchend', () => { Input.joyX = 0; Input.joyY = 0; knob.style.transform = `translate(0px, 0px)`; });
+            joyBase.addEventListener('touchend', () => { Input.joyX = 0; Input.joyY = 0; knob.style.transform = 'translate(0px, 0px)'; });
         }
 
         const jumpBtn = document.getElementById('jump-btn');
@@ -555,29 +595,25 @@ const Input = {
             jumpBtn.addEventListener('touchend', e => { e.preventDefault(); Input.jump = false; });
         }
         
-        // Chat Enter Key
+        // Chat
         const chatInput = document.getElementById('chat-input');
-        if(chatInput) {
+        if (chatInput) {
             chatInput.addEventListener('keypress', e => { if (e.key === 'Enter') Network.sendChat(); });
         }
     },
 
     onDown: (e) => {
-        if(e.target !== Renderer.canvas) return; // UI 클릭 무시 방어
+        if (e.target !== Renderer.canvas) return; // UI 이벤트 격리
 
-        const cam = AppState.engine.camera;
-        const worldX = e.clientX - Renderer.canvas.getBoundingClientRect().left + cam.x;
-        const worldY = e.clientY - Renderer.canvas.getBoundingClientRect().top + cam.y;
+        const rect = Renderer.canvas.getBoundingClientRect();
+        const worldX = e.clientX - rect.left + AppState.engine.camera.x;
+        const worldY = e.clientY - rect.top + AppState.engine.camera.y;
 
         if (AppState.engine.mode === 'edit') {
-            const grid = AppState.engine.gridSize;
-            const snapX = Math.floor(worldX / grid) * grid;
-            const snapY = Math.floor(worldY / grid) * grid;
-            
-            // Raycast 판정 (역순으로 그려진 순서 가장 위를 찾음)
+            // Raycast (Z-index 역순 검사)
             let hitPart = null;
-            for (let i = AppState.workspace.blocks.length - 1; i >= 0; i--) {
-                let b = AppState.workspace.blocks[i];
+            for (let i = AppState.workspace.parts.length - 1; i >= 0; i--) {
+                let b = AppState.workspace.parts[i];
                 if (worldX >= b.pos.x && worldX <= b.pos.x + b.size.x &&
                     worldY >= b.pos.y && worldY <= b.pos.y + b.size.y) {
                     hitPart = b; break;
@@ -585,116 +621,99 @@ const Input = {
             }
 
             const tool = AppState.editor.activeTool;
-            
             if (tool === 'select' || tool === 'move') {
-                if (hitPart) {
-                    Editor.selectPart(hitPart.id);
-                    if (tool === 'move') {
-                        AppState.editor.isDragging = true;
-                        AppState.editor.dragOffset = new Vector2(hitPart.pos.x - worldX, hitPart.pos.y - worldY);
-                    }
-                } else {
-                    Editor.selectPart(null);
+                EditorCore.selectPart(hitPart ? hitPart.id : null);
+                if (hitPart && tool === 'move') {
+                    AppState.editor.isDragging = true;
+                    AppState.editor.dragOffset = new Vector2(hitPart.pos.x - worldX, hitPart.pos.y - worldY);
                 }
-            } 
-            else if (tool === 'erase' && hitPart) {
-                Editor.selectPart(hitPart.id);
-                Editor.deleteSelected();
             }
         } 
         else if (AppState.engine.mode === 'play') {
-            // 인게임 클릭커 처리
-            AppState.workspace.blocks.forEach(b => {
+            // 인게임 화폐 클릭 시스템
+            AppState.workspace.parts.forEach(b => {
                 if (b.type === 'clicker' && 
                     worldX >= b.pos.x && worldX <= b.pos.x + b.size.x &&
                     worldY >= b.pos.y && worldY <= b.pos.y + b.size.y) {
                     
-                    AppState.userData.and += 1; 
-                    saveData();
-                    GUI.showToast('+1 AND 획득!');
-                    GUI.spawnParticle(e.clientX, e.clientY, '+1 AND', '#ffb300');
+                    AppState.user.andBalance += 1;
+                    EditorGUI.saveData();
+                    document.getElementById('and-balance').innerText = `${AppState.user.andBalance} AND`;
+                    EditorGUI.spawnParticle(e.clientX, e.clientY, '+1 AND');
                 }
             });
         }
     },
 
     onMove: (e) => {
-        // 에디터 카메라 이동 (우클릭 드래그)
+        // 카메라 패닝 (우클릭 드래그)
         if (AppState.engine.mode === 'edit' && e.buttons === 2) {
             AppState.engine.camera.x -= e.movementX;
             AppState.engine.camera.y -= e.movementY;
         }
 
-        // 객체 드래그 이동
-        if (AppState.engine.mode === 'edit' && AppState.editor.isDragging && AppState.editor.selectedPart) {
-            const cam = AppState.engine.camera;
-            const worldX = e.clientX - Renderer.canvas.getBoundingClientRect().left + cam.x;
-            const worldY = e.clientY - Renderer.canvas.getBoundingClientRect().top + cam.y;
+        // 객체 이동 (스냅 적용)
+        if (AppState.engine.mode === 'edit' && AppState.editor.isDragging && AppState.editor.selectedPartId) {
+            const p = AppState.workspace.parts.find(part => part.id === AppState.editor.selectedPartId);
+            if (!p) return;
+
+            const rect = Renderer.canvas.getBoundingClientRect();
+            const worldX = e.clientX - rect.left + AppState.engine.camera.x;
+            const worldY = e.clientY - rect.top + AppState.engine.camera.y;
             
-            const grid = AppState.engine.gridSize / 2; // 스냅 해상도 높임 (25px)
             const targetX = worldX + AppState.editor.dragOffset.x;
             const targetY = worldY + AppState.editor.dragOffset.y;
             
-            AppState.editor.selectedPart.pos.x = Math.floor(targetX / grid) * grid;
-            AppState.editor.selectedPart.pos.y = Math.floor(targetY / grid) * grid;
+            p.pos.x = Math.floor(targetX / AppState.engine.gridSnap) * AppState.engine.gridSnap;
+            p.pos.y = Math.floor(targetY / AppState.engine.gridSnap) * AppState.engine.gridSnap;
             
-            GUI.syncInspector(); // 실시간 좌표 업데이트
+            EditorGUI.syncInspector();
         }
     },
 
     onUp: () => { AppState.editor.isDragging = false; }
 };
 
-/* =========================================
-   [10] Network Engine (PeerJS Multiplayer)
-========================================= */
+/* ----------------------------------------------------------------------------
+   [10] NETWORK ENGINE (PeerJS)
+   ---------------------------------------------------------------------------- */
 const Network = {
     peer: null, connections: [],
     
     init: () => {
         if (Network.peer) return;
-        try {
-            Network.peer = new Peer(AppState.userData.peerId);
-            Network.peer.on('connection', conn => {
-                Network.connections.push(conn);
-                Network.setupConn(conn);
-                Logger.info(`Player ${conn.peer.substring(0,5)} connected.`);
-            });
-            Logger.info('Network Engine initialized on port 443.');
-        } catch(e) {
-            Logger.error('PeerJS init failed: ' + e.message);
-        }
+        Network.peer = new Peer(AppState.user.peerId);
+        Network.peer.on('connection', conn => {
+            Network.connections.push(conn);
+            Network.setupConn(conn);
+            Logger.info(`Player joined: ${conn.peer.substring(0,5)}`);
+        });
     },
     setupConn: (conn) => {
         conn.on('data', data => {
             if (data.type === 'chat') {
                 const box = document.getElementById('chat-messages');
-                if(box) {
-                    box.innerHTML += `<div class="msg"><span class="author">${data.id.substring(0,5)}:</span> ${data.msg}</div>`;
-                    box.scrollTop = box.scrollHeight;
-                }
+                box.innerHTML += `<div class="msg"><span class="author">${data.id.substring(0,5)}:</span> ${data.msg}</div>`;
+                box.scrollTop = box.scrollHeight;
             }
             if (data.type === 'move') Physics.otherPlayers[data.id] = data.pos;
         });
         conn.on('close', () => {
             delete Physics.otherPlayers[conn.peer];
-            Logger.info(`Player ${conn.peer.substring(0,5)} disconnected.`);
+            Logger.warn(`Player left: ${conn.peer.substring(0,5)}`);
         });
     },
     joinGame: (hostId) => {
-        if (hostId && hostId !== AppState.userData.peerId) {
-            Logger.info(`Connecting to server: ${hostId}...`);
+        if (hostId && hostId !== AppState.user.peerId) {
             const conn = Network.peer.connect(hostId);
             conn.on('open', () => {
                 Network.connections.push(conn);
                 Network.setupConn(conn);
-                Logger.info('Connection established successfully.');
             });
         }
     },
     sendChat: () => {
         const input = document.getElementById('chat-input');
-        if(!input) return;
         const msg = input.value.trim();
         if (!msg) return;
         
@@ -702,7 +721,7 @@ const Network = {
         box.innerHTML += `<div class="msg mine"><span class="author">Me:</span> ${msg}</div>`;
         box.scrollTop = box.scrollHeight;
         
-        Network.broadcast({ type: 'chat', id: AppState.userData.peerId, msg: msg });
+        Network.broadcast({ type: 'chat', id: AppState.user.peerId, msg: msg });
         input.value = '';
     },
     broadcast: (data) => {
@@ -710,67 +729,61 @@ const Network = {
     }
 };
 
-/* =========================================
-   [11] Application Main Controller
-========================================= */
+/* ----------------------------------------------------------------------------
+   [11] MAIN APPLICATION CONTROLLER
+   ---------------------------------------------------------------------------- */
 const GameApp = {
     boot: () => {
-        Logger.info('Booting CreateVerse Engine...');
-        initData();
+        Logger.info('Initializing Engine Core v3.0...');
+        EditorGUI.init();
         Renderer.init();
         Input.init();
         
-        // Load default workspace
-        const defaultGame = AppState.userData.games[0];
-        AppState.workspace.blocks = defaultGame.blocks.map(b => new BasePart(b));
-        GUI.syncExplorer();
-        
-        // Start Render Loop
-        if(!Renderer.loopId) Renderer.loop();
-        Logger.info('Engine Boot Complete. Ready.');
+        requestAnimationFrame(GameApp.loop);
+        Logger.info('Engine Boot Complete. Welcome to CreateVerse Studio.');
     },
     
+    loop: (timestamp) => {
+        Time.update(timestamp);
+        Physics.update(Time.deltaTime);
+        Renderer.draw();
+        requestAnimationFrame(GameApp.loop);
+    },
+
     testPlay: () => {
         if (AppState.engine.mode === 'play') return;
         
-        Logger.info('Compiling Scripts... Starting Test Play Mode.');
+        Logger.info('Compiling scripts... Starting Local Server...');
         AppState.engine.mode = 'play';
+        EditorCore.selectPart(null);
         document.getElementById('play-ui').classList.remove('hidden');
         
-        // Find Spawn
-        const spawn = AppState.workspace.blocks.find(b => b.type === 'spawn');
-        if (spawn) {
-            Physics.player.pos = new Vector2(spawn.pos.x, spawn.pos.y - Physics.player.size.y - 10);
-        } else {
-            Physics.player.pos = new Vector2(0, -100);
-        }
-        
-        Physics.player.vel = new Vector2(0,0);
-        
+        GameApp.respawn();
         Network.init();
-        Network.joinGame(AppState.userData.peerId); // Local loopback for demo
+        Network.joinGame(AppState.user.peerId); // Local loopback
+        EditorGUI.showToast('Test Play Started');
     },
 
     stopPlay: () => {
-        Logger.info('Stopping Play Mode... Resetting Physics.');
+        Logger.warn('Shutting down Local Server...');
         AppState.engine.mode = 'edit';
         document.getElementById('play-ui').classList.add('hidden');
         
-        // Reset blocks velocity
-        AppState.workspace.blocks.forEach(b => {
-            if(!b.anchored) {
-                b.velocity = new Vector2(0,0);
-                // 실 서비스에선 원래 위치(Snapshot)로 롤백해야 하나, 데모에선 생략
-            }
+        // Reset unanchored parts (Snapshot rollback simulation)
+        AppState.workspace.parts.forEach(b => {
+            if (!b.anchored) b.velocity = new Vector2(0,0);
         });
+        EditorGUI.showToast('Returned to Edit Mode');
     },
 
     respawn: () => {
-        const spawn = AppState.workspace.blocks.find(b => b.type === 'spawn');
-        Physics.player.pos = spawn ? new Vector2(spawn.pos.x, spawn.pos.y - 50) : new Vector2(0, -100);
-        Physics.player.vel = new Vector2(0,0);
+        const spawn = AppState.workspace.parts.find(b => b.type === 'spawn');
+        Physics.player.pos = spawn ? new Vector2(spawn.pos.x, spawn.pos.y - 60) : new Vector2(0, -200);
+        Physics.player.vel = new Vector2(0, 0);
+        Physics.player.grounded = false;
+        EditorGUI.spawnParticle(Physics.player.pos.x, Physics.player.pos.y, 'Respawned', '#4caf50');
     }
 };
 
-// Start the engine when DOM is ready
+// Start the engine
 window.addEventListener('DOMContentLoaded', GameApp.boot);
