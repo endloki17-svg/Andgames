@@ -1,40 +1,89 @@
 /**
  * ============================================================================
- * CreateVerse ULTIMATE ENGINE CORE v4.0
- * Architecture: Screen Routing, Isolated Canvas, OOP Physics, PeerJS Network
+ * CreateVerse Pro - Ultimate Engine Core v5.5
+ * Architecture: Entity-Component-System (ECS) Inspired, OOP, Modular
+ * Features: 2D Physics, Raycasting, 2-Way DOM Binding, PeerJS Multiplayer
  * ============================================================================
  */
 
 /* ----------------------------------------------------------------------------
-   [1] CORE MATH & UTILITIES
+   [1] CORE MATH & UTILITIES (물리 및 그래픽 연산 코어)
    ---------------------------------------------------------------------------- */
 class Vector2 {
     constructor(x = 0, y = 0) { this.x = x; this.y = y; }
     add(v) { return new Vector2(this.x + v.x, this.y + v.y); }
     sub(v) { return new Vector2(this.x - v.x, this.y - v.y); }
+    mult(n) { return new Vector2(this.x * n, this.y * n); }
+    div(n) { return new Vector2(this.x / n, this.y / n); }
     mag() { return Math.sqrt(this.x * this.x + this.y * this.y); }
+    normalize() { const m = this.mag(); return m === 0 ? new Vector2(0, 0) : this.div(m); }
     clone() { return new Vector2(this.x, this.y); }
 }
 
 const Utils = {
-    generateId: () => 'cv_' + Math.random().toString(36).substr(2, 9),
+    generateUUID: () => 'cv_obj_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36),
     clamp: (val, min, max) => Math.max(min, Math.min(max, val)),
-    lerp: (start, end, amt) => (1 - amt) * start + amt * end
+    lerp: (start, end, amt) => (1 - amt) * start + amt * end,
+    checkAABB: (r1, r2) => {
+        return r1.pos.x < r2.pos.x + r2.size.x && r1.pos.x + r1.size.x > r2.pos.x &&
+               r1.pos.y < r2.pos.y + r2.size.y && r1.pos.y + r1.size.y > r2.pos.y;
+    }
 };
 
 /* ----------------------------------------------------------------------------
-   [2] GAME OBJECT MODEL (블록 클래스)
+   [2] SYSTEM LOGGER & TIME MANAGER (아웃풋 콘솔 및 프레임 제어)
+   ---------------------------------------------------------------------------- */
+const Time = {
+    deltaTime: 0, lastTime: 0, frameCount: 0, fps: 0,
+    update: (now) => {
+        Time.deltaTime = (now - Time.lastTime) / 1000;
+        Time.lastTime = now;
+        Time.frameCount++;
+        if (Time.frameCount % 10 === 0) {
+            Time.fps = Math.round(1 / Time.deltaTime);
+            // 에디터/플레이 화면 FPS UI 업데이트
+            document.querySelectorAll('#fps-display').forEach(el => el.innerText = `${Time.fps} FPS`);
+        }
+    }
+};
+
+const Logger = {
+    log: (msg, type = 'info') => {
+        const consoleEl = document.getElementById('console-logs');
+        if (!consoleEl) return;
+        const timeStr = new Date().toISOString().substring(11, 23);
+        let icon = '<i class="fa-solid fa-circle-info text-primary"></i>';
+        if (type === 'warning') icon = '<i class="fa-solid fa-triangle-exclamation text-gold"></i>';
+        if (type === 'error') icon = '<i class="fa-solid fa-circle-xmark text-danger"></i>';
+
+        const logHtml = `<div class="log-line ${type}"><span class="log-time">${timeStr}</span> ${icon} ${msg}</div>`;
+        consoleEl.insertAdjacentHTML('beforeend', logHtml);
+        consoleEl.scrollTop = consoleEl.scrollHeight;
+    },
+    info: (m) => Logger.log(m, 'info'),
+    warn: (m) => Logger.log(m, 'warning'),
+    error: (m) => Logger.log(m, 'error'),
+    clear: () => { const el = document.getElementById('console-logs'); if(el) el.innerHTML = ''; }
+};
+
+/* ----------------------------------------------------------------------------
+   [3] GAME OBJECT MODEL (엔티티 시스템)
    ---------------------------------------------------------------------------- */
 class Block {
     constructor(config) {
-        this.id = config.id || Utils.generateId();
+        this.id = config.id || Utils.generateUUID();
         this.name = config.name || 'Part';
         this.type = config.type || 'normal'; // normal, bounce, lava, clicker, spawn
         
+        // Transform
         this.pos = new Vector2(config.x || 0, config.y || 0);
         this.size = new Vector2(config.w || 50, config.h || 50);
-        this.color = config.color || '#5c6bc0';
         
+        // Appearance
+        this.color = config.color || '#a5b4fc';
+        this.alpha = config.alpha !== undefined ? config.alpha : 0.0; // 0=불투명 (Roblox 방식)
+        
+        // Physics
         this.anchored = config.anchored !== undefined ? config.anchored : true;
         this.canCollide = config.canCollide !== undefined ? config.canCollide : true;
         this.velocity = new Vector2(0, 0);
@@ -42,417 +91,468 @@ class Block {
 }
 
 /* ----------------------------------------------------------------------------
-   [3] GLOBAL STATE (앱 전체 상태 관리)
+   [4] GLOBAL STATE MANAGEMENT (로컬 스토리지 DB)
    ---------------------------------------------------------------------------- */
-const STORAGE_KEY = 'CreateVerse_Data_v4';
+const STORAGE_KEY = 'CreateVerse_Ultimate_DB';
 
 const AppState = {
+    isEditorMode: false, // 현재 열린 HTML이 editor.html인지 여부
     user: {
-        peerId: Utils.generateId(),
-        andBalance: 0,
-        purchased: []
+        peerId: Utils.generateUUID(),
+        andBalance: 150,
+        purchased: [],
+        lastDailyReward: null
     },
-    games: [], // 로비에 표시될 월드 목록
-    currentWorld: null, // 현재 편집/플레이 중인 월드 데이터
+    games: [], // 로비에 표시되는 월드 목록
+    currentWorld: null, // 에디터에서 로드된 월드
     engine: {
-        mode: 'menu', // menu | edit | play
+        mode: 'edit', // 'edit' | 'play'
         camera: new Vector2(0, 0),
-        gridSize: 50
+        gridSnap: 25,
+        gravity: 1500
     },
     editor: {
-        activeTool: 'draw', // draw, erase, select
-        activeAsset: 'normal',
-        selectedBlockId: null,
+        activeTool: 'select',
+        selectedObjId: null,
         isDragging: false,
         dragOffset: new Vector2(0, 0)
     }
 };
 
 /* ----------------------------------------------------------------------------
-   [4] UI & SCREEN CONTROLLER (화면 전환 및 데이터 바인딩)
+   [5] ECONOMY & LOBBY SYSTEM (ATM, 로비 UI 제어)
    ---------------------------------------------------------------------------- */
-const UI = {
-    init: () => {
-        // 로컬스토리지 데이터 로드
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-            const data = JSON.parse(saved);
-            AppState.user = data.user || AppState.user;
-            AppState.games = data.games || [];
+const Economy = {
+    claimDailyReward: () => {
+        const today = new Date().toDateString();
+        if (AppState.user.lastDailyReward === today) {
+            UI.showToast('오늘은 이미 보상을 받았습니다!', true);
+            return;
         }
-
-        // 기본 튜토리얼 맵이 없으면 생성
-        if (AppState.games.length === 0) {
-            AppState.games.push({
-                id: 'world_tutorial',
-                name: '튜토리얼 & 화폐 벌기',
-                desc: '조작법을 익히고 화폐 상자를 눌러 AND를 모으세요!',
-                icon: '💰',
-                passPrice: 0,
-                creator: AppState.user.peerId,
-                blocks: [
-                    new Block({ name: 'Baseplate', x: -500, y: 200, w: 1000, h: 50, color: '#1e2233' }),
-                    new Block({ name: 'SpawnPoint', x: 0, y: 150, w: 50, h: 50, type: 'spawn', color: 'transparent', canCollide: false }),
-                    new Block({ name: 'CoinBox', x: 200, y: 100, w: 100, h: 100, type: 'clicker', color: '#ffb300' }),
-                    new Block({ name: 'BouncePad', x: -200, y: 150, w: 100, h: 50, type: 'bounce', color: '#4caf50' })
-                ]
-            });
-            UI.saveData();
+        AppState.user.andBalance += 100;
+        AppState.user.lastDailyReward = today;
+        DataManager.save();
+        UI.updateBalanceUI();
+        UI.showToast('출석 보상 +100 AND 지급 완료!');
+        UI.spawnParticle(window.innerWidth/2, window.innerHeight/2, '+100 AND', '#4caf50');
+    },
+    redeemPromo: () => {
+        const code = document.getElementById('promo-code').value.toUpperCase();
+        if (code === 'WELCOME2026') {
+            AppState.user.andBalance += 500;
+            document.getElementById('promo-code').value = '';
+            DataManager.save();
+            UI.updateBalanceUI();
+            UI.showToast('프로모션 코드 적용 성공! +500 AND');
+        } else {
+            UI.showToast('유효하지 않거나 만료된 코드입니다.', true);
         }
+    }
+};
 
-        document.getElementById('and-balance').innerText = AppState.user.andBalance;
-        UI.renderLobby();
-
-        // 부드러운 로딩 연출
-        setTimeout(() => {
-            document.getElementById('screen-loading').style.opacity = '0';
-            setTimeout(() => {
-                UI.showScreen('screen-lobby');
-            }, 300);
-        }, 1200);
-    },
-
-    saveData: () => {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({
-            user: AppState.user,
-            games: AppState.games
-        }));
-        document.getElementById('and-balance').innerText = AppState.user.andBalance;
-    },
-
-    showScreen: (screenId) => {
-        document.querySelectorAll('.app-screen').forEach(s => {
-            s.classList.remove('active');
-            s.classList.add('hidden');
-        });
-        const target = document.getElementById(screenId);
-        target.classList.remove('hidden');
-        // 강제 리플로우 후 클래스 추가하여 애니메이션 발동
-        void target.offsetWidth; 
-        target.classList.add('active');
-    },
-
-    showPublishModal: () => document.getElementById('modal-publish').classList.remove('hidden'),
-    hidePublishModal: () => {
-        document.getElementById('modal-publish').classList.add('hidden');
-        document.getElementById('game-name').value = '';
-        document.getElementById('game-desc').value = '';
-        document.getElementById('game-pass-price').value = '0';
-    },
-
-    renderLobby: () => {
+const LobbyUI = {
+    renderGames: () => {
         const list = document.getElementById('game-list');
+        const trendingList = document.getElementById('trending-game-list');
+        if (!list) return;
+        
         list.innerHTML = '';
-        AppState.games.forEach(game => {
+        if(trendingList) trendingList.innerHTML = '';
+
+        AppState.games.forEach((game, index) => {
             const isMine = game.creator === AppState.user.peerId;
             const isOwned = game.passPrice === 0 || AppState.user.purchased.includes(game.id) || isMine;
             
-            const btnHtml = isOwned ? 
-                `<button class="btn btn-success pop" onclick="GameApp.playGame('${game.id}')"><i class="fa-solid fa-play"></i> 플레이</button>` :
-                `<button class="btn btn-primary pop" onclick="GameApp.buyPass('${game.id}', ${game.passPrice})"><i class="fa-solid fa-lock"></i> ${game.passPrice} AND</button>`;
-            
-            const editBtn = isMine ? `<button class="btn btn-outline pop" onclick="GameApp.editGame('${game.id}')" style="padding: 10px;"><i class="fa-solid fa-pen"></i></button>` : `<div></div>`;
+            // 로비에서 스튜디오 열기
+            const editBtn = isMine ? `<button class="btn btn-outline pop w-100" onclick="GameApp.openEditor('${game.id}')"><i class="fa-solid fa-pen-ruler"></i> 스튜디오 열기</button>` : '';
+            const playBtn = isOwned ? 
+                `<button class="btn btn-success pop w-100 mt-1" onclick="GameApp.playFromLobby('${game.id}')"><i class="fa-solid fa-play"></i> 플레이</button>` :
+                `<button class="btn btn-warning pop w-100 mt-1" onclick="GameApp.buyPass('${game.id}', ${game.passPrice})"><i class="fa-solid fa-lock"></i> ${game.passPrice} AND 구매</button>`;
 
-            list.innerHTML += `
+            const html = `
                 <div class="game-card">
                     <div class="card-icon">${game.icon}</div>
                     <div class="card-title">${game.name}</div>
                     <div class="card-desc">${game.desc}</div>
-                    <div class="card-actions">
+                    <div class="card-actions" style="flex-direction:column; gap:4px;">
                         ${editBtn}
-                        ${btnHtml}
+                        ${playBtn}
                     </div>
-                </div>
-            `;
+                </div>`;
+            
+            list.innerHTML += html;
+            // 트렌딩에는 앞의 3개만 복사
+            if(trendingList && index < 3) trendingList.innerHTML += html;
+        });
+    }
+};
+
+/* ----------------------------------------------------------------------------
+   [6] EDITOR UI BINDING (Explorer & Inspector 2-Way Sync)
+   ---------------------------------------------------------------------------- */
+const EditorUI = {
+    syncExplorer: () => {
+        const container = document.getElementById('workspace-children');
+        if (!container) return;
+        container.innerHTML = '';
+        
+        // 카메라 및 지형 등 하드코딩된 부분 유지, 파트들만 추가
+        container.innerHTML += `<div class="tree-node"><i class="fa-solid fa-video node-icon text-muted"></i> Camera</div>`;
+        container.innerHTML += `<div class="tree-node"><i class="fa-solid fa-mountain node-icon text-success"></i> Terrain</div>`;
+
+        AppState.currentWorld.blocks.forEach(p => {
+            const isSelected = AppState.editor.selectedObjId === p.id;
+            const node = document.createElement('div');
+            node.className = `tree-node ${isSelected ? 'selected' : ''}`;
+            
+            let icon = 'fa-cube text-main';
+            if (p.type === 'spawn') icon = 'fa-flag text-gold';
+            if (p.type === 'lava') icon = 'fa-fire text-danger';
+            if (p.type === 'bounce') icon = 'fa-angles-up text-success';
+            if (p.type === 'clicker') icon = 'fa-sack-dollar text-gold';
+            
+            node.innerHTML = `<i class="fa-solid ${icon} node-icon"></i> ${p.name}`;
+            node.onclick = () => EditorCore.selectBlock(p.id);
+            container.appendChild(node);
         });
     },
 
     syncInspector: () => {
-        const p = AppState.currentWorld?.blocks.find(b => b.id === AppState.editor.selectedBlockId);
+        const p = AppState.currentWorld?.blocks.find(b => b.id === AppState.editor.selectedObjId);
         const emptyState = document.getElementById('prop-empty');
-        const formState = document.getElementById('prop-content');
+        const contentState = document.getElementById('prop-content');
+        const targetName = document.getElementById('prop-target-name');
+        const typeDisplay = document.getElementById('prop-type-display');
 
-        if (!p) {
-            emptyState.classList.remove('hidden');
-            formState.classList.add('hidden');
+        if (!p || !contentState) {
+            if(emptyState) emptyState.classList.remove('hidden');
+            if(contentState) contentState.classList.add('hidden');
+            if(targetName) targetName.innerText = 'Workspace';
             return;
         }
 
         emptyState.classList.add('hidden');
-        formState.classList.remove('hidden');
+        contentState.classList.remove('hidden');
+        targetName.innerText = p.name;
+        if(typeDisplay) typeDisplay.innerText = p.type.toUpperCase();
 
-        document.getElementById('prop-w').value = p.size.x;
-        document.getElementById('prop-h').value = p.size.y;
-        document.getElementById('prop-color').value = p.color !== 'transparent' ? p.color : '#000000';
-        document.getElementById('prop-anchored').checked = p.anchored;
-        document.getElementById('prop-collide').checked = p.canCollide;
-    },
+        // 수십 개의 프로퍼티 DOM에 데이터 바인딩
+        const safeSet = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
+        const safeCheck = (id, val) => { const el = document.getElementById(id); if(el) el.checked = val; };
 
-    showToast: (msg) => {
-        const c = document.getElementById('toast-container');
-        const t = document.createElement('div');
-        t.className = 'toast';
-        t.innerHTML = `<i class="fa-solid fa-bell text-gold"></i> ${msg}`;
-        c.appendChild(t);
-        setTimeout(() => t.remove(), 3000);
-    },
-
-    spawnParticle: (x, y, text) => {
-        const c = document.getElementById('particle-container');
-        const el = document.createElement('div');
-        el.className = 'floating-coin-text';
-        el.innerText = text;
-        el.style.left = x + 'px'; el.style.top = y + 'px';
-        c.appendChild(el);
-        setTimeout(() => el.remove(), 1000);
+        safeSet('prop-name', p.name);
+        safeSet('prop-type', p.type);
+        safeSet('prop-color', p.color !== 'transparent' ? p.color : '#ffffff');
+        safeSet('prop-alpha', p.alpha);
+        safeSet('prop-x', Math.round(p.pos.x));
+        safeSet('prop-y', Math.round(p.pos.y));
+        safeSet('prop-w', Math.round(p.size.x));
+        safeSet('prop-h', Math.round(p.size.y));
+        safeCheck('prop-anchored', p.anchored);
+        safeCheck('prop-collide', p.canCollide);
+        
+        // 리본 메뉴 색상 뷰어 동기화
+        const ribbonColor = document.getElementById('ribbon-color-preview');
+        if(ribbonColor) ribbonColor.style.background = p.color;
     }
 };
 
-/* ----------------------------------------------------------------------------
-   [5] EDITOR LOGIC (도구 및 속성 제어)
-   ---------------------------------------------------------------------------- */
-const Editor = {
+const EditorCore = {
     setTool: (tool) => {
         AppState.editor.activeTool = tool;
-        document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById('tool-' + tool)?.classList.add('active');
-        if (tool !== 'select') Editor.selectBlock(null);
-    },
-    
-    setAsset: (asset) => {
-        AppState.editor.activeAsset = asset;
-        document.querySelectorAll('.asset-item').forEach(b => b.classList.remove('active'));
-        document.getElementById('asset-' + asset)?.classList.add('active');
-        Editor.setTool('draw'); // 에셋 선택 시 자동으로 그리기 툴 전환
+        document.querySelectorAll('.r-btn-large').forEach(b => b.classList.remove('active'));
+        const btn = document.getElementById('tool-' + tool);
+        if(btn) btn.classList.add('active');
+        Logger.info(`Activated Tool: ${tool}`);
     },
 
     selectBlock: (id) => {
-        AppState.editor.selectedBlockId = id;
-        UI.syncInspector();
+        AppState.editor.selectedObjId = id;
+        EditorUI.syncExplorer();
+        EditorUI.syncInspector();
+    },
+
+    insertPart: (type) => {
+        if(!AppState.currentWorld) return;
+        const cam = AppState.engine.camera;
+        const colors = { normal: '#5c6bc0', bounce: '#4caf50', lava: '#ef4444', clicker: '#fbbf24', spawn: 'transparent' };
+        
+        const newBlock = new Block({
+            type: type,
+            name: type.charAt(0).toUpperCase() + type.slice(1) + 'Part',
+            x: Math.floor(cam.x / AppState.engine.gridSnap) * AppState.engine.gridSnap,
+            y: Math.floor(cam.y / AppState.engine.gridSnap) * AppState.engine.gridSnap,
+            w: type === 'clicker' ? 100 : 50,
+            h: type === 'clicker' ? 100 : 50,
+            color: colors[type] || '#fff',
+            canCollide: type !== 'spawn'
+        });
+        
+        AppState.currentWorld.blocks.push(newBlock);
+        EditorCore.selectBlock(newBlock.id);
+        EditorCore.setTool('move');
+        Logger.info(`Inserted ${type} into Workspace.`);
     },
 
     deleteSelected: () => {
-        if (!AppState.editor.selectedBlockId) return;
-        AppState.currentWorld.blocks = AppState.currentWorld.blocks.filter(b => b.id !== AppState.editor.selectedBlockId);
-        Editor.selectBlock(null);
-        UI.showToast('블록이 삭제되었습니다.');
+        if (!AppState.editor.selectedObjId) return;
+        AppState.currentWorld.blocks = AppState.currentWorld.blocks.filter(p => p.id !== AppState.editor.selectedObjId);
+        Logger.warn('Object deleted.');
+        EditorCore.selectBlock(null);
     },
 
     updateProp: (key) => {
-        const p = AppState.currentWorld?.blocks.find(b => b.id === AppState.editor.selectedBlockId);
+        const p = AppState.currentWorld?.blocks.find(part => part.id === AppState.editor.selectedObjId);
         if (!p) return;
+        
+        try {
+            const getVal = (id) => document.getElementById(id).value;
+            const getCheck = (id) => document.getElementById(id).checked;
 
-        if (key === 'w') p.size.x = Math.max(10, parseFloat(document.getElementById('prop-w').value));
-        if (key === 'h') p.size.y = Math.max(10, parseFloat(document.getElementById('prop-h').value));
-        if (key === 'color') p.color = document.getElementById('prop-color').value;
-        if (key === 'anchored') p.anchored = document.getElementById('prop-anchored').checked;
-        if (key === 'canCollide') p.canCollide = document.getElementById('prop-collide').checked;
-    }
+            if (key === 'x') p.pos.x = parseFloat(getVal('prop-x'));
+            if (key === 'y') p.pos.y = parseFloat(getVal('prop-y'));
+            if (key === 'w') p.size.x = Math.max(5, parseFloat(getVal('prop-w')));
+            if (key === 'h') p.size.y = Math.max(5, parseFloat(getVal('prop-h')));
+            if (key === 'color') p.color = getVal('prop-color');
+            if (key === 'alpha') p.alpha = parseFloat(getVal('prop-alpha'));
+            if (key === 'type') {
+                p.type = getVal('prop-type');
+                p.name = p.type + 'Part';
+                document.getElementById('prop-name').value = p.name;
+            }
+            if (key === 'anchored') p.anchored = getCheck('prop-anchored');
+            if (key === 'canCollide') p.canCollide = getCheck('prop-collide');
+
+            EditorUI.syncExplorer();
+            
+            // 리본 컬러 동기화
+            const ribbonColor = document.getElementById('ribbon-color-preview');
+            if(ribbonColor && key === 'color') ribbonColor.style.background = p.color;
+
+        } catch (e) {
+            Logger.error('Property Update Failed: ' + e);
+        }
+    },
+    
+    toggleAnchor: () => { const p = AppState.currentWorld?.blocks.find(b => b.id === AppState.editor.selectedObjId); if(p){ p.anchored = !p.anchored; EditorUI.syncInspector(); Logger.info('Toggled Anchor'); } },
+    toggleCollide: () => { const p = AppState.currentWorld?.blocks.find(b => b.id === AppState.editor.selectedObjId); if(p){ p.canCollide = !p.canCollide; EditorUI.syncInspector(); Logger.info('Toggled Collision'); } }
 };
 
 /* ----------------------------------------------------------------------------
-   [6] PHYSICS ENGINE (플랫포머 물리 충돌)
+   [7] PHYSICS ENGINE (Delta-Time 플랫포머 엔진)
    ---------------------------------------------------------------------------- */
 const Physics = {
-    player: { pos: new Vector2(0, 0), size: new Vector2(35, 35), vel: new Vector2(0, 0), grounded: false },
+    player: { pos: new Vector2(0,0), size: new Vector2(35, 35), vel: new Vector2(0,0), grounded: false },
     otherPlayers: {},
 
-    update: () => {
+    update: (dt) => {
         if (AppState.engine.mode !== 'play' || !AppState.currentWorld) return;
 
         const p = Physics.player;
         const blocks = AppState.currentWorld.blocks;
-        const speed = 7;
-        const gravity = 0.8;
+        const moveSpeed = 400; // pixels per second
+        const jumpForce = -650;
 
-        // X축 입력 및 마찰
-        if (Input.keys['a'] || Input.joyX < -20) p.vel.x = -speed;
-        else if (Input.keys['d'] || Input.joyX > 20) p.vel.x = speed;
-        else p.vel.x *= 0.8;
+        // X축 처리
+        let targetVx = 0;
+        if (Input.keys['a'] || Input.joyX < -20) targetVx = -moveSpeed;
+        else if (Input.keys['d'] || Input.joyX > 20) targetVx = moveSpeed;
+        p.vel.x = Utils.lerp(p.vel.x, targetVx, 1 - Math.pow(0.8, dt * 60)); // 관성 마찰
 
-        // 점프
+        // Y축 처리 (점프 및 중력)
         if ((Input.keys['w'] || Input.keys[' '] || Input.jump) && p.grounded) {
-            p.vel.y = -14;
+            p.vel.y = jumpForce;
             p.grounded = false;
         }
-        p.vel.y += gravity;
+        p.vel.y += AppState.engine.gravity * dt;
 
-        // X축 충돌 처리
-        p.pos.x += p.vel.x;
+        // X축 충돌
+        p.pos.x += p.vel.x * dt;
         blocks.forEach(b => {
-            if (b.canCollide && Physics.checkAABB(p, b)) {
+            if (b.canCollide && Utils.checkAABB(p, b)) {
                 if (p.vel.x > 0) p.pos.x = b.pos.x - p.size.x;
                 else if (p.vel.x < 0) p.pos.x = b.pos.x + b.size.x;
                 p.vel.x = 0;
             }
         });
 
-        // Y축 충돌 처리
-        p.pos.y += p.vel.y;
+        // Y축 충돌
+        p.pos.y += p.vel.y * dt;
         p.grounded = false;
-        
         blocks.forEach(b => {
-            // 트리거(데스블록) 처리
-            if (Physics.checkAABB(p, b) && b.type === 'lava') {
-                GameApp.respawnPlayer();
-                return;
+            if (Utils.checkAABB(p, b)) {
+                // 트리거 블록 (용암 데스)
+                if (b.type === 'lava') {
+                    Logger.warn('Player fell into Lava!');
+                    GameApp.respawnPlayer();
+                    return;
+                }
             }
 
-            // 물리 충돌
-            if (b.canCollide && Physics.checkAABB(p, b)) {
-                if (p.vel.y > 0) { // 바닥 착지
+            // 솔리드 충돌
+            if (b.canCollide && Utils.checkAABB(p, b)) {
+                if (p.vel.y > 0) { // 바닥
                     p.pos.y = b.pos.y - p.size.y;
                     p.grounded = true;
-                    p.vel.y = b.type === 'bounce' ? -22 : 0; // 바운스 패드
+                    if (b.type === 'bounce') p.vel.y = jumpForce * 1.6; // 바운스
+                    else p.vel.y = 0;
                 } 
-                else if (p.vel.y < 0) { // 천장 충돌
+                else if (p.vel.y < 0) { // 천장
                     p.pos.y = b.pos.y + b.size.y;
                     p.vel.y = 0;
                 }
             }
         });
 
-        // 언앵커 블록 추락
+        // 언앵커 파트 물리 추락
         blocks.forEach(b => {
             if (!b.anchored) {
-                b.velocity.y += gravity;
-                b.pos.y += b.velocity.y;
+                b.velocity.y += AppState.engine.gravity * dt;
+                b.pos.y += b.velocity.y * dt;
             }
         });
 
-        // 카메라 부드러운 추적
-        const targetX = p.pos.x - window.innerWidth / 2;
-        const targetY = p.pos.y - window.innerHeight / 2;
-        AppState.engine.camera.x += (targetX - AppState.engine.camera.x) * 0.1;
-        AppState.engine.camera.y += (targetY - AppState.engine.camera.y) * 0.1;
+        // 카메라 러핑 (Lerp Tracking)
+        const targetCamX = p.pos.x - window.innerWidth / 2;
+        const targetCamY = p.pos.y - window.innerHeight / 2;
+        AppState.engine.camera.x = Utils.lerp(AppState.engine.camera.x, targetCamX, 5 * dt);
+        AppState.engine.camera.y = Utils.lerp(AppState.engine.camera.y, targetCamY, 5 * dt);
 
         // 네트워크 브로드캐스트
-        if (Math.random() < 0.2) Network.broadcast({ type: 'move', id: AppState.user.peerId, pos: p.pos });
-    },
-
-    checkAABB: (r1, r2) => {
-        return r1.pos.x < r2.pos.x + r2.size.x &&
-               r1.pos.x + r1.size.x > r2.pos.x &&
-               r1.pos.y < r2.pos.y + r2.size.y &&
-               r1.pos.y + r1.size.y > r2.pos.y;
+        if (Math.random() < 0.15) {
+            Network.broadcast({ type: 'move', id: AppState.user.peerId, pos: p.pos });
+        }
     }
 };
 
 /* ----------------------------------------------------------------------------
-   [7] RENDERER (캔버스 렌더링 파이프라인)
+   [8] RENDERER (캔버스 파이프라인)
    ---------------------------------------------------------------------------- */
 const Renderer = {
     canvas: document.getElementById('game-canvas'),
-    ctx: null,
-    loopId: null,
+    ctx: null, loopId: null,
 
     init: () => {
-        if(!Renderer.canvas) return;
-        Renderer.ctx = Renderer.canvas.getContext('2d');
+        if (!Renderer.canvas) return;
+        Renderer.ctx = Renderer.canvas.getContext('2d', { alpha: false });
         window.addEventListener('resize', Renderer.resize);
         Renderer.resize();
     },
 
     resize: () => {
+        if (!Renderer.canvas) return;
         const parent = Renderer.canvas.parentElement;
         Renderer.canvas.width = parent.clientWidth;
         Renderer.canvas.height = parent.clientHeight;
     },
 
-    startLoop: () => {
+    start: () => {
         if (Renderer.loopId) cancelAnimationFrame(Renderer.loopId);
-        const loop = () => {
-            Physics.update();
+        const loop = (timestamp) => {
+            Time.update(timestamp);
+            Physics.update(Time.deltaTime);
             Renderer.draw();
             Renderer.loopId = requestAnimationFrame(loop);
         };
-        loop();
+        loop(performance.now());
     },
 
-    stopLoop: () => {
+    stop: () => {
         if (Renderer.loopId) cancelAnimationFrame(Renderer.loopId);
         Renderer.loopId = null;
     },
 
     draw: () => {
-        if (!AppState.currentWorld) return;
-        
+        if (!AppState.currentWorld || !Renderer.ctx) return;
         const ctx = Renderer.ctx;
-        const w = Renderer.canvas.width;
-        const h = Renderer.canvas.height;
         const cam = AppState.engine.camera;
 
-        ctx.clearRect(0, 0, w, h);
+        // 배경 처리 (에디터는 다크, 플레이는 스카이박스)
+        ctx.fillStyle = AppState.engine.mode === 'edit' ? '#141722' : '#87CEEB';
+        ctx.fillRect(0, 0, Renderer.canvas.width, Renderer.canvas.height);
+        
         ctx.save();
-        ctx.translate(-cam.x, -cam.y);
+        ctx.translate(Math.floor(-cam.x), Math.floor(-cam.y));
 
-        // 1. 그리드 (편집 모드)
+        // 에디터 그리드
         if (AppState.engine.mode === 'edit') {
-            ctx.strokeStyle = 'rgba(255,255,255,0.05)';
-            ctx.lineWidth = 1;
-            const grid = AppState.engine.gridSize;
+            ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 1;
+            const grid = AppState.engine.gridSnap;
             const startX = Math.floor(cam.x / grid) * grid;
             const startY = Math.floor(cam.y / grid) * grid;
             ctx.beginPath();
-            for(let x = startX; x < startX + w + grid; x += grid) { ctx.moveTo(x, cam.y); ctx.lineTo(x, cam.y + h); }
-            for(let y = startY; y < startY + h + grid; y += grid) { ctx.moveTo(cam.x, y); ctx.lineTo(cam.x + w, y); }
+            for(let x = startX; x < startX + Renderer.canvas.width + grid; x += grid) { ctx.moveTo(x, cam.y); ctx.lineTo(x, cam.y + Renderer.canvas.height); }
+            for(let y = startY; y < startY + Renderer.canvas.height + grid; y += grid) { ctx.moveTo(cam.x, y); ctx.lineTo(cam.x + Renderer.canvas.width, y); }
             ctx.stroke();
         }
 
-        // 2. 블록 렌더링
+        // 블록(Part) 렌더링
         AppState.currentWorld.blocks.forEach(b => {
+            const alpha = 1.0 - b.alpha;
+            if (alpha <= 0) return;
+            
+            ctx.globalAlpha = alpha;
             ctx.fillStyle = b.color;
+
             if (b.type === 'spawn') {
-                ctx.strokeStyle = '#fbbf24'; ctx.setLineDash([5, 5]); ctx.strokeRect(b.pos.x, b.pos.y, b.size.x, b.size.y); ctx.setLineDash([]);
-                ctx.fillStyle = '#fbbf24'; ctx.font = '10px Arial'; ctx.textAlign = 'center'; ctx.fillText('SPAWN', b.pos.x + b.size.x/2, b.pos.y + b.size.y/2 + 4);
+                ctx.strokeStyle = '#f59e0b'; ctx.setLineDash([5, 5]); ctx.lineWidth = 2;
+                ctx.strokeRect(b.pos.x, b.pos.y, b.size.x, b.size.y); ctx.setLineDash([]);
             } 
             else if (b.type === 'clicker') {
                 ctx.fillRect(b.pos.x, b.pos.y, b.size.x, b.size.y);
-                ctx.fillStyle = '#000'; ctx.font = 'bold 24px Arial'; ctx.textAlign = 'center'; ctx.fillText('$', b.pos.x + b.size.x/2, b.pos.y + b.size.y/2 + 8);
+                ctx.fillStyle = '#000'; ctx.font = 'bold 24px Pretendard'; ctx.textAlign = 'center';
+                ctx.fillText('$', b.pos.x + b.size.x/2, b.pos.y + b.size.y/2 + 8);
             }
             else {
                 ctx.fillRect(b.pos.x, b.pos.y, b.size.x, b.size.y);
-                ctx.strokeStyle = 'rgba(0,0,0,0.3)'; ctx.strokeRect(b.pos.x, b.pos.y, b.size.x, b.size.y);
+                if (alpha === 1) {
+                    ctx.strokeStyle = 'rgba(0,0,0,0.5)'; ctx.lineWidth = 1;
+                    ctx.strokeRect(b.pos.x, b.pos.y, b.size.x, b.size.y);
+                    // 엔진 특유의 베벨 하이라이트
+                    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+                    ctx.beginPath(); ctx.moveTo(b.pos.x, b.pos.y + b.size.y); ctx.lineTo(b.pos.x, b.pos.y); ctx.lineTo(b.pos.x + b.size.x, b.pos.y); ctx.stroke();
+                }
             }
+            ctx.globalAlpha = 1.0;
 
-            // 선택된 블록 하이라이트 (에디터)
-            if (AppState.engine.mode === 'edit' && AppState.editor.selectedBlockId === b.id) {
-                ctx.strokeStyle = '#6366f1'; ctx.lineWidth = 2;
-                ctx.strokeRect(b.pos.x - 2, b.pos.y - 2, b.size.x + 4, b.size.y + 4);
+            // 에디터 선택 기즈모
+            if (AppState.engine.mode === 'edit' && AppState.editor.selectedObjId === b.id) {
+                ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 2;
+                ctx.strokeRect(b.pos.x - 1, b.pos.y - 1, b.size.x + 2, b.size.y + 2);
+                
+                ctx.fillStyle = '#fff'; ctx.strokeStyle = '#3b82f6';
+                const hs = 6;
+                const corners = [{x:b.pos.x,y:b.pos.y}, {x:b.pos.x+b.size.x,y:b.pos.y}, {x:b.pos.x,y:b.pos.y+b.size.y}, {x:b.pos.x+b.size.x,y:b.pos.y+b.size.y}];
+                corners.forEach(c => { ctx.fillRect(c.x-hs/2, c.y-hs/2, hs, hs); ctx.strokeRect(c.x-hs/2, c.y-hs/2, hs, hs); });
             }
         });
 
-        // 3. 플레이어 렌더링 (플레이 모드)
+        // 플레이어 렌더링
         if (AppState.engine.mode === 'play') {
-            // 다른 플레이어
-            ctx.fillStyle = '#ef4444';
-            ctx.textAlign = 'center'; ctx.font = '10px Arial';
+            ctx.textAlign = 'center'; ctx.font = '10px Pretendard';
+            ctx.fillStyle = '#ef4444'; // 타인
             for (let id in Physics.otherPlayers) {
                 let p = Physics.otherPlayers[id];
                 ctx.fillRect(p.x, p.y, Physics.player.size.x, Physics.player.size.y);
                 ctx.fillText(id.substring(0,5), p.x + Physics.player.size.x/2, p.y - 5);
             }
-            // 자신
-            const lp = Physics.player;
-            ctx.fillStyle = '#10b981';
-            ctx.shadowColor = '#10b981'; ctx.shadowBlur = 10;
+            
+            const lp = Physics.player; // 본인
+            ctx.fillStyle = '#6366f1';
             ctx.fillRect(lp.pos.x, lp.pos.y, lp.size.x, lp.size.y);
-            ctx.shadowBlur = 0;
-            ctx.fillStyle = '#fff'; ctx.fillText('Me', lp.pos.x + lp.size.x/2, lp.pos.y - 5);
+            ctx.fillStyle = '#fff';
+            ctx.fillText('Me', lp.pos.x + lp.size.x/2, lp.pos.y - 5);
         }
-
         ctx.restore();
         
-        // 에디터 좌표 표시
-        if (AppState.engine.mode === 'edit') {
-            const coordDisplay = document.getElementById('coord-display');
-            if(coordDisplay) coordDisplay.innerText = `X: ${Math.round(cam.x)}, Y: ${Math.round(cam.y)}`;
-        }
+        // HUD 좌표 업데이트
+        const coordDisplay = document.getElementById('editor-coords');
+        if (coordDisplay) coordDisplay.innerText = `X: ${Math.round(cam.x)}, Y: ${Math.round(cam.y)}`;
     }
 };
 
 /* ----------------------------------------------------------------------------
-   [8] INPUT SYSTEM (터치, 마우스, 키보드)
+   [9] INPUT SYSTEM (이벤트 겹침 방지 레이캐스트)
    ---------------------------------------------------------------------------- */
 const Input = {
     keys: {}, joyX: 0, joyY: 0, jump: false,
@@ -462,15 +562,16 @@ const Input = {
         window.addEventListener('keyup', e => Input.keys[e.key.toLowerCase()] = false);
         
         const cvs = Renderer.canvas;
+        if (!cvs) return;
+        
         cvs.addEventListener('mousedown', Input.onDown);
         window.addEventListener('mousemove', Input.onMove);
         window.addEventListener('mouseup', Input.onUp);
-        
         cvs.addEventListener('touchstart', e => Input.onDown(e.touches[0]), {passive: false});
         window.addEventListener('touchmove', e => Input.onMove(e.touches[0]), {passive: false});
         window.addEventListener('touchend', Input.onUp);
 
-        // 조이스틱
+        // 모바일 조이스틱
         const joyBase = document.getElementById('joystick');
         const knob = document.getElementById('knob');
         if (joyBase && knob) {
@@ -481,13 +582,12 @@ const Input = {
                 let dy = e.touches[0].clientY - rect.top - rect.height/2;
                 const dist = Math.min(Math.sqrt(dx*dx + dy*dy), rect.width/2 - 10);
                 const angle = Math.atan2(dy, dx);
-                Input.joyX = Math.cos(angle) * dist; 
-                Input.joyY = Math.sin(angle) * dist;
+                Input.joyX = Math.cos(angle) * dist; Input.joyY = Math.sin(angle) * dist;
                 knob.style.transform = `translate(${Input.joyX}px, ${Input.joyY}px)`;
             };
             joyBase.addEventListener('touchstart', handleJoy, {passive: false});
             joyBase.addEventListener('touchmove', handleJoy, {passive: false});
-            joyBase.addEventListener('touchend', () => { Input.joyX = 0; Input.joyY = 0; knob.style.transform = 'translate(0px, 0px)'; });
+            joyBase.addEventListener('touchend', () => { Input.joyX = 0; Input.joyY = 0; knob.style.transform = 'translate(0px,0px)'; });
         }
 
         const jumpBtn = document.getElementById('jump-btn');
@@ -496,24 +596,19 @@ const Input = {
             jumpBtn.addEventListener('touchend', e => { e.preventDefault(); Input.jump = false; });
         }
         
-        // 채팅 엔터
         const chatInput = document.getElementById('chat-input');
-        if(chatInput) chatInput.addEventListener('keypress', e => { if (e.key === 'Enter') Network.sendChat(); });
+        if (chatInput) chatInput.addEventListener('keypress', e => { if (e.key === 'Enter') Network.sendChat(); });
     },
 
     onDown: (e) => {
-        if (e.target !== Renderer.canvas) return; // UI 뚫고 클릭 방어
+        if (e.target !== Renderer.canvas || !AppState.currentWorld) return; // UI 뚫림 원천 차단
 
         const rect = Renderer.canvas.getBoundingClientRect();
         const worldX = e.clientX - rect.left + AppState.engine.camera.x;
         const worldY = e.clientY - rect.top + AppState.engine.camera.y;
 
         if (AppState.engine.mode === 'edit') {
-            const grid = AppState.engine.gridSize;
-            const snapX = Math.floor(worldX / grid) * grid;
-            const snapY = Math.floor(worldY / grid) * grid;
-            
-            // Raycast (블록 선택/삭제용)
+            // Z-Index 역순 레이캐스팅 (가장 위에 있는 블록 선택)
             let hitPart = null;
             for (let i = AppState.currentWorld.blocks.length - 1; i >= 0; i--) {
                 let b = AppState.currentWorld.blocks[i];
@@ -523,43 +618,21 @@ const Input = {
             }
 
             const tool = AppState.editor.activeTool;
-            
-            if (tool === 'select') {
-                Editor.selectBlock(hitPart ? hitPart.id : null);
-                if (hitPart) {
+            if (tool === 'select' || tool === 'move') {
+                EditorCore.selectBlock(hitPart ? hitPart.id : null);
+                if (hitPart && tool === 'move') {
                     AppState.editor.isDragging = true;
                     AppState.editor.dragOffset = new Vector2(hitPart.pos.x - worldX, hitPart.pos.y - worldY);
                 }
-            } 
-            else if (tool === 'erase' && hitPart) {
-                Editor.selectBlock(hitPart.id);
-                Editor.deleteSelected();
-            }
-            else if (tool === 'draw') {
-                const asset = AppState.editor.activeAsset;
-                const colors = { normal: '#5c6bc0', bounce: '#4caf50', lava: '#ef5350', clicker: '#ffb300', spawn: 'transparent' };
-                const newBlock = new Block({
-                    type: asset,
-                    name: asset.toUpperCase(),
-                    x: snapX, y: snapY,
-                    w: asset === 'clicker' ? 100 : 50, h: asset === 'clicker' ? 100 : 50,
-                    color: colors[asset] || '#fff',
-                    canCollide: asset !== 'spawn'
-                });
-                AppState.currentWorld.blocks.push(newBlock);
-                Editor.selectBlock(newBlock.id);
-                UI.showToast('블록이 설치되었습니다.');
             }
         } 
         else if (AppState.engine.mode === 'play') {
-            // 인게임 화폐 클릭 시스템
+            // 인게임 화폐 박스 클릭 (Economy 연동)
             AppState.currentWorld.blocks.forEach(b => {
-                if (b.type === 'clicker' && 
-                    worldX >= b.pos.x && worldX <= b.pos.x + b.size.x &&
-                    worldY >= b.pos.y && worldY <= b.pos.y + b.size.y) {
-                    
+                if (b.type === 'clicker' && worldX >= b.pos.x && worldX <= b.pos.x + b.size.x && worldY >= b.pos.y && worldY <= b.pos.y + b.size.y) {
                     AppState.user.andBalance += 1;
-                    UI.saveData();
+                    DataManager.save();
+                    UI.updateBalanceUI();
                     UI.spawnParticle(e.clientX, e.clientY, '+1 AND');
                 }
             });
@@ -567,36 +640,28 @@ const Input = {
     },
 
     onMove: (e) => {
-        // 카메라 패닝 (WASD가 아닌 마우스 우클릭이나 빈 공간 드래그로 대체)
-        if (AppState.engine.mode === 'edit' && e.buttons === 2) {
+        if (AppState.engine.mode === 'edit' && e.buttons === 2) { // 우클릭 카메라 이동
             AppState.engine.camera.x -= e.movementX;
             AppState.engine.camera.y -= e.movementY;
         }
 
-        // 객체 드래그 이동
-        if (AppState.engine.mode === 'edit' && AppState.editor.isDragging && AppState.editor.selectedBlockId) {
-            const p = AppState.currentWorld.blocks.find(b => b.id === AppState.editor.selectedBlockId);
+        if (AppState.engine.mode === 'edit' && AppState.editor.isDragging && AppState.editor.selectedObjId) {
+            const p = AppState.currentWorld.blocks.find(b => b.id === AppState.editor.selectedObjId);
             if (!p) return;
-
             const rect = Renderer.canvas.getBoundingClientRect();
             const worldX = e.clientX - rect.left + AppState.engine.camera.x;
             const worldY = e.clientY - rect.top + AppState.engine.camera.y;
             
-            const targetX = worldX + AppState.editor.dragOffset.x;
-            const targetY = worldY + AppState.editor.dragOffset.y;
-            
-            p.pos.x = Math.floor(targetX / 25) * 25; // 25px 스냅 이동
-            p.pos.y = Math.floor(targetY / 25) * 25;
-            
-            UI.syncInspector();
+            p.pos.x = Math.floor((worldX + AppState.editor.dragOffset.x) / 25) * 25;
+            p.pos.y = Math.floor((worldY + AppState.editor.dragOffset.y) / 25) * 25;
+            EditorUI.syncInspector();
         }
     },
-
     onUp: () => { AppState.editor.isDragging = false; }
 };
 
 /* ----------------------------------------------------------------------------
-   [9] NETWORK ENGINE (PeerJS 멀티플레이)
+   [10] NETWORK & MULTIPLAYER (PeerJS)
    ---------------------------------------------------------------------------- */
 const Network = {
     peer: null, connections: [],
@@ -606,193 +671,264 @@ const Network = {
         Network.peer.on('connection', conn => {
             Network.connections.push(conn);
             Network.setupConn(conn);
-            UI.showToast('새 플레이어가 접속했습니다.');
             Network.updatePlayerList();
         });
+        Logger.info('PeerJS Network Node Started.');
     },
     setupConn: (conn) => {
         conn.on('data', data => {
             if (data.type === 'chat') {
                 const box = document.getElementById('chat-messages');
-                box.innerHTML += `<div class="msg"><span class="author">${data.id.substring(0,5)}:</span> ${data.msg}</div>`;
-                box.scrollTop = box.scrollHeight;
+                if(box) { box.innerHTML += `<div class="msg"><span class="author">${data.id.substring(0,5)}:</span> ${data.msg}</div>`; box.scrollTop = box.scrollHeight; }
             }
             if (data.type === 'move') Physics.otherPlayers[data.id] = data.pos;
         });
-        conn.on('close', () => {
-            delete Physics.otherPlayers[conn.peer];
-            Network.updatePlayerList();
-        });
+        conn.on('close', () => { delete Physics.otherPlayers[conn.peer]; Network.updatePlayerList(); });
     },
     joinGame: (hostId) => {
         if (hostId && hostId !== AppState.user.peerId) {
             const conn = Network.peer.connect(hostId);
-            conn.on('open', () => {
-                Network.connections.push(conn);
-                Network.setupConn(conn);
-                UI.showToast('서버 접속 성공!');
-                Network.updatePlayerList();
-            });
+            conn.on('open', () => { Network.connections.push(conn); Network.setupConn(conn); Network.updatePlayerList(); });
         } else {
-            Network.updatePlayerList(); // 호스트인 경우 자신만 표시
+            Network.updatePlayerList();
         }
     },
     sendChat: () => {
         const input = document.getElementById('chat-input');
-        const msg = input.value.trim();
-        if (!msg) return;
-        
+        if (!input || !input.value.trim()) return;
         const box = document.getElementById('chat-messages');
-        box.innerHTML += `<div class="msg mine"><span class="author">Me:</span> ${msg}</div>`;
+        box.innerHTML += `<div class="msg mine"><span class="author">Me:</span> ${input.value}</div>`;
         box.scrollTop = box.scrollHeight;
-        
-        Network.broadcast({ type: 'chat', id: AppState.user.peerId, msg: msg });
+        Network.broadcast({ type: 'chat', id: AppState.user.peerId, msg: input.value });
         input.value = '';
     },
-    broadcast: (data) => {
-        Network.connections.forEach(conn => { if (conn.open) conn.send(data); });
-    },
+    broadcast: (data) => Network.connections.forEach(conn => { if (conn.open) conn.send(data); }),
     updatePlayerList: () => {
         const list = document.getElementById('player-list');
         if(!list) return;
         list.innerHTML = `<li><i class="fa-solid fa-user text-success"></i> Me (Host)</li>`;
-        Network.connections.forEach(conn => {
-            if(conn.open) list.innerHTML += `<li><i class="fa-solid fa-user text-muted"></i> ${conn.peer.substring(0,5)}</li>`;
+        Network.connections.forEach(c => { if(c.open) list.innerHTML += `<li><i class="fa-solid fa-user text-muted"></i> ${c.peer.substring(0,5)}</li>`; });
+    }
+};
+
+/* ----------------------------------------------------------------------------
+   [11] DATA MANAGER & GLOBAL UI UTILS
+   ---------------------------------------------------------------------------- */
+const DataManager = {
+    load: () => {
+        const d = localStorage.getItem(STORAGE_KEY);
+        if(d) {
+            const parsed = JSON.parse(d);
+            AppState.user = parsed.user || AppState.user;
+            AppState.games = parsed.games || [];
+        }
+        // 에디터 모드 판별 (HTML 요소 기준)
+        AppState.isEditorMode = document.getElementById('editor-wrapper') !== null;
+    },
+    save: () => {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ user: AppState.user, games: AppState.games }));
+    }
+};
+
+const UI = {
+    updateBalanceUI: () => {
+        document.querySelectorAll('#and-balance, #atm-balance-display').forEach(el => el.innerText = AppState.user.andBalance);
+        const estimate = document.getElementById('atm-krw-estimate');
+        if(estimate) estimate.innerText = (AppState.user.andBalance * 10).toLocaleString(); // 1 AND = 10원 가치로 환산
+    },
+    showModal: (id) => document.getElementById(id)?.classList.remove('hidden'),
+    hideModal: (id) => document.getElementById(id)?.classList.add('hidden'),
+    showPublishModal: () => UI.showModal('modal-publish'),
+    hidePublishModal: () => UI.hideModal('modal-publish'),
+    showATMModal: () => { UI.updateBalanceUI(); UI.showModal('modal-atm'); },
+    hideATMModal: () => UI.hideModal('modal-atm'),
+    
+    showToast: (msg, isErr=false) => {
+        const c = document.getElementById('toast-container');
+        if(!c) return;
+        const t = document.createElement('div');
+        t.className = 'toast';
+        t.innerHTML = `<i class="fa-solid ${isErr?'fa-triangle-exclamation text-danger':'fa-check text-success'}"></i> ${msg}`;
+        c.appendChild(t); setTimeout(()=>t.remove(),3000);
+    },
+    spawnParticle: (x, y, text, color='#fbbf24') => {
+        const c = document.getElementById('particle-container');
+        if(!c) return;
+        const el = document.createElement('div');
+        el.className = 'floating-coin-text'; el.innerText = text; el.style.color = color;
+        el.style.left = x+'px'; el.style.top = y+'px';
+        c.appendChild(el); setTimeout(()=>el.remove(),1000);
+    },
+    
+    // ATM 탭 전환 로직
+    initATMTabs: () => {
+        document.querySelectorAll('.atm-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.atm-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.atm-tab-content').forEach(c => c.classList.add('hidden'));
+                tab.classList.add('active');
+                document.getElementById(tab.getAttribute('data-tab'))?.classList.remove('hidden');
+            });
         });
     }
 };
 
 /* ----------------------------------------------------------------------------
-   [10] MAIN APP CONTROLLER (라이프사이클)
+   [12] MAIN APP ROUTER (라이프사이클 오케스트레이터)
    ---------------------------------------------------------------------------- */
 const GameApp = {
     boot: () => {
-        UI.init();
+        DataManager.load();
+        UI.updateBalanceUI();
+        UI.initATMTabs();
         Renderer.init();
         Input.init();
+
+        if (AppState.isEditorMode) {
+            // editor.html 일 때 (강제로 첫 번째 게임 또는 새 게임 로드)
+            Logger.info('Studio Pro Editor Initialized.');
+            if(AppState.games.length === 0) GameApp.createNewGame(true);
+            else GameApp.loadWorkspace(AppState.games[0].id);
+        } else {
+            // index.html 일 때 (로비)
+            if(AppState.games.length === 0) {
+                // 더미 데이터 주입
+                AppState.games.push({
+                    id: 'w_demo', name: '점프 마스터즈', desc: '함정을 피하고 목적지까지 도달하세요.',
+                    icon: '🚀', passPrice: 0, creator: AppState.user.peerId,
+                    blocks: [
+                        new Block({ name: 'Baseplate', x:-500, y:200, w:1000, h:50, color:'#1e2233'}),
+                        new Block({ name: 'Spawn', x:0, y:150, w:50, h:50, type:'spawn', color:'transparent', canCollide:false}),
+                        new Block({ name: 'Lava', x:200, y:180, w:200, h:20, type:'lava', color:'#ef4444'})
+                    ]
+                });
+                DataManager.save();
+            }
+            LobbyUI.renderGames();
+            setTimeout(() => {
+                const ls = document.getElementById('screen-loading');
+                if(ls) { ls.style.opacity='0'; setTimeout(()=> { ls.classList.add('hidden'); document.getElementById('screen-lobby').classList.remove('hidden'); }, 300); }
+            }, 1000);
+        }
     },
 
-    createNewGame: () => {
-        const name = document.getElementById('game-name').value || '새로운 월드';
-        const desc = document.getElementById('game-desc').value || '기본 설명입니다.';
-        const icon = document.getElementById('game-icon').value || '🌍';
-        const price = parseInt(document.getElementById('game-pass-price').value) || 0;
+    createNewGame: (isEditorSkip = false) => {
+        const name = document.getElementById('game-name')?.value || '새 프로젝트';
+        const desc = document.getElementById('game-desc')?.value || '';
+        const price = parseInt(document.getElementById('game-pass-price')?.value) || 0;
         
         const newGame = {
             id: 'world_' + Date.now(),
-            name, desc, icon, passPrice: price,
-            creator: AppState.user.peerId,
+            name, desc, icon: '🎮', passPrice: price, creator: AppState.user.peerId,
             blocks: [
-                new Block({ name: 'Baseplate', x: -500, y: 200, w: 1000, h: 50, color: '#1e2233' }),
-                new Block({ name: 'SpawnPoint', x: 0, y: 150, w: 50, h: 50, type: 'spawn', color: 'transparent', canCollide: false })
+                new Block({ name: 'Baseplate', x:-1000, y:200, w:2000, h:50, color:'#1e2233'}),
+                new Block({ name: 'SpawnLocation', x:0, y:150, w:50, h:50, type:'spawn', color:'transparent', canCollide:false})
             ]
         };
-        
         AppState.games.push(newGame);
-        UI.saveData();
-        UI.hidePublishModal();
-        GameApp.editGame(newGame.id);
+        DataManager.save();
+        
+        if(!isEditorSkip) {
+            // 로비에서 스튜디오 진입 (현재는 파일이 분리되어 있으므로 이동)
+            window.location.href = 'editor.html';
+        }
     },
 
-    editGame: (id) => {
+    loadWorkspace: (id) => {
         const game = AppState.games.find(g => g.id === id);
-        if (!game) return;
-        
-        // 원본 데이터를 복사하여 에디터에 로드 (클래스 인스턴스화)
+        if(!game) return;
         AppState.currentWorld = { ...game, blocks: game.blocks.map(b => new Block(b)) };
         AppState.engine.mode = 'edit';
-        Editor.selectBlock(null);
-        
-        // 캔버스를 스튜디오 컨테이너로 이동
-        document.getElementById('viewport-container').appendChild(Renderer.canvas);
-        Renderer.resize();
-        
-        UI.showScreen('screen-studio');
+        EditorUI.syncExplorer();
         Renderer.startLoop();
-        UI.showToast('스튜디오 에디터가 열렸습니다.');
     },
 
-    playGame: (id) => {
+    playFromLobby: (id) => {
         const game = AppState.games.find(g => g.id === id);
-        if (!game) return;
-        
+        if(!game) return;
         AppState.currentWorld = { ...game, blocks: game.blocks.map(b => new Block(b)) };
         
-        // 캔버스를 플레이 컨테이너로 이동
-        document.getElementById('play-viewport-container').appendChild(Renderer.canvas);
+        document.getElementById('screen-lobby').classList.add('hidden');
+        document.getElementById('screen-play').classList.remove('hidden');
+        document.getElementById('play-canvas-container').appendChild(Renderer.canvas);
         Renderer.resize();
-
-        AppState.engine.mode = 'play';
-        UI.showScreen('screen-play');
         
+        AppState.engine.mode = 'play';
         GameApp.respawnPlayer();
         Renderer.startLoop();
-        
         Network.init();
         Network.joinGame(game.creator);
     },
 
     testPlay: () => {
-        if (!AppState.currentWorld) return;
+        if(!AppState.currentWorld || AppState.engine.mode === 'play') return;
+        Logger.info('Starting Test Play...');
         
-        // 캔버스 이동
-        document.getElementById('play-viewport-container').appendChild(Renderer.canvas);
+        document.getElementById('editor-canvas-container')?.classList.add('hidden');
+        // 에디터 내의 플레이 컨테이너로 이동 (editor.html 전용)
+        const playContainer = document.getElementById('play-canvas-container');
+        if(playContainer) {
+            playContainer.appendChild(Renderer.canvas);
+            playContainer.parentElement.classList.remove('hidden');
+        }
+        
         Renderer.resize();
-        
         AppState.engine.mode = 'play';
-        UI.showScreen('screen-play');
-        
         GameApp.respawnPlayer();
         
         Network.init();
-        Network.joinGame(AppState.user.peerId); // 로컬 테스트
-        UI.showToast('테스트 플레이 시작!');
+        Network.joinGame(AppState.user.peerId); // Local
+    },
+
+    stopPlay: () => {
+        Logger.warn('Stopping Test Play...');
+        AppState.engine.mode = 'edit';
+        
+        const playScreen = document.getElementById('screen-play');
+        if(playScreen) playScreen.classList.add('hidden');
+        
+        const edContainer = document.getElementById('editor-canvas-container');
+        if(edContainer) {
+            edContainer.classList.remove('hidden');
+            edContainer.appendChild(Renderer.canvas);
+        }
+        
+        Renderer.resize();
+        AppState.currentWorld.blocks.forEach(b => { if(!b.anchored) b.velocity = new Vector2(0,0); });
     },
 
     exitPlay: () => {
-        // 테스트 플레이 중이었다면 스튜디오로, 아니면 로비로
         Renderer.stopLoop();
-        if (AppState.currentWorld.creator === AppState.user.peerId) {
-            GameApp.editGame(AppState.currentWorld.id); // 스튜디오 복귀
+        if(AppState.isEditorMode) {
+            GameApp.stopPlay();
+            Renderer.startLoop();
         } else {
-            UI.showScreen('screen-lobby'); // 로비 복귀
-            UI.renderLobby();
+            document.getElementById('screen-play').classList.add('hidden');
+            document.getElementById('screen-lobby').classList.remove('hidden');
         }
     },
 
     saveAndExit: () => {
-        if (!AppState.currentWorld) return;
-        // 수정된 블록 데이터를 원본 게임 배열에 덮어쓰기
-        const index = AppState.games.findIndex(g => g.id === AppState.currentWorld.id);
-        if (index !== -1) {
-            AppState.games[index].blocks = AppState.currentWorld.blocks;
-            UI.saveData();
+        if(AppState.currentWorld) {
+            const idx = AppState.games.findIndex(g => g.id === AppState.currentWorld.id);
+            if(idx !== -1) {
+                AppState.games[idx].blocks = AppState.currentWorld.blocks;
+                DataManager.save();
+                Logger.info('Project Saved to LocalStorage.');
+            }
         }
-        Renderer.stopLoop();
-        UI.showScreen('screen-lobby');
-        UI.renderLobby();
-        UI.showToast('성공적으로 저장되었습니다.');
-    },
-
-    buyPass: (id, price) => {
-        if (AppState.user.andBalance >= price) {
-            AppState.user.andBalance -= price;
-            AppState.user.purchased.push(id);
-            UI.saveData();
-            UI.renderLobby();
-            UI.showToast('패스 구매 성공!');
-        } else {
-            UI.showToast(`AND가 부족합니다. (현재: ${AppState.user.andBalance})`);
-        }
+        window.location.href = 'index.html';
     },
 
     respawnPlayer: () => {
         const spawn = AppState.currentWorld.blocks.find(b => b.type === 'spawn');
         Physics.player.pos = spawn ? new Vector2(spawn.pos.x, spawn.pos.y - 60) : new Vector2(0, -100);
-        Physics.player.vel = new Vector2(0, 0);
+        Physics.player.vel = new Vector2(0,0);
         Physics.player.grounded = false;
-        UI.spawnParticle(Physics.player.pos.x, Physics.player.pos.y, 'Respawn!');
     }
 };
 
 window.addEventListener('DOMContentLoaded', GameApp.boot);
+// Economy 바인딩
+GameApp.claimDailyReward = Economy.claimDailyReward;
+GameApp.redeemPromo = Economy.redeemPromo;
