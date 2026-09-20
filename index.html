@@ -3,40 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>CreateVerse Studio - Ultimate Pro Engine</title>
+    <title>CreateVerse Studio Pro - Ultimate Build</title>
     
-    <!-- UI 폰트 및 아이콘 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     
-    <!-- 네트워크 엔진 -->
     <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
 </head>
 <body class="studio-dark-theme unselectable" oncontextmenu="return false;">
 
     <!-- ==========================================
-         1. 최상단 글로벌 시스템 메뉴바 (File, Edit...)
+         1. SYSTEM MENU BAR (글로벌 메뉴)
     =========================================== -->
-    <nav id="system-menu-bar" class="system-menu-bar">
+    <nav class="system-menu-bar">
         <div class="menu-brand">
-            <i class="fa-solid fa-layer-group text-primary"></i> <span>CreateVerse Studio</span>
+            <i class="fa-solid fa-layer-group text-primary"></i> 
+            <span>CreateVerse Studio <span style="font-size: 10px; color: var(--cv-text-muted); font-weight: normal; margin-left: 8px;">v3.0.0-rc1</span></span>
         </div>
         <ul class="system-menu-list">
             <li class="dropdown-parent">
-                <span>File</span>
+                File
                 <div class="dropdown-content">
-                    <div class="dropdown-item"><i class="fa-solid fa-file"></i> New Project <span class="shortcut">Ctrl+N</span></div>
-                    <div class="dropdown-item"><i class="fa-solid fa-folder-open"></i> Open from Cloud... <span class="shortcut">Ctrl+O</span></div>
+                    <div class="dropdown-item"><i class="fa-solid fa-file"></i> New <span class="shortcut">Ctrl+N</span></div>
+                    <div class="dropdown-item"><i class="fa-solid fa-folder-open"></i> Open from File... <span class="shortcut">Ctrl+O</span></div>
+                    <div class="dropdown-item"><i class="fa-solid fa-cloud-arrow-down"></i> Open from CreateVerse...</div>
+                    <div class="dropdown-divider"></div>
                     <div class="dropdown-item"><i class="fa-solid fa-floppy-disk"></i> Save <span class="shortcut">Ctrl+S</span></div>
+                    <div class="dropdown-item"><i class="fa-solid fa-file-export"></i> Save to File As...</div>
                     <div class="dropdown-item"><i class="fa-solid fa-cloud-arrow-up"></i> Publish to CreateVerse <span class="shortcut">Alt+P</span></div>
                     <div class="dropdown-divider"></div>
-                    <div class="dropdown-item"><i class="fa-solid fa-gear"></i> Game Settings</div>
+                    <div class="dropdown-item"><i class="fa-solid fa-gear"></i> Game Settings...</div>
                     <div class="dropdown-item"><i class="fa-solid fa-door-open"></i> Exit <span class="shortcut">Alt+F4</span></div>
                 </div>
             </li>
             <li class="dropdown-parent">
-                <span>Edit</span>
+                Edit
                 <div class="dropdown-content">
                     <div class="dropdown-item"><i class="fa-solid fa-rotate-left"></i> Undo <span class="shortcut">Ctrl+Z</span></div>
                     <div class="dropdown-item"><i class="fa-solid fa-rotate-right"></i> Redo <span class="shortcut">Ctrl+Y</span></div>
@@ -44,446 +46,480 @@
                     <div class="dropdown-item"><i class="fa-solid fa-scissors"></i> Cut <span class="shortcut">Ctrl+X</span></div>
                     <div class="dropdown-item"><i class="fa-solid fa-copy"></i> Copy <span class="shortcut">Ctrl+C</span></div>
                     <div class="dropdown-item"><i class="fa-solid fa-paste"></i> Paste <span class="shortcut">Ctrl+V</span></div>
+                    <div class="dropdown-item"><i class="fa-solid fa-paste"></i> Paste Into <span class="shortcut">Ctrl+Shift+V</span></div>
                     <div class="dropdown-item"><i class="fa-solid fa-clone"></i> Duplicate <span class="shortcut">Ctrl+D</span></div>
                     <div class="dropdown-item text-danger"><i class="fa-solid fa-trash"></i> Delete <span class="shortcut">Del</span></div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item"><i class="fa-solid fa-object-group"></i> Group <span class="shortcut">Ctrl+G</span></div>
+                    <div class="dropdown-item"><i class="fa-solid fa-object-ungroup"></i> Ungroup <span class="shortcut">Ctrl+U</span></div>
                 </div>
             </li>
-            <li class="dropdown-parent"><span>View</span></li>
-            <li class="dropdown-parent"><span>Plugins</span></li>
-            <li class="dropdown-parent"><span>Help</span></li>
+            <li class="dropdown-parent">
+                View
+                <div class="dropdown-content">
+                    <div class="dropdown-item"><i class="fa-solid fa-check"></i> Explorer</div>
+                    <div class="dropdown-item"><i class="fa-solid fa-check"></i> Properties</div>
+                    <div class="dropdown-item"><i class="fa-solid fa-check"></i> Output</div>
+                    <div class="dropdown-item"><i class="fa-solid fa-check"></i> Toolbox</div>
+                    <div class="dropdown-item">Asset Manager</div>
+                    <div class="dropdown-item">Object Browser</div>
+                    <div class="dropdown-item">Find Results</div>
+                </div>
+            </li>
+            <li class="dropdown-parent">Plugins</li>
+            <li class="dropdown-parent">Help</li>
         </ul>
         <div class="system-menu-right">
-            <button class="btn-icon" title="Settings"><i class="fa-solid fa-gear"></i></button>
-            <div class="user-profile">
-                <img src="https://ui-avatars.com/api/?name=Creator&background=6366f1&color=fff" alt="User" class="avatar-sm">
-                <span>Creator_01</span>
+            <div class="currency-badge pop">
+                <i class="fa-solid fa-coins text-gold"></i> <span id="and-balance">0 AND</span>
             </div>
+            <button class="btn-icon" title="Studio Settings"><i class="fa-solid fa-gear"></i></button>
         </div>
     </nav>
 
     <!-- ==========================================
-         2. 리본 툴바 (Roblox 스타일 복합 탭 메뉴)
+         2. RIBBON TOOLBAR (리본 메뉴)
     =========================================== -->
-    <header id="ribbon-toolbar" class="ribbon-toolbar">
-        
-        <!-- 리본 탭 -->
+    <header class="ribbon-toolbar">
         <div class="ribbon-tabs">
-            <div class="ribbon-tab active" data-target="ribbon-home">Home</div>
-            <div class="ribbon-tab" data-target="ribbon-model">Model</div>
-            <div class="ribbon-tab" data-target="ribbon-test">Test</div>
-            <div class="ribbon-tab" data-target="ribbon-view">View</div>
+            <div class="ribbon-tab active">Home</div>
+            <div class="ribbon-tab">Model</div>
+            <div class="ribbon-tab">Avatar</div>
+            <div class="ribbon-tab">Test</div>
+            <div class="ribbon-tab">View</div>
+            <div class="ribbon-tab">Plugins</div>
         </div>
 
-        <!-- 리본 탭 내용: HOME -->
-        <div class="ribbon-content active" id="ribbon-home">
+        <div class="ribbon-content active">
             
+            <!-- Clipboard -->
             <div class="ribbon-group">
                 <div class="ribbon-buttons">
-                    <button class="r-btn-large"><i class="fa-solid fa-arrow-pointer"></i><span>Select</span></button>
-                    <button class="r-btn-large"><i class="fa-solid fa-arrows-up-down-left-right"></i><span>Move</span></button>
-                    <button class="r-btn-large"><i class="fa-solid fa-maximize"></i><span>Scale</span></button>
-                    <button class="r-btn-large"><i class="fa-solid fa-rotate-right"></i><span>Rotate</span></button>
+                    <button class="r-btn-large"><i class="fa-solid fa-paste"></i><span>Paste</span></button>
+                    <div style="display:flex; flex-direction:column; gap:2px; height:100%;">
+                        <button class="r-btn-small"><i class="fa-solid fa-scissors"></i> Cut</button>
+                        <button class="r-btn-small"><i class="fa-solid fa-copy"></i> Copy</button>
+                        <button class="r-btn-small"><i class="fa-solid fa-clone"></i> Duplicate</button>
+                    </div>
+                </div>
+                <div class="ribbon-label">Clipboard</div>
+            </div>
+            
+            <div class="ribbon-divider"></div>
+
+            <!-- Tools -->
+            <div class="ribbon-group">
+                <div class="ribbon-buttons">
+                    <button class="r-btn-large active" id="tool-select" onclick="Editor.setTool('select')">
+                        <i class="fa-solid fa-arrow-pointer"></i><span>Select</span>
+                    </button>
+                    <button class="r-btn-large" id="tool-move" onclick="Editor.setTool('move')">
+                        <i class="fa-solid fa-arrows-up-down-left-right"></i><span>Move</span>
+                    </button>
+                    <button class="r-btn-large" id="tool-scale" onclick="Editor.setTool('scale')">
+                        <i class="fa-solid fa-maximize"></i><span>Scale</span>
+                    </button>
+                    <button class="r-btn-large" id="tool-rotate" onclick="Editor.setTool('rotate')">
+                        <i class="fa-solid fa-rotate-right"></i><span>Rotate</span>
+                    </button>
                 </div>
                 <div class="ribbon-label">Tools</div>
             </div>
             
             <div class="ribbon-divider"></div>
             
+            <!-- Insert -->
             <div class="ribbon-group">
                 <div class="ribbon-buttons">
-                    <div class="dropdown-ribbon">
-                        <button class="r-btn-large"><i class="fa-solid fa-cube text-primary"></i><span>Part <i class="fa-solid fa-caret-down text-xs"></i></span></button>
-                    </div>
-                    <button class="r-btn-large"><i class="fa-solid fa-palette text-gold"></i><span>Color</span></button>
-                    <button class="r-btn-large"><i class="fa-solid fa-cubes"></i><span>Material</span></button>
+                    <button class="r-btn-large" onclick="Editor.insertPart('normal')">
+                        <i class="fa-solid fa-cube text-primary"></i><span>Part</span>
+                    </button>
+                    <button class="r-btn-large" onclick="Editor.insertPart('spawn')">
+                        <i class="fa-solid fa-flag text-gold"></i><span>Spawn</span>
+                    </button>
+                    <button class="r-btn-large">
+                        <i class="fa-solid fa-font text-success"></i><span>UI</span>
+                    </button>
                 </div>
-                <div class="ribbon-label">Insert & Edit</div>
+                <div class="ribbon-label">Insert</div>
             </div>
 
             <div class="ribbon-divider"></div>
-            
+
+            <!-- Edit (Physics & Materials) -->
             <div class="ribbon-group">
                 <div class="ribbon-buttons">
-                    <button class="r-btn-small" onclick="Editor.toggleAnchor()"><i class="fa-solid fa-anchor"></i> Anchor</button>
-                    <button class="r-btn-small"><i class="fa-solid fa-link-slash"></i> Group</button>
-                    <button class="r-btn-small"><i class="fa-solid fa-lock"></i> Lock</button>
+                    <div style="display:flex; flex-direction:column; gap:2px; height:100%; margin-right:8px;">
+                        <button class="r-btn-small" onclick="Editor.toggleAnchor()">
+                            <i class="fa-solid fa-anchor"></i> Anchor
+                        </button>
+                        <button class="r-btn-small" onclick="Editor.toggleCollide()">
+                            <i class="fa-solid fa-cubes-stacked"></i> Collide
+                        </button>
+                        <button class="r-btn-small">
+                            <i class="fa-solid fa-lock"></i> Lock
+                        </button>
+                    </div>
+                    <button class="r-btn-large">
+                        <i class="fa-solid fa-palette text-gold"></i><span>Color</span>
+                    </button>
+                    <button class="r-btn-large">
+                        <i class="fa-solid fa-cubes text-muted"></i><span>Material</span>
+                    </button>
                 </div>
                 <div class="ribbon-label">Edit</div>
             </div>
 
             <div class="ribbon-divider"></div>
 
+            <!-- Test -->
             <div class="ribbon-group">
                 <div class="ribbon-buttons">
-                    <button class="r-btn-large play-accent" onclick="GameApp.testPlay()"><i class="fa-solid fa-play"></i><span>Play</span></button>
-                    <button class="r-btn-large"><i class="fa-solid fa-stop"></i><span>Stop</span></button>
+                    <button class="r-btn-large play-accent pop" onclick="GameApp.testPlay()">
+                        <i class="fa-solid fa-play"></i><span>Play</span>
+                    </button>
+                    <button class="r-btn-large pop" onclick="GameApp.stopPlay()">
+                        <i class="fa-solid fa-stop"></i><span>Stop</span>
+                    </button>
                 </div>
                 <div class="ribbon-label">Test</div>
             </div>
-
         </div>
     </header>
 
     <!-- ==========================================
-         3. 메인 워크스페이스 레이아웃 (좌/중/우 패널)
+         3. STUDIO WORKSPACE (도킹 패널 시스템)
     =========================================== -->
-    <div id="studio-workspace" class="studio-workspace">
+    <div class="studio-workspace">
         
-        <!-- [좌측 패널] 툴박스 (Toolbox / Asset Manager) -->
-        <aside class="dock-panel left-panel">
+        <!-- [좌측 패널] Toolbox -->
+        <aside class="dock-panel panel-left">
             <div class="panel-header">
-                <span>Toolbox</span>
-                <div class="panel-controls"><i class="fa-solid fa-minus"></i> <i class="fa-solid fa-xmark"></i></div>
+                Toolbox
+                <div class="panel-controls"><i class="fa-solid fa-minus"></i></div>
             </div>
             <div class="toolbox-body">
                 <div class="toolbox-searchbar">
                     <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" placeholder="Search models, audio, plugins...">
+                    <input type="text" placeholder="Search models, audio, images...">
                 </div>
-                <div class="toolbox-categories">
-                    <div class="tb-cat active">Models</div>
-                    <div class="tb-cat">Audio</div>
-                    <div class="tb-cat">Images</div>
-                    <div class="tb-cat">Meshes</div>
+                <div style="display:flex; background:var(--cv-bg-header); border-bottom:1px solid var(--cv-border-main);">
+                    <div style="flex:1; text-align:center; padding:6px; font-size:11px; color:var(--cv-text-pure); border-bottom:2px solid var(--cv-primary);">Models</div>
+                    <div style="flex:1; text-align:center; padding:6px; font-size:11px; color:var(--cv-text-muted);">Audio</div>
+                    <div style="flex:1; text-align:center; padding:6px; font-size:11px; color:var(--cv-text-muted);">Plugins</div>
                 </div>
                 <div class="toolbox-asset-list scrollable">
-                    <!-- 방대한 에셋 리스트 하드코딩 -->
-                    <div class="asset-card" onclick="Editor.insertPart('normal')">
-                        <div class="asset-thumbnail" style="background: #e2e8f0;"><i class="fa-solid fa-cube text-primary"></i></div>
-                        <div class="asset-info"><span class="asset-name">Basic Part</span><span class="asset-creator">By Roblox</span></div>
+                    <div class="asset-card pop" onclick="Editor.insertPart('normal')">
+                        <div class="asset-thumb"><i class="fa-solid fa-cube text-primary"></i></div>
+                        <div class="asset-name">Basic Part</div>
                     </div>
-                    <div class="asset-card" onclick="Editor.insertPart('bounce')">
-                        <div class="asset-thumbnail" style="background: #bbf7d0;"><i class="fa-solid fa-angles-up text-success"></i></div>
-                        <div class="asset-info"><span class="asset-name">Bounce Pad (Jump)</span><span class="asset-creator">By CreateVerse</span></div>
+                    <div class="asset-card pop" onclick="Editor.insertPart('bounce')">
+                        <div class="asset-thumb"><i class="fa-solid fa-angles-up text-success"></i></div>
+                        <div class="asset-name">Bounce Pad</div>
                     </div>
-                    <div class="asset-card" onclick="Editor.insertPart('lava')">
-                        <div class="asset-thumbnail" style="background: #fecdd3;"><i class="fa-solid fa-fire text-danger"></i></div>
-                        <div class="asset-info"><span class="asset-name">Kill Brick (Lava)</span><span class="asset-creator">By CreateVerse</span></div>
+                    <div class="asset-card pop" onclick="Editor.insertPart('lava')">
+                        <div class="asset-thumb"><i class="fa-solid fa-fire text-danger"></i></div>
+                        <div class="asset-name">Kill Brick</div>
                     </div>
-                    <div class="asset-card" onclick="Editor.insertPart('clicker')">
-                        <div class="asset-thumbnail" style="background: #fef08a;"><i class="fa-solid fa-sack-dollar text-gold"></i></div>
-                        <div class="asset-info"><span class="asset-name">Infinite Coin Box</span><span class="asset-creator">By EconomySystem</span></div>
+                    <div class="asset-card pop" onclick="Editor.insertPart('clicker')">
+                        <div class="asset-thumb"><i class="fa-solid fa-sack-dollar text-gold"></i></div>
+                        <div class="asset-name">Infinite Coin</div>
                     </div>
-                    <div class="asset-card" onclick="Editor.insertPart('spawn')">
-                        <div class="asset-thumbnail" style="background: transparent; border: 2px dashed #f59e0b;"><i class="fa-solid fa-flag text-gold"></i></div>
-                        <div class="asset-info"><span class="asset-name">Spawn Location</span><span class="asset-creator">By Roblox</span></div>
+                    <div class="asset-card pop" onclick="Editor.insertPart('spawn')">
+                        <div class="asset-thumb" style="border: 1px dashed var(--cv-warning);"><i class="fa-solid fa-flag text-gold"></i></div>
+                        <div class="asset-name">SpawnLocation</div>
                     </div>
-                    <div class="asset-card">
-                        <div class="asset-thumbnail" style="background: #bfdbfe;"><i class="fa-solid fa-water text-primary"></i></div>
-                        <div class="asset-info"><span class="asset-name">Water Volume</span><span class="asset-creator">By Terrain</span></div>
+                    <div class="asset-card pop">
+                        <div class="asset-thumb"><i class="fa-solid fa-gun text-muted"></i></div>
+                        <div class="asset-name">Sword Tool</div>
                     </div>
-                    <div class="asset-card">
-                        <div class="asset-thumbnail" style="background: #e9d5ff;"><i class="fa-solid fa-door-open text-purple"></i></div>
-                        <div class="asset-info"><span class="asset-name">Teleporter</span><span class="asset-creator">By LogicTools</span></div>
+                    <div class="asset-card pop">
+                        <div class="asset-thumb"><i class="fa-solid fa-car text-primary"></i></div>
+                        <div class="asset-name">Driveable Car</div>
+                    </div>
+                    <div class="asset-card pop">
+                        <div class="asset-thumb"><i class="fa-solid fa-tree text-success"></i></div>
+                        <div class="asset-name">Pine Tree</div>
+                    </div>
+                    <div class="asset-card pop">
+                        <div class="asset-thumb"><i class="fa-solid fa-house text-muted"></i></div>
+                        <div class="asset-name">Starter House</div>
+                    </div>
+                    <div class="asset-card pop">
+                        <div class="asset-thumb"><i class="fa-solid fa-ghost text-pure"></i></div>
+                        <div class="asset-name">Zombie NPC</div>
                     </div>
                 </div>
             </div>
         </aside>
 
-        <!-- [중앙 패널] 뷰포트 (Viewport / Scene) -->
-        <main class="dock-panel center-panel">
-            <!-- 뷰포트 탭 (코드 에디터와 스크린 스왑용) -->
+        <!-- [중앙 패널] Viewport -->
+        <main class="dock-panel panel-center">
             <div class="viewport-tabs">
-                <div class="vp-tab active">
-                    <i class="fa-solid fa-globe"></i> Baseplate 
-                    <button class="close-tab"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                <div class="vp-tab">
-                    <i class="fa-solid fa-file-code text-gold"></i> MainServerScript
-                    <button class="close-tab"><i class="fa-solid fa-xmark"></i></button>
-                </div>
+                <div class="vp-tab active"><i class="fa-solid fa-globe"></i> Baseplate</div>
+                <div class="vp-tab"><i class="fa-solid fa-file-code text-gold"></i> MainServerScript</div>
+                <div class="vp-tab"><i class="fa-solid fa-desktop text-primary"></i> StarterGui</div>
             </div>
             
-            <!-- 실제 렌더링 엔진 영역 -->
-            <div id="viewport-container" class="viewport-container">
-                <!-- 뷰포트 오버레이 UI (축 가이드, 스냅 표시 등) -->
+            <div id="viewport-container">
                 <div class="viewport-overlay">
-                    <div class="overlay-left">
-                        <span id="coord-display">X: 0.0, Y: 0.0</span> | 
-                        <span id="snap-display">Snap: 50px</span>
-                    </div>
-                    <div class="overlay-right">
-                        <button class="view-btn"><i class="fa-solid fa-video"></i> 2D</button>
-                        <button class="view-btn"><i class="fa-solid fa-border-all"></i> Grid</button>
-                    </div>
+                    <span id="coord-display">X: 0, Y: 0</span>
+                    <span style="margin: 0 10px; color: var(--cv-border-light);">|</span>
+                    <span id="snap-display">Snap: 25px</span>
+                    <span style="margin: 0 10px; color: var(--cv-border-light);">|</span>
+                    <span id="fps-display">60 FPS</span>
                 </div>
                 
-                <!-- 물리 엔진 캔버스 -->
                 <canvas id="game-canvas"></canvas>
 
-                <!-- 테스트 플레이 전용 인게임 UI (오버레이) -->
+                <!-- 테스트 플레이 전용 인게임 오버레이 -->
                 <div id="play-ui" class="play-ui-layer hidden">
                     
-                    <!-- 플레이어 리더보드 -->
                     <div class="leaderboard-ui">
-                        <div class="lb-header">
-                            <span>Players</span>
-                            <span>Score (AND)</span>
-                        </div>
+                        <div class="lb-header"><span>Players</span> <span>Score</span></div>
                         <ul class="lb-players" id="player-list">
-                            <li>
-                                <div class="p-info"><img src="https://ui-avatars.com/api/?name=Me" class="p-icon"> <span>Me (Host)</span></div>
-                                <div class="p-score text-gold">100</div>
-                            </li>
+                            <li><span><i class="fa-solid fa-user"></i> Me (Host)</span> <span class="text-gold">150</span></li>
                         </ul>
                     </div>
 
-                    <!-- 채팅 시스템 -->
                     <div class="chat-system">
                         <div class="chat-messages scrollable" id="chat-messages">
                             <div class="msg system">Welcome to CreateVerse!</div>
                         </div>
                         <div class="chat-input-bar">
-                            <span class="chat-tag">To: All</span>
-                            <input type="text" id="chat-input" placeholder="Tap here to chat">
+                            <span style="font-size:10px; color:#aaa; font-weight:bold;">[All]</span>
+                            <input type="text" id="chat-input" placeholder="Tap here to chat...">
+                            <button class="pop" onclick="Network.sendChat()"><i class="fa-solid fa-paper-plane"></i></button>
                         </div>
+                    </div>
+
+                    <!-- 플레이어 체력 바 및 핫바 -->
+                    <div style="position:absolute; bottom: 150px; left: 50%; transform: translateX(-50%); width: 300px; pointer-events: none;">
+                        <div style="width:100%; background:rgba(0,0,0,0.5); border:1px solid #000; height:12px; border-radius:6px; overflow:hidden;">
+                            <div style="width:100%; height:100%; background:#4caf50;"></div>
+                        </div>
+                        <div style="text-align:center; font-size:10px; color:#fff; font-weight:bold; margin-top:4px; text-shadow:1px 1px 2px #000;">Health: 100/100</div>
+                    </div>
+
+                    <!-- 핫바 인벤토리 -->
+                    <div style="position:absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display:flex; gap:8px; pointer-events:auto;">
+                        <div style="width:40px; height:40px; background:rgba(0,0,0,0.6); border:2px solid var(--cv-primary); border-radius:6px; color:#fff; font-size:10px; font-weight:bold; padding:2px;">1</div>
+                        <div style="width:40px; height:40px; background:rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.2); border-radius:6px; color:#fff; font-size:10px; font-weight:bold; padding:2px;">2</div>
+                        <div style="width:40px; height:40px; background:rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.2); border-radius:6px; color:#fff; font-size:10px; font-weight:bold; padding:2px;">3</div>
                     </div>
 
                     <!-- 모바일 컨트롤러 -->
                     <div class="virtual-controls">
-                        <div class="joypad-area">
-                            <div class="joy-base" id="joystick"><div class="joy-stick" id="knob"></div></div>
-                        </div>
-                        <div class="action-area">
-                            <button class="action-btn jump-btn pop" id="jump-btn"><i class="fa-solid fa-arrow-up"></i></button>
-                        </div>
+                        <div class="joy-base" id="joystick"><div class="joy-stick" id="knob"></div></div>
+                        <button class="action-btn pop" id="jump-btn"><i class="fa-solid fa-arrow-up"></i></button>
                     </div>
                 </div>
             </div>
         </main>
 
-        <!-- [우측 패널] 익스플로러 & 인스펙터 (Hierarchy & Properties) -->
-        <aside class="dock-panel right-panel">
+        <!-- [우측 패널] Explorer & Properties -->
+        <aside class="dock-panel panel-right">
             
-            <!-- 익스플로러 영역 -->
+            <!-- Explorer -->
             <div class="explorer-section">
                 <div class="panel-header">
-                    <span>Explorer</span>
-                    <div class="panel-controls"><i class="fa-solid fa-filter"></i></div>
+                    Explorer
+                    <div class="panel-controls"><i class="fa-solid fa-filter"></i> <i class="fa-solid fa-minus"></i></div>
                 </div>
-                <div class="explorer-search">
-                    <input type="text" placeholder="Filter workspace...">
+                <div style="padding:4px; background:var(--cv-bg-header); border-bottom:1px solid var(--cv-border-main);">
+                    <input type="text" placeholder="Filter workspace..." style="width:100%; background:var(--cv-bg-input); border:1px solid transparent; color:#fff; font-size:11px; padding:4px 6px; border-radius:3px; outline:none;">
                 </div>
-                
-                <!-- 방대한 트리 노드 구조 하드코딩 -->
-                <div class="explorer-tree scrollable" id="hierarchy-list">
-                    
-                    <div class="tree-node root open">
-                        <i class="fa-solid fa-caret-down toggle-btn"></i>
-                        <i class="fa-solid fa-globe node-icon text-primary"></i> <span class="node-name">Workspace</span>
+                <div class="explorer-tree scrollable">
+                    <div class="tree-node"><i class="fa-solid fa-chevron-down text-muted" style="margin-right:4px;"></i><i class="fa-solid fa-globe node-icon text-primary"></i> Workspace</div>
+                    <div style="padding-left:14px;" id="workspace-children">
+                        <!-- JS에서 파트들이 여기에 삽입됨 -->
+                        <div class="tree-node"><i class="fa-solid fa-video node-icon text-muted"></i> Camera</div>
+                        <div class="tree-node"><i class="fa-solid fa-mountain node-icon text-success"></i> Terrain</div>
                     </div>
-                    <div class="tree-children" id="workspace-children">
-                        <div class="tree-node"><i class="fa-solid fa-video node-icon text-muted"></i> <span class="node-name">Camera</span></div>
-                        <div class="tree-node"><i class="fa-solid fa-mountain node-icon text-success"></i> <span class="node-name">Terrain</span></div>
-                        <div class="tree-node"><i class="fa-solid fa-cube node-icon"></i> <span class="node-name">Baseplate</span></div>
-                        <div class="tree-node"><i class="fa-solid fa-flag node-icon text-gold"></i> <span class="node-name">SpawnLocation</span></div>
-                    </div>
-
-                    <div class="tree-node root">
-                        <i class="fa-solid fa-caret-right toggle-btn"></i>
-                        <i class="fa-solid fa-users node-icon text-primary"></i> <span class="node-name">Players</span>
-                    </div>
-                    <div class="tree-node root">
-                        <i class="fa-solid fa-caret-right toggle-btn"></i>
-                        <i class="fa-solid fa-lightbulb node-icon text-gold"></i> <span class="node-name">Lighting</span>
-                    </div>
-                    <div class="tree-node root">
-                        <i class="fa-solid fa-caret-right toggle-btn"></i>
-                        <i class="fa-solid fa-server node-icon"></i> <span class="node-name">ServerScriptService</span>
-                    </div>
-                    <div class="tree-node root">
-                        <i class="fa-solid fa-caret-right toggle-btn"></i>
-                        <i class="fa-solid fa-database node-icon"></i> <span class="node-name">ServerStorage</span>
-                    </div>
-                    <div class="tree-node root">
-                        <i class="fa-solid fa-caret-right toggle-btn"></i>
-                        <i class="fa-solid fa-desktop node-icon text-primary"></i> <span class="node-name">StarterGui</span>
-                    </div>
-                    <div class="tree-node root">
-                        <i class="fa-solid fa-caret-right toggle-btn"></i>
-                        <i class="fa-solid fa-box node-icon text-gold"></i> <span class="node-name">StarterPack</span>
-                    </div>
+                    <div class="tree-node"><i class="fa-solid fa-chevron-right text-muted" style="margin-right:4px;"></i><i class="fa-solid fa-users node-icon text-primary"></i> Players</div>
+                    <div class="tree-node"><i class="fa-solid fa-chevron-right text-muted" style="margin-right:4px;"></i><i class="fa-solid fa-lightbulb node-icon text-gold"></i> Lighting</div>
+                    <div class="tree-node"><i class="fa-solid fa-chevron-right text-muted" style="margin-right:4px;"></i><i class="fa-solid fa-database node-icon text-muted"></i> ReplicatedFirst</div>
+                    <div class="tree-node"><i class="fa-solid fa-chevron-right text-muted" style="margin-right:4px;"></i><i class="fa-solid fa-server node-icon"></i> ReplicatedStorage</div>
+                    <div class="tree-node"><i class="fa-solid fa-chevron-right text-muted" style="margin-right:4px;"></i><i class="fa-solid fa-microchip node-icon text-success"></i> ServerScriptService</div>
+                    <div class="tree-node"><i class="fa-solid fa-chevron-right text-muted" style="margin-right:4px;"></i><i class="fa-solid fa-hard-drive node-icon"></i> ServerStorage</div>
+                    <div class="tree-node"><i class="fa-solid fa-chevron-right text-muted" style="margin-right:4px;"></i><i class="fa-solid fa-desktop node-icon text-primary"></i> StarterGui</div>
+                    <div class="tree-node"><i class="fa-solid fa-chevron-right text-muted" style="margin-right:4px;"></i><i class="fa-solid fa-briefcase node-icon text-gold"></i> StarterPack</div>
+                    <div class="tree-node"><i class="fa-solid fa-chevron-right text-muted" style="margin-right:4px;"></i><i class="fa-solid fa-gamepad node-icon"></i> StarterPlayer</div>
+                    <div class="tree-node"><i class="fa-solid fa-chevron-right text-muted" style="margin-right:4px;"></i><i class="fa-solid fa-users-gear node-icon"></i> Teams</div>
+                    <div class="tree-node"><i class="fa-solid fa-chevron-right text-muted" style="margin-right:4px;"></i><i class="fa-solid fa-comment-dots node-icon text-primary"></i> TextChatService</div>
                 </div>
             </div>
 
-            <!-- 프로퍼티(인스펙터) 영역 -->
+            <!-- Properties -->
             <div class="properties-section">
                 <div class="panel-header">
-                    <span>Properties</span>
+                    Properties
+                    <div class="panel-controls"><i class="fa-solid fa-minus"></i></div>
                 </div>
-                <div class="properties-search">
-                    <span class="selected-target" id="prop-target-name">Part</span>
-                    <input type="text" placeholder="Filter properties...">
+                <div style="padding:4px; background:var(--cv-bg-header); border-bottom:1px solid var(--cv-border-main); display:flex; align-items:center; gap:8px;">
+                    <span id="prop-target-name" style="background:var(--cv-bg-input); padding:2px 6px; font-size:10px; border-radius:3px; color:var(--cv-text-pure); font-weight:bold;">Workspace</span>
+                    <input type="text" placeholder="Filter properties..." style="flex:1; background:var(--cv-bg-input); border:1px solid transparent; color:#fff; font-size:11px; padding:4px 6px; border-radius:3px; outline:none;">
                 </div>
                 
-                <!-- 방대한 속성 리스트 -->
-                <div class="properties-list scrollable" id="prop-content">
+                <div id="prop-empty-state" class="prop-empty">
+                    <i class="fa-solid fa-mouse-pointer" style="font-size: 24px; margin-bottom: 10px;"></i>
+                    Workspace 내의 객체를<br>선택하여 속성을 편집하세요.
+                </div>
+
+                <!-- 하드코딩된 초정밀 인스펙터 속성 리스트 -->
+                <div class="properties-list scrollable hidden" id="prop-content">
                     
-                    <!-- Appearance 카테고리 -->
+                    <!-- Appearance -->
                     <div class="prop-cat">
-                        <div class="cat-header"><i class="fa-solid fa-caret-down"></i> Appearance</div>
-                        <div class="cat-body">
-                            <div class="prop-row">
-                                <label>BrickColor</label>
-                                <div class="prop-val"><div class="color-box" style="background:#a5b4fc;"></div> Medium stone grey</div>
+                        <div class="cat-header"><i class="fa-solid fa-caret-down text-muted" style="margin-right:4px;"></i> Appearance</div>
+                        <div class="prop-row"><label>BrickColor</label><div class="prop-val" style="color:var(--cv-text-pure);">Medium stone grey</div></div>
+                        <div class="prop-row"><label>CastShadow</label><div class="prop-val"><input type="checkbox" checked></div></div>
+                        <div class="prop-row"><label>Color</label><div class="prop-val"><input type="color" id="prop-color" onchange="Editor.updateProp('color')"></div></div>
+                        <div class="prop-row"><label>Material</label>
+                            <div class="prop-val">
+                                <select>
+                                    <option>Plastic</option><option>Wood</option><option>Slate</option><option>Neon</option><option>Glass</option><option>Ice</option>
+                                </select>
                             </div>
-                            <div class="prop-row">
-                                <label>Color</label>
-                                <div class="prop-val"><input type="color" id="prop-color" value="#a5b4fc" onchange="Editor.updateProp('color')"></div>
+                        </div>
+                        <div class="prop-row"><label>Reflectance</label><div class="prop-val"><input type="number" value="0" step="0.1" min="0" max="1"></div></div>
+                        <div class="prop-row"><label>Transparency</label><div class="prop-val"><input type="number" id="prop-alpha" value="0" step="0.1" min="0" max="1" onchange="Editor.updateProp('alpha')"></div></div>
+                    </div>
+
+                    <!-- Data -->
+                    <div class="prop-cat">
+                        <div class="cat-header"><i class="fa-solid fa-caret-down text-muted" style="margin-right:4px;"></i> Data</div>
+                        <div class="prop-row"><label>Name</label><div class="prop-val"><input type="text" id="prop-name"></div></div>
+                        <div class="prop-row">
+                            <label>ClassType</label>
+                            <div class="prop-val">
+                                <select id="prop-type" onchange="Editor.updateProp('type')">
+                                    <option value="normal">Normal (Solid)</option>
+                                    <option value="bounce">Bounce (JumpPad)</option>
+                                    <option value="lava">Lava (KillVolume)</option>
+                                    <option value="clicker">Coin Box (Economy)</option>
+                                    <option value="spawn">SpawnLocation</option>
+                                </select>
                             </div>
-                            <div class="prop-row">
-                                <label>Material</label>
-                                <div class="prop-val">
-                                    <select class="prop-select">
-                                        <option>Plastic</option><option>Wood</option><option>Neon</option><option>Metal</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="prop-row">
-                                <label>Reflectance</label>
-                                <div class="prop-val"><input type="number" value="0.0" step="0.1" max="1"></div>
-                            </div>
-                            <div class="prop-row">
-                                <label>Transparency</label>
-                                <div class="prop-val"><input type="number" id="prop-alpha" value="0.0" step="0.1" max="1" onchange="Editor.updateProp('alpha')"></div>
+                        </div>
+                        <div class="prop-row"><label>Orientation</label><div class="prop-val vector-2"><input type="number" value="0">, <input type="number" value="0">, <input type="number" value="0"></div></div>
+                        <div class="prop-row">
+                            <label>Position</label>
+                            <div class="prop-val vector-2">
+                                <input type="number" id="prop-x" onchange="Editor.updateProp('x')">,
+                                <input type="number" id="prop-y" onchange="Editor.updateProp('y')">
                             </div>
                         </div>
                     </div>
 
-                    <!-- Data 카테고리 -->
+                    <!-- Behavior -->
                     <div class="prop-cat">
-                        <div class="cat-header"><i class="fa-solid fa-caret-down"></i> Data</div>
-                        <div class="cat-body">
-                            <div class="prop-row">
-                                <label>Name</label>
-                                <div class="prop-val"><input type="text" id="prop-name" value="Part"></div>
+                        <div class="cat-header"><i class="fa-solid fa-caret-down text-muted" style="margin-right:4px;"></i> Behavior</div>
+                        <div class="prop-row"><label>Archivable</label><div class="prop-val"><input type="checkbox" checked></div></div>
+                        <div class="prop-row"><label>Locked</label><div class="prop-val"><input type="checkbox"></div></div>
+                    </div>
+
+                    <!-- Collision -->
+                    <div class="prop-cat">
+                        <div class="cat-header"><i class="fa-solid fa-caret-down text-muted" style="margin-right:4px;"></i> Collision</div>
+                        <div class="prop-row"><label>CanCollide</label><div class="prop-val"><input type="checkbox" id="prop-collide" onchange="Editor.updateProp('canCollide')"></div></div>
+                        <div class="prop-row"><label>CanTouch</label><div class="prop-val"><input type="checkbox" checked></div></div>
+                        <div class="prop-row"><label>CollisionGroupId</label><div class="prop-val"><input type="number" value="0"></div></div>
+                    </div>
+
+                    <!-- Part -->
+                    <div class="prop-cat">
+                        <div class="cat-header"><i class="fa-solid fa-caret-down text-muted" style="margin-right:4px;"></i> Part</div>
+                        <div class="prop-row"><label>Anchored</label><div class="prop-val"><input type="checkbox" id="prop-anchored" onchange="Editor.updateProp('anchored')"></div></div>
+                        <div class="prop-row"><label>CustomPhysicalProperties</label><div class="prop-val"><input type="checkbox"></div></div>
+                        <div class="prop-row"><label>Massless</label><div class="prop-val"><input type="checkbox"></div></div>
+                        <div class="prop-row"><label>RootPriority</label><div class="prop-val"><input type="number" value="0"></div></div>
+                        <div class="prop-row">
+                            <label>Shape</label>
+                            <div class="prop-val">
+                                <select><option>Block</option><option>Ball</option><option>Cylinder</option></select>
                             </div>
-                            <div class="prop-row">
-                                <label>Orientation</label>
-                                <div class="prop-val vector-3">
-                                    <input type="number" value="0">, <input type="number" value="0">, <input type="number" value="0">
-                                </div>
-                            </div>
-                            <div class="prop-row">
-                                <label>Position</label>
-                                <div class="prop-val vector-2">
-                                    X: <input type="number" id="prop-x" value="0" onchange="Editor.updateProp('x')"> 
-                                    Y: <input type="number" id="prop-y" value="0" onchange="Editor.updateProp('y')">
-                                </div>
+                        </div>
+                        <div class="prop-row">
+                            <label>Size</label>
+                            <div class="prop-val vector-2">
+                                <input type="number" id="prop-w" onchange="Editor.updateProp('w')">,
+                                <input type="number" id="prop-h" onchange="Editor.updateProp('h')">
                             </div>
                         </div>
                     </div>
 
-                    <!-- Behavior 카테고리 -->
+                    <!-- Surface -->
                     <div class="prop-cat">
-                        <div class="cat-header"><i class="fa-solid fa-caret-down"></i> Behavior</div>
-                        <div class="cat-body">
-                            <div class="prop-row">
-                                <label>Type (Logic)</label>
-                                <div class="prop-val">
-                                    <select class="prop-select" id="prop-type" onchange="Editor.updateProp('type')">
-                                        <option value="normal">Normal</option>
-                                        <option value="bounce">Bounce</option>
-                                        <option value="lava">Lava / Kill</option>
-                                        <option value="clicker">Coin Box</option>
-                                        <option value="spawn">SpawnPoint</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
+                        <div class="cat-header"><i class="fa-solid fa-caret-right text-muted" style="margin-right:4px;"></i> Surface</div>
+                        <!-- 생략되어 접힌 상태 -->
                     </div>
 
-                    <!-- Part 카테고리 -->
-                    <div class="prop-cat">
-                        <div class="cat-header"><i class="fa-solid fa-caret-down"></i> Part</div>
-                        <div class="cat-body">
-                            <div class="prop-row">
-                                <label>Anchored</label>
-                                <div class="prop-val"><input type="checkbox" id="prop-anchored" checked onchange="Editor.updateProp('anchored')"></div>
-                            </div>
-                            <div class="prop-row">
-                                <label>CanCollide</label>
-                                <div class="prop-val"><input type="checkbox" id="prop-collide" checked onchange="Editor.updateProp('canCollide')"></div>
-                            </div>
-                            <div class="prop-row">
-                                <label>CanTouch</label>
-                                <div class="prop-val"><input type="checkbox" checked></div>
-                            </div>
-                            <div class="prop-row">
-                                <label>Massless</label>
-                                <div class="prop-val"><input type="checkbox"></div>
-                            </div>
-                            <div class="prop-row">
-                                <label>Size</label>
-                                <div class="prop-val vector-2">
-                                    W: <input type="number" id="prop-w" value="50" onchange="Editor.updateProp('w')"> 
-                                    H: <input type="number" id="prop-h" value="50" onchange="Editor.updateProp('h')">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- 삭제 컨트롤 -->
+                    <!-- 삭제 컨트롤 영역 -->
                     <div class="prop-actions">
-                        <button class="btn-full text-danger" onclick="Editor.deleteSelected()"><i class="fa-solid fa-trash"></i> Delete Object</button>
+                        <button class="btn-delete pop" onclick="Editor.deleteSelected()">
+                            <i class="fa-solid fa-trash"></i> Delete
+                        </button>
                     </div>
-
                 </div>
             </div>
         </aside>
-
     </div>
 
     <!-- ==========================================
-         4. 하단 콘솔 & 디버거 패널 (Output)
+         4. OUTPUT CONSOLE (하단 도킹 콘솔)
     =========================================== -->
-    <footer id="studio-footer" class="studio-footer">
+    <footer class="studio-footer">
         <div class="footer-tabs">
             <div class="f-tab active">Output</div>
             <div class="f-tab">Find Results</div>
             <div class="f-tab">Script Analysis</div>
+            <div class="f-tab">Command Bar</div>
         </div>
         <div class="output-content">
-            <div class="output-toolbar">
-                <button><i class="fa-solid fa-ban"></i> Clear</button>
-                <div class="filter-toggles">
-                    <button class="active"><i class="fa-solid fa-info-circle text-primary"></i> Info</button>
-                    <button class="active"><i class="fa-solid fa-triangle-exclamation text-gold"></i> Warnings</button>
-                    <button class="active"><i class="fa-solid fa-circle-xmark text-danger"></i> Errors</button>
+            <div style="padding:4px 8px; border-bottom:1px solid var(--cv-border-main); display:flex; gap:10px; align-items:center;">
+                <button style="background:transparent; border:none; color:var(--cv-text-muted); font-size:11px; cursor:pointer;"><i class="fa-solid fa-ban"></i> Clear</button>
+                <input type="text" placeholder="Filter..." style="background:var(--cv-bg-input); border:1px solid transparent; color:#fff; font-size:11px; padding:2px 6px; border-radius:3px; outline:none; width:150px;">
+                <div style="display:flex; gap:6px;">
+                    <i class="fa-solid fa-circle-info text-primary" style="font-size:12px; cursor:pointer;"></i>
+                    <i class="fa-solid fa-triangle-exclamation text-gold" style="font-size:12px; cursor:pointer;"></i>
+                    <i class="fa-solid fa-circle-xmark text-danger" style="font-size:12px; cursor:pointer;"></i>
                 </div>
             </div>
             <div class="output-logs scrollable" id="console-logs">
-                <div class="log-line info"><span class="timestamp">16:40:00.000</span> - CreateVerse Studio Engine v2.5 Initialized.</div>
-                <div class="log-line info"><span class="timestamp">16:40:00.015</span> - Loading Workspace assets... OK.</div>
-                <div class="log-line warning"><span class="timestamp">16:40:01.002</span> - ServerScriptService: Waiting for PeerJS connection to establish.</div>
-                <div class="log-line info"><span class="timestamp">16:40:02.100</span> - Rendering Context 2D attached successfully.</div>
+                <div class="log-line info"><span class="log-time">16:40:00.000</span> - CreateVerse Studio Engine v3.0 Initialized.</div>
+                <div class="log-line info"><span class="log-time">16:40:00.015</span> - Loading Workspace assets... OK.</div>
+                <div class="log-line info"><span class="log-time">16:40:00.020</span> - Starting PeerJS Networking Daemon...</div>
+                <div class="log-line warning"><span class="log-time">16:40:01.002</span> - ServerScriptService: Waiting for PeerJS connection to establish.</div>
+                <div class="log-line info"><span class="log-time">16:40:02.100</span> - Rendering Context 2D attached successfully to viewport.</div>
             </div>
-            <div class="command-bar">
-                <span class="cmd-prompt">Run a command ></span>
-                <input type="text" placeholder="e.g. print('Hello World')">
+            <div style="background:var(--cv-bg-header); border-top:1px solid var(--cv-border-main); display:flex; padding:4px 8px; align-items:center;">
+                <span style="color:var(--cv-primary); font-family:var(--cv-font-mono); font-size:12px; margin-right:8px; font-weight:bold;">></span>
+                <input type="text" placeholder="Run a command..." style="flex:1; background:transparent; border:none; color:#fff; font-family:var(--cv-font-mono); font-size:12px; outline:none;">
             </div>
         </div>
     </footer>
 
     <!-- ==========================================
-         5. 상태 표시줄 (Status Bar)
+         5. STATUS BAR (최하단 상태 표시줄)
     =========================================== -->
-    <div class="status-bar">
-        <div class="status-left">
+    <div style="height:22px; background:var(--cv-accent); color:#fff; display:flex; justify-content:space-between; align-items:center; padding:0 12px; font-size:11px; flex-shrink:0;">
+        <div style="display:flex; align-items:center; gap:16px;">
             <span><i class="fa-solid fa-check"></i> Ready</span>
-        </div>
-        <div class="status-right">
             <span>Local Server: 127.0.0.1</span>
-            <span>Memory: 45 MB</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:16px;">
+            <span>Mem: 42.5 MB</span>
+            <span>CPU: 1.2%</span>
             <span>FPS: 60</span>
         </div>
     </div>
 
-    <!-- 파티클 및 토스트 모달 컨테이너 -->
+    <!-- 파티클 및 전역 알림 컨테이너 -->
     <div id="particle-container"></div>
     <div id="toast-container"></div>
 
-    <!-- 궁극의 엔진 스크립트 연결 -->
+    <!-- 엔드 스크립트 모듈 -->
     <script src="script.js"></script>
 </body>
 </html>
