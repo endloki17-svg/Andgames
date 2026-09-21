@@ -2,778 +2,1016 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>CreateVerse Pro - Ultimate Single File Engine</title>
-    
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>초고퀄리티 학급 플랫폼</title>
+    <!-- 폰트 및 아이콘 로드 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
-
+    
     <style>
-        /* ============================================================================
-           [1] CSS VARIABLES & RESET
-           ============================================================================ */
+        /* ================= 초고퀄리티 CSS 시작 ================= */
         :root {
-            --cv-bg-abyss: #07070a; --cv-bg-panel: #13141a; --cv-bg-header: #1b1c24;
-            --cv-bg-input: #232530; --cv-bg-hover: #2b2e3b; --cv-bg-active: #34384a;
-            --cv-primary: #6366f1; --cv-primary-hover: #4f46e5; --cv-accent: #3b82f6;
-            --cv-success: #10b981; --cv-warning: #f59e0b; --cv-danger: #ef4444;
-            --cv-gold: #fbbf24; --cv-purple: #8b5cf6;
-            --cv-text-pure: #ffffff; --cv-text-main: #cbd5e1; --cv-text-muted: #64748b;
-            --cv-border-dark: #0f1115; --cv-border-main: #27272a; --cv-border-light: #3f3f46;
-            --cv-glass-bg: rgba(19, 20, 26, 0.7); --cv-glass-border: rgba(255, 255, 255, 0.08);
-            --cv-shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.5); --cv-shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.8);
-            --cv-font-sans: 'Pretendard', sans-serif; --cv-font-mono: 'Consolas', monospace;
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --secondary: #10B981;
+            --accent: #F43F5E;
+            --bg-color: #F3F4F6;
+            --surface: #FFFFFF;
+            --text-main: #111827;
+            --text-muted: #6B7280;
+            --border: #E5E7EB;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background-color: var(--cv-bg-abyss); color: var(--cv-text-main); font-family: var(--cv-font-sans); font-size: 13px; overflow: hidden; width: 100vw; height: 100vh; display: flex; flex-direction: column; }
-        .unselectable { user-select: none; -webkit-user-select: none; }
-        .scrollable { overflow-y: auto; overflow-x: hidden; }
-        .scrollable::-webkit-scrollbar { width: 8px; height: 8px; background: transparent; }
-        .scrollable::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
-        .scrollable::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Noto Sans KR', 'Poppins', sans-serif; }
+        body { background: var(--bg-color); color: var(--text-main); overflow-x: hidden; }
+        a { text-decoration: none; color: inherit; }
+        button { cursor: pointer; border: none; outline: none; font-family: inherit; transition: var(--transition); }
+        input, select, textarea { font-family: inherit; border: 1px solid var(--border); border-radius: 8px; padding: 12px; font-size: 14px; outline: none; transition: var(--transition); }
+        input:focus, textarea:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2); }
+        
+        /* 공통 유틸리티 */
         .hidden { display: none !important; }
-        .pop { transition: transform 0.1s cubic-bezier(0.34, 1.56, 0.64, 1); cursor: pointer; }
-        .pop:active { transform: scale(0.95); }
-        .text-primary { color: var(--cv-primary) !important; } .text-gold { color: var(--cv-gold) !important; }
-        .text-success { color: var(--cv-success) !important; } .text-danger { color: var(--cv-danger) !important; }
-        .text-warning { color: var(--cv-warning) !important; } .text-muted { color: var(--cv-text-muted) !important; }
-        .text-pure { color: var(--cv-text-pure) !important; } .text-center { text-align: center; } .w-100 { width: 100%; }
-
-        /* ============================================================================
-           [2] BUTTONS & FORMS
-           ============================================================================ */
-        .btn { padding: 8px 16px; border: none; border-radius: 6px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 8px; color: #fff; transition: 0.2s; cursor: pointer; }
-        .btn-sm { padding: 6px 12px; font-size: 11px; }
-        .btn-primary { background: linear-gradient(135deg, var(--cv-primary), #818cf8); box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3); }
-        .btn-primary:hover { filter: brightness(1.1); }
-        .btn-success { background: var(--cv-success); } .btn-success:hover { background: #059669; }
-        .btn-warning { background: var(--cv-warning); color: #000; } .btn-warning:hover { background: #d97706; }
-        .btn-danger { background: var(--cv-danger); } .btn-danger:hover { background: #b91c1c; }
-        .btn-outline { background: transparent; border: 1px solid var(--cv-border-light); color: var(--cv-text-main); }
-        .btn-outline:hover { background: rgba(255,255,255,0.05); }
-        .btn-outline-full { width: 100%; background: transparent; border: 1px solid var(--cv-border-light); padding: 10px; border-radius: 6px; color: var(--cv-text-main); font-weight: bold; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; gap: 8px; }
-        .btn-outline-full:hover { background: rgba(255,255,255,0.05); }
-        .btn-outline-danger { background: transparent; border: 1px solid var(--cv-danger); color: var(--cv-danger); }
-        .btn-outline-danger:hover { background: var(--cv-danger); color: #fff; }
-        .icon-btn { background: transparent; border: none; color: var(--cv-text-muted); font-size: 18px; cursor: pointer; transition: 0.2s; }
-        .icon-btn:hover { color: #fff; transform: rotate(90deg) scale(1.1); }
-
-        /* ============================================================================
-           [3] SCREEN ROUTING
-           ============================================================================ */
-        #app-wrapper { width: 100%; height: 100%; position: relative; }
-        .app-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; background: var(--cv-bg-abyss); z-index: 1; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
-        .app-screen.active { z-index: 10; opacity: 1; pointer-events: auto; }
-
-        /* ============================================================================
-           [4] LOADING SCREEN
-           ============================================================================ */
-        #screen-loading { justify-content: center; align-items: center; background: radial-gradient(circle at center, var(--cv-bg-panel), var(--cv-bg-abyss)); z-index: 9999; }
-        .loader-container { text-align: center; display: flex; flex-direction: column; align-items: center; }
-        .loader-logo-ring { font-size: 60px; filter: drop-shadow(0 0 20px rgba(99,102,241,0.6)); margin-bottom: 20px; }
-        .loader-title { font-size: 32px; font-weight: 900; color: #fff; letter-spacing: 1px; margin-bottom: 5px; display: flex; align-items: center; gap: 10px; }
-        .badge-pro { font-size: 14px; background: linear-gradient(135deg, var(--cv-gold), #d97706); padding: 2px 8px; border-radius: 4px; color: #000; font-weight: 900; }
-        .loader-details { margin-bottom: 30px; }
-        .status-text { font-size: 14px; font-weight: 700; color: var(--cv-primary); }
-        .progress-track { width: 300px; height: 4px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; margin-bottom: 20px; }
-        .progress-fill { width: 100%; height: 100%; background: var(--cv-primary); box-shadow: 0 0 10px var(--cv-primary); animation: loadBar 1s infinite alternate; }
-        @keyframes loadBar { from { width: 30%; } to { width: 100%; } }
-
-        /* ============================================================================
-           [5] MAIN LOBBY SCREEN
-           ============================================================================ */
-        #screen-lobby { flex-direction: row; }
-        .lobby-sidebar { width: 240px; background: var(--cv-bg-panel); border-right: 1px solid var(--cv-border-main); display: flex; flex-direction: column; flex-shrink: 0; }
-        .sidebar-brand { height: 70px; display: flex; align-items: center; padding: 0 20px; font-size: 20px; font-weight: 900; color: #fff; gap: 10px; border-bottom: 1px solid var(--cv-border-main); }
-        .sidebar-user-profile { padding: 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.02); }
-        .avatar-ring { width: 40px; height: 40px; border-radius: 50%; padding: 2px; background: linear-gradient(135deg, var(--cv-primary), var(--cv-purple)); }
-        .avatar-ring img { width: 100%; height: 100%; border-radius: 50%; border: 2px solid var(--cv-bg-panel); }
-        .user-info { display: flex; flex-direction: column; gap: 2px; }
-        .user-name { font-weight: 800; color: #fff; font-size: 14px; }
-        .user-tier { font-size: 10px; font-weight: 800; display: flex; align-items: center; gap: 4px; }
-        .sidebar-nav { list-style: none; padding: 15px 10px; flex: 1; }
-        .sidebar-nav li { padding: 12px 15px; display: flex; align-items: center; gap: 12px; border-radius: 8px; cursor: pointer; color: var(--cv-text-main); font-weight: 600; transition: 0.2s; margin-bottom: 4px; }
-        .sidebar-nav li i { font-size: 16px; width: 20px; text-align: center; color: var(--cv-text-muted); }
-        .sidebar-nav li:hover, .sidebar-nav li.active { background: rgba(99,102,241,0.15); color: var(--cv-primary); }
-        .sidebar-nav li:hover i, .sidebar-nav li.active i { color: var(--cv-primary); }
-        .sidebar-bottom { padding: 20px; display: flex; flex-direction: column; gap: 10px; border-top: 1px solid var(--cv-border-main); }
-
-        .lobby-main { flex: 1; display: flex; flex-direction: column; background: var(--cv-bg-abyss); overflow: hidden; }
-        .lobby-header { height: 70px; display: flex; justify-content: space-between; align-items: center; padding: 0 30px; background: rgba(19, 20, 26, 0.8); backdrop-filter: blur(10px); border-bottom: 1px solid var(--cv-border-main); z-index: 10; }
-        .search-bar { display: flex; align-items: center; background: var(--cv-bg-input); border: 1px solid var(--cv-border-light); border-radius: 8px; padding: 0 15px; width: 350px; }
-        .search-bar input { flex: 1; background: transparent; border: none; padding: 12px 10px; color: #fff; outline: none; font-size: 13px; }
-        .header-actions { display: flex; align-items: center; gap: 15px; }
-        .atm-trigger-btn { font-size: 13px; font-weight: 800; padding: 10px 20px; }
-        .currency-display { background: rgba(0,0,0,0.5); padding: 8px 16px; border-radius: 20px; border: 1px solid rgba(251,191,36,0.3); display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 15px; cursor: pointer; }
-
-        .lobby-scroll-area { flex: 1; padding: 30px; padding-bottom: 80px; }
-        .hero-banner { background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(139,92,246,0.1)); border-radius: 20px; padding: 40px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--cv-glass-border); margin-bottom: 40px; box-shadow: var(--cv-shadow-lg); }
-        .hero-content h2 { font-size: 36px; font-weight: 900; color: #fff; margin-bottom: 15px; }
-        .hero-content p { color: var(--cv-text-main); font-size: 15px; margin-bottom: 20px; }
-
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--cv-border-main); padding-bottom: 10px; }
-        .section-header h3 { font-size: 20px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 10px; }
-        .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; margin-bottom: 40px; }
-        .game-card { background: var(--cv-bg-panel); border: 1px solid var(--cv-border-main); border-radius: 16px; padding: 25px; display: flex; flex-direction: column; gap: 15px; transition: 0.3s; cursor: pointer; box-shadow: var(--cv-shadow-sm); position: relative; overflow: hidden; }
-        .game-card::before { content:''; position:absolute; top:0; left:0; width:100%; height:4px; background: linear-gradient(90deg, var(--cv-primary), var(--cv-purple)); opacity: 0; transition: 0.3s; }
-        .game-card:hover { transform: translateY(-8px); border-color: var(--cv-primary); box-shadow: 0 15px 30px rgba(0,0,0,0.5); }
-        .game-card:hover::before { opacity: 1; }
-        .card-icon { font-size: 45px; text-align: center; margin: 10px 0; transition: 0.3s; }
-        .game-card:hover .card-icon { transform: scale(1.1); }
-        .card-title { font-size: 18px; font-weight: 800; color: #fff; }
-        .card-desc { font-size: 13px; color: var(--cv-text-muted); line-height: 1.5; flex-grow: 1; }
-        .card-actions { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px; gap: 8px; }
-
-        /* ============================================================================
-           [6] MODALS (ATM & PUBLISH)
-           ============================================================================ */
-        .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(6px); display: flex; justify-content: center; align-items: center; z-index: 9999; }
-        .modal-dialog { background: var(--cv-bg-panel); width: 90%; max-width: 500px; border-radius: 20px; border: 1px solid var(--cv-glass-border); box-shadow: 0 30px 60px rgba(0,0,0,0.7); overflow: hidden; }
-        .modal-header { padding: 20px 25px; border-bottom: 1px solid var(--cv-border-main); display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); }
-        .modal-header h3 { font-size: 18px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 10px; }
-        .modal-body { padding: 25px; display: flex; flex-direction: column; gap: 20px; }
-        .input-group label { display: block; font-size: 12px; font-weight: 700; color: var(--cv-text-muted); margin-bottom: 8px; }
-        .input-group input, .input-group textarea { width: 100%; background: var(--cv-bg-input); border: 1px solid var(--cv-border-main); color: #fff; padding: 12px 15px; border-radius: 8px; font-size: 14px; outline: none; }
-        .input-group input:focus, .input-group textarea:focus { border-color: var(--cv-primary); box-shadow: 0 0 0 2px rgba(99,102,241,0.2); }
-        .input-row { display: flex; gap: 15px; } .flex-1 { flex: 1; } .flex-2 { flex: 2; }
-        .input-with-icon { display: flex; align-items: center; background: var(--cv-bg-input); border: 1px solid var(--cv-border-main); border-radius: 8px; padding-left: 15px; }
-        .input-with-icon input { border: none; background: transparent; padding: 12px 15px 12px 10px; }
-        .modal-footer { padding: 20px 25px; border-top: 1px solid var(--cv-border-main); display: flex; justify-content: flex-end; gap: 10px; background: rgba(0,0,0,0.2); }
-
-        .atm-dialog { max-width: 850px; }
-        .atm-header { background: linear-gradient(90deg, #1f1a0a, #13141a); border-bottom: 1px solid rgba(251,191,36,0.2); }
-        .atm-layout { display: flex; height: 500px; }
-        .atm-sidebar { width: 200px; background: rgba(0,0,0,0.3); border-right: 1px solid var(--cv-border-main); display: flex; flex-direction: column; padding: 15px 0; }
-        .atm-tab { padding: 12px 20px; font-size: 13px; font-weight: 700; color: var(--cv-text-muted); cursor: pointer; display: flex; align-items: center; gap: 10px; border-left: 3px solid transparent; }
-        .atm-tab:hover { color: #fff; background: rgba(255,255,255,0.02); }
-        .atm-tab.active { color: #fff; background: rgba(99,102,241,0.1); border-left-color: var(--cv-primary); }
-        .atm-content-area { flex: 1; background: var(--cv-bg-panel); padding: 30px; position: relative; }
-        .atm-balance-card { background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.1)); border: 1px solid rgba(99,102,241,0.3); border-radius: 16px; padding: 25px; text-align: center; margin-bottom: 30px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
-        .atm-amount { font-size: 40px; font-weight: 900; color: #fff; margin: 10px 0; text-shadow: 0 2px 10px rgba(251,191,36,0.3); }
-        .atm-sec-title { font-size: 16px; font-weight: 800; color: #fff; margin-bottom: 15px; border-bottom: 1px solid var(--cv-border-main); padding-bottom: 8px; }
-        .atm-rewards-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
-        .atm-reward-btn { background: var(--cv-bg-input); border: 1px solid var(--cv-border-main); border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 15px; text-align: left; cursor: pointer; }
-        .atm-reward-btn:hover { border-color: var(--cv-primary); transform: translateY(-3px); }
-        .atm-reward-btn i { font-size: 28px; }
-        .reward-info strong { display: block; font-size: 14px; color: #fff; margin-bottom: 4px; }
-        .promo-input-row { display: flex; gap: 10px; }
-        .promo-input-row input { flex: 1; background: var(--cv-bg-input); border: 1px solid var(--cv-border-main); color: #fff; padding: 12px 15px; border-radius: 8px; outline: none; }
-
-        /* ============================================================================
-           [7] STUDIO EDITOR SCREEN (초정밀 에디터 UI)
-           ============================================================================ */
-        .system-menu-bar { height: 30px; background: var(--cv-bg-header); border-bottom: 1px solid var(--cv-border-dark); display: flex; justify-content: space-between; align-items: center; padding: 0 10px; font-size: 12px; }
-        .system-menu-list { display: flex; list-style: none; height: 100%; }
-        .system-menu-list li { padding: 0 12px; display: flex; align-items: center; cursor: default; transition: 0.2s; }
-        .system-menu-list li:hover { background: var(--cv-bg-active); color: #fff; }
-        .ribbon-toolbar { height: 110px; background: var(--cv-bg-panel); border-bottom: 1px solid var(--cv-border-dark); display: flex; flex-direction: column; }
-        .ribbon-tabs { display: flex; background: var(--cv-bg-header); border-bottom: 1px solid var(--cv-border-main); }
-        .ribbon-tab { padding: 6px 16px; font-size: 12px; cursor: pointer; border-right: 1px solid var(--cv-border-main); color: var(--cv-text-muted); }
-        .ribbon-tab.active { background: var(--cv-bg-panel); color: #fff; font-weight: bold; border-top: 2px solid var(--cv-primary); margin-top: -1px; }
-        .ribbon-content { flex: 1; display: flex; padding: 5px 10px; gap: 10px; }
-        .ribbon-group { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 10px; }
-        .ribbon-buttons { display: flex; gap: 4px; flex: 1; align-items: center; }
-        .ribbon-label { font-size: 10px; color: var(--cv-text-muted); margin-top: auto; padding-bottom: 2px; }
-        .ribbon-divider { width: 1px; height: 80%; background: var(--cv-border-main); align-self: center; }
-
-        .r-btn-large { background: transparent; border: 1px solid transparent; border-radius: 4px; color: var(--cv-text-main); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px; min-width: 50px; height: 50px; font-size: 10px; cursor: pointer; }
-        .r-btn-large i { font-size: 20px; margin-bottom: 4px; }
-        .r-btn-large:hover { background: var(--cv-bg-hover); border-color: var(--cv-border-light); color: #fff; }
-        .r-btn-large.active { background: rgba(99,102,241,0.2); border-color: var(--cv-primary); color: var(--cv-primary); }
-        .r-btn-small { background: transparent; border: 1px solid transparent; padding: 2px 6px; border-radius: 3px; font-size: 11px; display: flex; align-items: center; gap: 6px; color: var(--cv-text-main); cursor: pointer; }
-        .r-btn-small:hover { background: var(--cv-bg-hover); border-color: var(--cv-border-light); color: #fff; }
-        .stacked-btns { display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
-
-        .studio-workspace-core { display: flex; flex: 1; overflow: hidden; background: var(--cv-bg-abyss); }
-        .panel-header { background: var(--cv-bg-header); padding: 6px 10px; font-size: 11px; font-weight: 800; color: #fff; border-bottom: 1px solid var(--cv-border-main); display: flex; justify-content: space-between; align-items: center; text-transform: uppercase; flex-shrink: 0; }
-
-        /* Left Panel */
-        .panel-left { width: 260px; background: var(--cv-bg-panel); border-right: 1px solid var(--cv-border-dark); display: flex; flex-direction: column; flex-shrink: 0; }
-        .toolbox-search { padding: 6px; position: relative; border-bottom: 1px solid var(--cv-border-main); }
-        .toolbox-search input { width: 100%; background: var(--cv-bg-input); border: 1px solid transparent; color: #fff; padding: 6px 8px 6px 26px; border-radius: 4px; font-size: 11px; outline: none; }
-        .toolbox-search i { position: absolute; left: 16px; top: 13px; font-size: 12px; color: var(--cv-text-muted); }
-        .toolbox-tabs { display: flex; border-bottom: 1px solid var(--cv-border-main); }
-        .toolbox-tabs span { flex: 1; text-align: center; padding: 6px; font-size: 10px; color: var(--cv-text-muted); cursor: pointer; border-bottom: 2px solid transparent; }
-        .toolbox-tabs span.active { color: #fff; border-bottom-color: var(--cv-primary); font-weight: bold; }
-        .toolbox-grid { flex: 1; display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; padding: 8px; align-content: start; }
-        .asset-card { background: var(--cv-bg-header); border: 1px solid var(--cv-border-main); border-radius: 4px; overflow: hidden; cursor: pointer; transition: 0.1s; }
-        .asset-card:hover { border-color: var(--cv-primary); }
-        .a-thumb { height: 60px; display: flex; justify-content: center; align-items: center; font-size: 24px; box-shadow: inset 0 -2px 5px rgba(0,0,0,0.2); }
-        .a-name { font-size: 10px; font-weight: 700; color: #fff; text-align: center; padding: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-        /* Center Viewport */
-        .panel-center { flex: 1; display: flex; flex-direction: column; min-width: 0; }
-        .viewport-tabs { display: flex; background: var(--cv-bg-header); border-bottom: 1px solid var(--cv-border-dark); }
-        .vp-tab { padding: 6px 15px; font-size: 11px; color: var(--cv-text-muted); cursor: pointer; display: flex; align-items: center; gap: 8px; border-right: 1px solid var(--cv-border-dark); background: var(--cv-bg-panel); border-top: 2px solid transparent; }
-        .vp-tab.active { background: var(--cv-bg-abyss); color: #fff; border-top-color: var(--cv-accent); font-weight: bold; }
-        .viewport-container { flex: 1; position: relative; background: radial-gradient(circle at center, #1a1a2e 0%, #05050a 100%); overflow: hidden; }
-        #game-canvas { width: 100%; height: 100%; display: block; cursor: crosshair; touch-action: none; }
-        .viewport-overlay-hud { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; pointer-events: none; z-index: 10; }
-        .badge-dark { background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 4px; font-family: var(--cv-font-mono); font-size: 11px; color: var(--cv-primary); }
-
-        /* Right Panel */
-        .panel-right { width: 320px; background: var(--cv-bg-panel); border-left: 1px solid var(--cv-border-dark); display: flex; flex-direction: column; flex-shrink: 0; }
-        .panel-explorer { flex: 1; display: flex; flex-direction: column; border-bottom: 1px solid var(--cv-border-dark); min-height: 200px; }
-        .explorer-tree { flex: 1; padding: 4px 0; font-size: 11px; }
-        .tree-node { padding: 3px 8px; display: flex; align-items: center; cursor: pointer; white-space: nowrap; color: var(--cv-text-main); }
-        .tree-node:hover { background: var(--cv-bg-hover); }
-        .tree-node.selected { background: var(--cv-accent); color: #fff; }
-        .node-icon { width: 14px; text-align: center; margin-right: 6px; font-size: 12px; }
-        .tree-children { padding-left: 14px; }
-
-        .panel-properties { flex: 1.5; display: flex; flex-direction: column; min-height: 250px; }
-        .search-micro { padding: 4px; border-bottom: 1px solid var(--cv-border-main); display: flex; align-items: center; gap: 6px; }
-        .search-micro input { flex: 1; background: var(--cv-bg-input); border: 1px solid transparent; color: #fff; font-size: 11px; padding: 4px 6px; border-radius: 3px; outline: none; }
-        .target-badge { background: var(--cv-bg-active); padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: bold; color: #fff; border: 1px solid var(--cv-border-main); }
+        .btn-primary { background: var(--primary); color: white; padding: 12px 24px; border-radius: var(--radius-md); font-weight: 600; }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .btn-secondary { background: var(--surface); color: var(--text-main); border: 1px solid var(--border); padding: 12px 24px; border-radius: var(--radius-md); font-weight: 600; }
+        .btn-secondary:hover { background: var(--bg-color); }
+        .btn-danger { background: var(--accent); color: white; padding: 10px 16px; border-radius: var(--radius-md); font-weight: 600; }
         
-        .empty-state { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--cv-text-muted); text-align: center; font-size: 12px; padding: 20px; }
-        .properties-list { flex: 1; padding-bottom: 20px; }
-        .prop-cat { border-bottom: 1px solid var(--cv-border-main); }
-        .cat-header { background: var(--cv-bg-header); padding: 4px 8px; font-size: 11px; font-weight: 800; color: var(--cv-text-main); cursor: pointer; }
-        .cat-body { padding: 2px 0; }
-        .prop-row { display: grid; grid-template-columns: 110px 1fr; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.02); }
-        .prop-row label { padding: 4px 8px; font-size: 11px; color: var(--cv-text-muted); }
-        .prop-val { padding: 2px 8px 2px 4px; display: flex; align-items: center; border-left: 1px solid var(--cv-border-main); min-height: 22px; font-family: var(--cv-font-mono); font-size: 11px; }
-        .prop-val input[type="text"], .prop-val input[type="number"], .prop-val select { width: 100%; background: transparent; border: 1px solid transparent; color: #fff; font-family: var(--cv-font-mono); font-size: 11px; padding: 2px 4px; border-radius: 2px; outline: none; }
-        .prop-val input:focus, .prop-val select:focus { background: var(--cv-bg-input); border-color: var(--cv-accent); }
-        .prop-val select option { background: var(--cv-bg-panel); color: #fff; }
-        .prop-val input[type="checkbox"] { margin-left: 4px; accent-color: var(--cv-accent); }
-        .prop-val input[type="color"] { -webkit-appearance: none; border: none; width: 100%; height: 16px; padding: 0; background: transparent; cursor: pointer; }
-        .prop-val input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
-        .prop-val input[type="color"]::-webkit-color-swatch { border: 1px solid #000; border-radius: 2px; }
-        .vec2 { display: flex; gap: 4px; align-items: center; color: var(--cv-text-muted); font-size: 10px; }
-        .vec2 input { text-align: right; min-width: 0; }
+        /* 토스트 알림 */
+        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+        .toast { background: var(--surface); color: var(--text-main); padding: 16px 24px; border-radius: var(--radius-md); box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 12px; animation: slideIn 0.3s ease-out forwards, fadeOut 0.5s ease-out 2.5s forwards; border-left: 5px solid var(--primary); }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+
+        /* ================= 로비 (로그인/회원가입/학급생성) ================= */
+        #lobby-view { height: 100vh; width: 100vw; display: flex; justify-content: center; align-items: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); position: relative; overflow: hidden; }
+        /* 배경 장식 */
+        .circle-shape { position: absolute; border-radius: 50%; filter: blur(60px); z-index: 0; }
+        .shape1 { width: 400px; height: 400px; background: #ff9a9e; top: -100px; left: -100px; }
+        .shape2 { width: 500px; height: 500px; background: #a18cd1; bottom: -150px; right: -150px; }
         
-        .studio-footer { height: 160px; background: var(--cv-bg-panel); border-top: 1px solid var(--cv-border-dark); display: flex; flex-direction: column; flex-shrink: 0; }
-        .footer-tabs { display: flex; background: var(--cv-bg-header); border-bottom: 1px solid var(--cv-border-main); }
-        .f-tab { padding: 4px 16px; font-size: 11px; cursor: pointer; color: var(--cv-text-muted); border-right: 1px solid var(--cv-border-main); }
-        .f-tab.active { background: var(--cv-bg-panel); color: #fff; border-top: 2px solid var(--cv-accent); margin-top: -1px; }
-        .output-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--cv-bg-abyss); }
-        .output-logs { flex: 1; padding: 4px; font-family: var(--cv-font-mono); font-size: 11px; line-height: 1.5; }
-        .log-line { padding: 2px 4px; border-bottom: 1px solid rgba(255,255,255,0.02); word-break: break-all; }
-        .log-line.info { color: #d4d4d4; } .log-line.warning { color: #dcdcaa; } .log-line.error { color: #f14c4c; }
-
-        /* ============================================================================
-           [8] IN-GAME PLAY SCREEN
-           ============================================================================ */
-        #play-canvas-container { position: absolute; inset: 0; z-index: 1; background: #87CEEB; }
-        .play-overlay-ui { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; justify-content: space-between; padding: 15px; pointer-events: none; }
-        .glass-panel { background: var(--cv-glass-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid var(--cv-glass-border); border-radius: 12px; box-shadow: var(--cv-shadow-lg); pointer-events: auto; }
+        .auth-card { background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--glass-border); padding: 50px; border-radius: var(--radius-lg); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); width: 100%; max-width: 480px; z-index: 10; animation: scaleUp 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes scaleUp { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         
-        .hud-top { display: flex; justify-content: space-between; align-items: flex-start; }
-        .leaderboard-panel { width: 220px; overflow: hidden; }
-        .lb-header { padding: 8px 12px; font-size: 11px; font-weight: 800; color: #fff; background: rgba(0,0,0,0.4); border-bottom: 1px solid var(--cv-glass-border); display: flex; justify-content: space-between; }
-        .lb-list { list-style: none; }
-        .lb-list li { padding: 8px 12px; font-size: 12px; color: #e2e8f0; display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .auth-header { text-align: center; margin-bottom: 30px; }
+        .auth-header h1 { font-size: 28px; font-weight: 800; color: #1e1e2f; margin-bottom: 8px; }
+        .auth-header p { color: var(--text-muted); font-size: 15px; }
+        
+        .auth-tabs { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 30px; }
+        .auth-tab { flex: 1; text-align: center; padding: 12px; cursor: pointer; font-weight: 600; color: var(--text-muted); transition: var(--transition); border-bottom: 2px solid transparent; margin-bottom: -2px; }
+        .auth-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+        
+        .form-group { margin-bottom: 20px; text-align: left; }
+        .form-group label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #374151; }
+        .form-group input { width: 100%; padding: 14px; background: rgba(255,255,255,0.9); }
+        
+        .role-selector { display: flex; gap: 10px; margin-top: 10px; }
+        .role-option { flex: 1; text-align: center; }
+        .role-option input[type="radio"] { display: none; }
+        .role-option label { display: block; padding: 12px 8px; background: var(--bg-color); border-radius: 8px; cursor: pointer; border: 2px solid transparent; font-size: 13px; font-weight: 600; transition: var(--transition); }
+        .role-option input[type="radio"]:checked + label { background: rgba(79, 70, 229, 0.1); border-color: var(--primary); color: var(--primary); }
+        
+        .auth-btn { width: 100%; font-size: 16px; padding: 16px; margin-top: 10px; }
 
-        .hud-bottom { position: relative; height: 250px; }
-        .chat-panel { position: absolute; bottom: 0; left: 0; width: 320px; height: 220px; display: flex; flex-direction: column; overflow: hidden; }
-        .chat-logs { flex: 1; padding: 12px; font-size: 13px; display: flex; flex-direction: column; gap: 6px; }
-        .chat-logs .msg { color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); line-height: 1.4; }
-        .chat-input-row { display: flex; padding: 8px; background: rgba(0,0,0,0.5); gap: 8px; border-top: 1px solid var(--cv-glass-border); align-items: center; }
-        .chat-input-row input { flex: 1; background: rgba(255,255,255,0.1); border: 1px solid transparent; color: #fff; padding: 6px 10px; border-radius: 6px; font-size: 12px; outline: none; }
-        .send-btn { background: var(--cv-primary); border: none; color: #fff; width: 30px; height: 30px; border-radius: 6px; cursor: pointer; }
+        /* ================= 대시보드 (메인 화면) ================= */
+        #dashboard-view { display: flex; height: 100vh; width: 100vw; background: #F8FAFC; }
+        
+        /* 사이드바 */
+        .sidebar { width: 280px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 24px; box-shadow: var(--shadow-sm); z-index: 10; }
+        .brand { display: flex; align-items: center; gap: 12px; font-size: 24px; font-weight: 800; color: var(--primary); margin-bottom: 40px; }
+        .brand i { font-size: 28px; }
+        
+        .nav-menu { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+        .nav-item { padding: 14px 18px; border-radius: var(--radius-md); display: flex; align-items: center; gap: 14px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: var(--transition); }
+        .nav-item:hover { background: #F3F4F6; color: var(--text-main); }
+        .nav-item.active { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
+        .nav-item i { font-size: 18px; width: 24px; text-align: center; }
+        
+        .user-profile { margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+        .avatar { width: 48px; height: 48px; background: linear-gradient(135deg, var(--primary), #9F7AEA); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; font-weight: bold; font-size: 18px; }
+        .user-info { flex: 1; overflow: hidden; }
+        .user-info .name { font-weight: 700; color: var(--text-main); font-size: 15px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
+        .user-info .role { font-size: 12px; color: var(--text-muted); background: #E5E7EB; padding: 2px 8px; border-radius: 12px; display: inline-block; margin-top: 4px; }
+        .logout-btn { cursor: pointer; color: var(--text-muted); padding: 8px; transition: var(--transition); }
+        .logout-btn:hover { color: var(--accent); }
 
-        .mobile-controls { position: absolute; bottom: -20px; left: -20px; width: calc(100vw + 40px); height: 200px; display: flex; justify-content: space-between; align-items: flex-end; padding: 40px; pointer-events: none; }
-        .joy-base { width: 140px; height: 140px; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.2); border-radius: 50%; position: relative; pointer-events: auto; backdrop-filter: blur(5px); box-shadow: inset 0 0 20px rgba(0,0,0,0.3); }
-        .joy-knob { width: 60px; height: 60px; background: radial-gradient(circle at 30% 30%, #fff, #bbb); border-radius: 50%; position: absolute; top: 38px; left: 38px; box-shadow: 0 5px 15px rgba(0,0,0,0.6); pointer-events: none; transition: transform 0.05s linear; }
-        .jump-btn { width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.4); color: #fff; font-size: 20px; font-weight: 900; pointer-events: auto; backdrop-filter: blur(5px); box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
+        /* 메인 컨텐츠 영역 */
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .topbar { background: var(--surface); height: 80px; padding: 0 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+        .topbar h2 { font-size: 22px; font-weight: 700; color: #1e1e2f; display: flex; align-items: center; gap: 10px; }
+        .topbar-right { display: flex; align-items: center; gap: 20px; }
+        .woojung-badge { background: linear-gradient(135deg, #FFD700, #F59E0B); color: white; padding: 8px 16px; border-radius: 20px; font-weight: 800; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3); font-size: 15px; }
+        .class-info-badge { background: rgba(79, 70, 229, 0.1); color: var(--primary); padding: 8px 16px; border-radius: 20px; font-weight: 700; }
+        
+        .content-body { flex: 1; overflow-y: auto; padding: 40px; background: #F8FAFC; }
+        .view-section { display: none; animation: fadeIn 0.4s ease; }
+        .view-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* ============================================================================
-           [9] PARTICLES & TOASTS
-           ============================================================================ */
-        #toast-container { position: fixed; top: 30px; left: 50%; transform: translateX(-50%); z-index: 10000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
-        .toast { background: rgba(30, 34, 51, 0.95); border: 1px solid var(--cv-border-light); color: #fff; padding: 14px 24px; border-radius: 8px; font-size: 13px; font-weight: 700; box-shadow: var(--cv-shadow-lg); animation: slideDownToast 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, fadeOutToast 0.4s ease 2.6s forwards; display: flex; align-items: center; gap: 10px; }
-        @keyframes slideDownToast { from { opacity: 0; transform: translateY(-20px) scale(0.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
-        @keyframes fadeOutToast { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-20px); } }
+        /* ================= 상점 기능 ================= */
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 24px; }
+        .shop-item { background: var(--surface); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); transition: var(--transition); border: 1px solid var(--border); display: flex; flex-direction: column; }
+        .shop-item:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
+        .shop-img { width: 100%; height: 180px; object-fit: cover; background: #E5E7EB; display: flex; justify-content: center; align-items: center; color: #9CA3AF; }
+        .shop-info { padding: 20px; flex: 1; display: flex; flex-direction: column; }
+        .shop-title { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+        .shop-price { color: var(--accent); font-weight: 800; font-size: 18px; display: flex; align-items: center; gap: 6px; margin-bottom: 20px; }
+        .shop-action { margin-top: auto; width: 100%; }
 
-        .floating-coin-text { position: absolute; font-size: 24px; font-weight: 900; color: var(--cv-gold); text-shadow: 0 4px 10px rgba(0,0,0,0.9); pointer-events: none; z-index: 1000; animation: floatUpCoin 1s cubic-bezier(0.215, 0.610, 0.355, 1) forwards; }
-        @keyframes floatUpCoin { 0% { transform: scale(0.5) translateY(0); opacity: 0; } 20% { transform: scale(1.3) translateY(-15px); opacity: 1; } 100% { transform: scale(1) translateY(-60px); opacity: 0; } }
-
-        @media (max-width: 768px) {
-            .lobby-sidebar { display: none; }
-            .studio-workspace-core { flex-direction: column; overflow-y: auto; }
-            .panel-left, .panel-right { width: 100%; border-left: none; border-right: none; height: auto; min-height: 200px; flex-shrink: 0; }
-            .panel-center { height: 50vh; min-height: 300px; flex-shrink: 0; }
-            .studio-footer { display: none; }
-        }
+        /* ================= 게시판 (Padlet 스타일 고퀄리티 구현) ================= */
+        .board-controls { background: var(--surface); padding: 16px; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* 핀보드(Masonry) 레이아웃 */
+        .masonry-grid { column-count: 3; column-gap: 24px; }
+        @media (max-width: 1200px) { .masonry-grid { column-count: 2; } }
+        @media (max-width: 800px) { .masonry-grid { column-count: 1; } }
+        
+        .post-card { background: var(--surface); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 24px; break-inside: avoid; box-shadow: var(--shadow-md); transition: var(--transition); border: 1px solid var(--border); position: relative; overflow: hidden; }
+        .post-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-3px); }
+        .post-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .post-author { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 14px; }
+        .post-author .mini-avatar { width: 32px; height: 32px; background: var(--primary); border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+        .post-date { font-size: 12px; color: var(--text-muted); }
+        .post-content { font-size: 15px; line-height: 1.6; margin-bottom: 16px; word-break: break-word; }
+        .post-image { width: 100%; border-radius: 12px; margin-bottom: 16px; max-height: 300px; object-fit: cover; }
+        .post-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 12px; }
+        .post-actions button { background: none; color: var(--text-muted); font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 8px; }
+        .post-actions button:hover { background: rgba(0,0,0,0.05); color: var(--accent); }
+        .post-actions button.liked { color: var(--accent); }
+        
+        /* 게시물 색상 테마 */
+        .post-color-yellow { background-color: #FEF3C7; border-color: #FDE68A; }
+        .post-color-green { background-color: #D1FAE5; border-color: #A7F3D0; }
+        .post-color-blue { background-color: #DBEAFE; border-color: #BFDBFE; }
+        .post-color-pink { background-color: #FCE7F3; border-color: #FBCFE8; }
+        
+        /* ================= 관리자 페이지 ================= */
+        .admin-panel { background: var(--surface); border-radius: var(--radius-lg); padding: 30px; box-shadow: var(--shadow-sm); }
+        .admin-section-title { font-size: 18px; font-weight: 700; margin-bottom: 20px; border-bottom: 2px solid var(--bg-color); padding-bottom: 10px; }
+        .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--border); }
+        
+        /* ================= 모달 (팝업창) ================= */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(5px); z-index: 1000; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: var(--transition); }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-content { background: var(--surface); width: 100%; max-width: 500px; border-radius: var(--radius-lg); padding: 32px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); transform: scale(0.9); transition: var(--transition); max-height: 90vh; overflow-y: auto; }
+        .modal-overlay.active .modal-content { transform: scale(1); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .modal-header h3 { font-size: 20px; font-weight: 800; }
+        .close-modal { background: none; border: none; font-size: 24px; color: var(--text-muted); cursor: pointer; }
+        .close-modal:hover { color: var(--accent); }
+        
+        /* 파일 업로드 커스텀 UI */
+        .file-upload-wrapper { position: relative; width: 100%; height: 150px; border: 2px dashed var(--border); border-radius: var(--radius-md); display: flex; justify-content: center; align-items: center; flex-direction: column; background: #F9FAFB; cursor: pointer; transition: var(--transition); margin-bottom: 20px; overflow: hidden;}
+        .file-upload-wrapper:hover { border-color: var(--primary); background: #EEF2FF; }
+        .file-upload-wrapper input[type="file"] { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 2; }
+        .file-upload-wrapper i { font-size: 32px; color: var(--text-muted); margin-bottom: 10px; }
+        .preview-img { position: absolute; width: 100%; height: 100%; object-fit: cover; z-index: 1; display: none; }
+        
+        /* 색상 선택기 */
+        .color-picker { display: flex; gap: 12px; margin-bottom: 20px; }
+        .color-option { width: 36px; height: 36px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: var(--transition); }
+        .color-option.active { border-color: var(--text-main); transform: scale(1.1); }
     </style>
 </head>
-<body class="cv-dark-theme unselectable" oncontextmenu="return false;">
+<body>
 
-    <div id="app-wrapper">
+    <!-- 토스트 알림 컨테이너 -->
+    <div id="toast-container"></div>
 
-        <!-- [1] LOADING SCREEN -->
-        <section id="screen-loading" class="app-screen active">
-            <div class="loader-container">
-                <div class="loader-logo-ring"><i class="fa-solid fa-layer-group fa-fade text-primary"></i></div>
-                <h1 class="loader-title">CreateVerse <span class="badge-pro">PRO</span></h1>
-                <div class="loader-details">
-                    <p class="status-text">엔진 코어 및 리소스 초기화 중...</p>
-                </div>
-                <div class="progress-track"><div class="progress-fill"></div></div>
+    <!-- 1. 로비 뷰 (로그인 / 회원가입 / 학급 생성) -->
+    <div id="lobby-view">
+        <div class="circle-shape shape1"></div>
+        <div class="circle-shape shape2"></div>
+        
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>🎓 EduPlatform</h1>
+                <p>초고퀄리티 학급 관리 통합 플랫폼</p>
             </div>
-        </section>
-
-        <!-- [2] MAIN LOBBY -->
-        <section id="screen-lobby" class="app-screen hidden">
-            <aside class="lobby-sidebar">
-                <div class="sidebar-brand"><i class="fa-solid fa-cube text-primary"></i> <span>CreateVerse</span></div>
-                <div class="sidebar-user-profile">
-                    <div class="avatar-ring"><img src="https://ui-avatars.com/api/?name=Creator&background=6366f1&color=fff" alt="User"></div>
-                    <div class="user-info">
-                        <span class="user-name">Creator_01</span>
-                        <span class="user-tier text-gold"><i class="fa-solid fa-crown"></i> Premium</span>
-                    </div>
-                </div>
-                <ul class="sidebar-nav">
-                    <li class="active"><i class="fa-solid fa-house"></i> <span>홈</span></li>
-                    <li><i class="fa-solid fa-compass"></i> <span>발견</span></li>
-                    <li><i class="fa-solid fa-user-group"></i> <span>친구</span></li>
-                </ul>
-            </aside>
-            <main class="lobby-main">
-                <header class="lobby-header">
-                    <div class="search-bar">
-                        <i class="fa-solid fa-magnifying-glass" style="color:var(--cv-text-muted);"></i>
-                        <input type="text" placeholder="게임 검색...">
-                    </div>
-                    <div class="header-actions">
-                        <button class="btn btn-warning pop" onclick="UI.showATMModal()"><i class="fa-solid fa-building-columns"></i> 중앙 은행(ATM)</button>
-                        <div class="currency-display pop" onclick="UI.showATMModal()">
-                            <i class="fa-solid fa-coins text-gold"></i>
-                            <span id="and-balance">0</span><span class="currency-unit" style="margin-left:4px; font-size:10px;">AND</span>
-                        </div>
-                        <button class="btn btn-primary pop" onclick="UI.showPublishModal()"><i class="fa-solid fa-hammer"></i> 스튜디오 열기</button>
-                    </div>
-                </header>
-                <div class="lobby-scroll-area scrollable">
-                    <div class="hero-banner">
-                        <div class="hero-content">
-                            <h2 style="font-size:32px; color:#fff; font-weight:900; margin-bottom:10px;">나만의 샌드박스 메타버스</h2>
-                            <p style="color:var(--cv-text-main); margin-bottom:20px;">무한한 세계를 실시간으로 구축하세요.</p>
-                        </div>
-                    </div>
-                    <div class="section-header">
-                        <h3 style="font-size:18px; color:#fff; font-weight:800;"><i class="fa-solid fa-folder-open text-primary"></i> 내 프로젝트 및 발견</h3>
-                    </div>
-                    <div id="game-list" class="game-grid"></div>
-                </div>
-            </main>
-        </section>
-
-        <!-- [3] STUDIO EDITOR -->
-        <section id="screen-editor" class="app-screen hidden">
-            <nav class="system-menu-bar">
-                <div class="menu-brand"><i class="fa-solid fa-cube text-primary"></i> CreateVerse Studio</div>
-                <div class="system-menu-right">
-                    <button class="btn btn-outline-danger btn-sm pop" onclick="GameApp.saveAndExit()"><i class="fa-solid fa-door-open"></i> 로비로 복귀</button>
-                </div>
-            </nav>
-            <header class="ribbon-toolbar">
-                <div class="ribbon-tabs">
-                    <div class="ribbon-tab active">Home</div>
-                </div>
-                <div class="ribbon-content active">
-                    <div class="ribbon-group">
-                        <div class="ribbon-buttons">
-                            <button class="r-btn-large active pop" id="tool-select" onclick="Editor.setTool('select')"><i class="fa-solid fa-arrow-pointer"></i><span>Select</span></button>
-                            <button class="r-btn-large pop" id="tool-move" onclick="Editor.setTool('move')"><i class="fa-solid fa-arrows-up-down-left-right"></i><span>Move</span></button>
-                            <button class="r-btn-large pop" id="tool-erase" onclick="Editor.setTool('erase')"><i class="fa-solid fa-eraser"></i><span>Erase</span></button>
-                        </div>
-                        <div class="ribbon-label">Tools</div>
-                    </div>
-                    <div class="ribbon-divider"></div>
-                    <div class="ribbon-group">
-                        <div class="ribbon-buttons">
-                            <button class="r-btn-large pop" onclick="Editor.insertPart('normal')"><i class="fa-solid fa-cube text-primary"></i><span>Part</span></button>
-                            <button class="r-btn-large pop" onclick="Editor.insertPart('spawn')"><i class="fa-solid fa-flag text-gold"></i><span>Spawn</span></button>
-                            <button class="r-btn-large pop" onclick="Editor.insertPart('clicker')"><i class="fa-solid fa-sack-dollar text-gold"></i><span>CoinBox</span></button>
-                        </div>
-                        <div class="ribbon-label">Insert</div>
-                    </div>
-                    <div class="ribbon-divider"></div>
-                    <div class="ribbon-group">
-                        <div class="ribbon-buttons">
-                            <button class="r-btn-large play-accent pop" onclick="GameApp.testPlay()"><i class="fa-solid fa-play"></i><span>Play</span></button>
-                        </div>
-                        <div class="ribbon-label">Test</div>
-                    </div>
-                </div>
-            </header>
-            <div class="studio-workspace-core">
-                <aside class="panel-left">
-                    <div class="panel-header">Toolbox</div>
-                    <div class="toolbox-grid scrollable">
-                        <div class="asset-card pop" onclick="Editor.insertPart('normal')"><div class="a-thumb" style="background:#2a2a30;"><i class="fa-solid fa-cube text-primary"></i></div><div class="a-name">Basic Block</div></div>
-                        <div class="asset-card pop" onclick="Editor.insertPart('bounce')"><div class="a-thumb" style="background:#14331d;"><i class="fa-solid fa-angles-up text-success"></i></div><div class="a-name">Bounce Pad</div></div>
-                        <div class="asset-card pop" onclick="Editor.insertPart('lava')"><div class="a-thumb" style="background:#3f1515;"><i class="fa-solid fa-fire text-danger"></i></div><div class="a-name">Kill Brick</div></div>
-                    </div>
-                </aside>
-                <main class="panel-center">
-                    <div class="viewport-tabs"><div class="vp-tab active"><i class="fa-solid fa-globe"></i> Workspace</div></div>
-                    <div id="editor-canvas-container" class="viewport-container">
-                        <div class="viewport-overlay-hud"><span class="badge-dark" id="editor-coords">X: 0, Y: 0</span></div>
-                        <canvas id="game-canvas"></canvas>
-                    </div>
-                </main>
-                <aside class="panel-right">
-                    <div class="panel-explorer">
-                        <div class="panel-header">Explorer</div>
-                        <div class="explorer-tree scrollable" id="hierarchy-list">
-                            <div class="tree-node root open"><i class="fa-solid fa-globe node-icon text-primary"></i> Workspace</div>
-                            <div class="tree-children" id="workspace-children"></div>
-                        </div>
-                    </div>
-                    <div class="panel-properties">
-                        <div class="panel-header">Properties</div>
-                        <div id="prop-empty" class="empty-state"><i class="fa-solid fa-object-ungroup"></i><p>Select an object</p></div>
-                        <div id="prop-content" class="properties-list scrollable hidden">
-                            <div class="prop-cat open">
-                                <div class="cat-header">Data</div>
-                                <div class="cat-body">
-                                    <div class="prop-row"><label>Type</label><div class="prop-val"><input type="text" id="prop-type-display" disabled></div></div>
-                                </div>
-                            </div>
-                            <div class="prop-cat open">
-                                <div class="cat-header">Appearance</div>
-                                <div class="cat-body">
-                                    <div class="prop-row"><label>Color</label><div class="prop-val"><input type="color" id="prop-color" onchange="Editor.updateProp('color')"></div></div>
-                                </div>
-                            </div>
-                            <div class="prop-cat open">
-                                <div class="cat-header">Transform</div>
-                                <div class="cat-body">
-                                    <div class="prop-row"><label>Position</label><div class="prop-val vec2">X:<input type="number" id="prop-x" onchange="Editor.updateProp('x')"> Y:<input type="number" id="prop-y" onchange="Editor.updateProp('y')"></div></div>
-                                    <div class="prop-row"><label>Size</label><div class="prop-val vec2">W:<input type="number" id="prop-w" onchange="Editor.updateProp('w')"> H:<input type="number" id="prop-h" onchange="Editor.updateProp('h')"></div></div>
-                                </div>
-                            </div>
-                            <div class="prop-cat open">
-                                <div class="cat-header">Physics</div>
-                                <div class="cat-body">
-                                    <div class="prop-row"><label>Anchored</label><div class="prop-val"><input type="checkbox" id="prop-anchored" onchange="Editor.updateProp('anchored')"></div></div>
-                                    <div class="prop-row"><label>CanCollide</label><div class="prop-val"><input type="checkbox" id="prop-collide" onchange="Editor.updateProp('canCollide')"></div></div>
-                                </div>
-                            </div>
-                            <div class="prop-actions"><button class="btn btn-outline-danger w-100 pop" onclick="Editor.deleteSelected()"><i class="fa-solid fa-trash-can"></i> Delete</button></div>
-                        </div>
-                    </div>
-                </aside>
+            
+            <div class="auth-tabs" id="auth-tabs">
+                <div class="auth-tab active" data-target="login-form">로그인</div>
+                <div class="auth-tab" data-target="signup-form">회원가입</div>
             </div>
-            <footer class="studio-footer">
-                <div class="footer-tabs"><div class="f-tab active">Output</div></div>
-                <div class="output-content"><div class="output-logs scrollable" id="console-logs"></div></div>
-            </footer>
-        </section>
 
-        <!-- [4] IN-GAME PLAY SCREEN -->
-        <section id="screen-play" class="app-screen hidden">
-            <div id="play-canvas-container" style="position:absolute; inset:0; z-index:1; background:#87CEEB;"></div>
-            <div class="play-overlay-ui">
-                <div class="hud-top">
-                    <button class="btn btn-danger pop" onclick="GameApp.exitPlay()"><i class="fa-solid fa-right-from-bracket"></i> Exit</button>
-                    <div class="leaderboard-panel glass-panel">
-                        <div class="lb-header"><span>Players</span><span>Score</span></div>
-                        <ul id="player-list" class="lb-list"></ul>
-                    </div>
+            <!-- 로그인 폼 -->
+            <form id="login-form">
+                <div class="form-group">
+                    <label>이름</label>
+                    <input type="text" id="login-name" placeholder="이름을 입력하세요" required>
                 </div>
-                <div class="hud-bottom">
-                    <div class="chat-panel glass-panel">
-                        <div id="chat-messages" class="chat-logs scrollable"></div>
-                        <div class="chat-input-row">
-                            <input type="text" id="chat-input" placeholder="Tap to chat..." autocomplete="off">
-                            <button class="send-btn pop" onclick="Network.sendChat()"><i class="fa-solid fa-paper-plane"></i></button>
+                <div class="form-group">
+                    <label>비밀번호</label>
+                    <input type="password" id="login-pwd" placeholder="비밀번호를 입력하세요" required>
+                </div>
+                <div class="form-group">
+                    <label>학급 비밀번호 (입장 코드)</label>
+                    <input type="password" id="login-class-pwd" placeholder="선생님이 알려주신 학급 코드를 입력하세요" required>
+                </div>
+                <button type="submit" class="btn-primary auth-btn"><i class="fas fa-sign-in-alt"></i> 접속하기</button>
+            </form>
+
+            <!-- 회원가입 폼 -->
+            <form id="signup-form" class="hidden">
+                <div class="form-group">
+                    <label>이름</label>
+                    <input type="text" id="signup-name" placeholder="실명을 입력하세요" required>
+                </div>
+                <div class="form-group">
+                    <label>비밀번호</label>
+                    <input type="password" id="signup-pwd" placeholder="사용할 비밀번호 설정" required>
+                </div>
+                <div class="form-group">
+                    <label>역할 선택</label>
+                    <div class="role-selector">
+                        <div class="role-option">
+                            <input type="radio" name="role" id="role-student" value="student" checked>
+                            <label for="role-student">학생</label>
+                        </div>
+                        <div class="role-option">
+                            <input type="radio" name="role" id="role-admin-student" value="admin_student">
+                            <label for="role-admin-student">관리자학생</label>
+                        </div>
+                        <div class="role-option">
+                            <input type="radio" name="role" id="role-teacher" value="teacher">
+                            <label for="role-teacher">선생님</label>
                         </div>
                     </div>
-                    <div class="mobile-controls">
-                        <div class="joy-base" id="joystick"><div class="joy-knob" id="knob"></div></div>
-                        <button class="action-btn jump-btn pop" id="jump-btn"><i class="fa-solid fa-angles-up"></i></button>
-                    </div>
                 </div>
-            </div>
-        </section>
+                <button type="submit" class="btn-primary auth-btn" style="background: var(--secondary);"><i class="fas fa-user-plus"></i> 가입하기</button>
+            </form>
 
-        <!-- [5] MODALS -->
-        <div id="modal-publish" class="modal-backdrop hidden">
-            <div class="modal-dialog">
-                <div class="modal-header"><h3><i class="fa-solid fa-earth-asia"></i> 새 월드 만들기</h3><button class="icon-btn" onclick="UI.hidePublishModal()"><i class="fa-solid fa-xmark"></i></button></div>
-                <div class="modal-body">
-                    <div class="input-row">
-                        <div class="flex-1"><label>게임 이름</label><input type="text" id="game-name" placeholder="게임 이름"></div>
-                        <div class="flex-1"><label>입장 패스 (AND)</label><input type="number" id="game-pass-price" value="0" min="0"></div>
-                    </div>
+            <!-- 학급 생성 폼 (로그인 시 학급이 없을 때 노출) -->
+            <form id="create-class-form" class="hidden">
+                <div class="form-group" style="background: rgba(244,63,94,0.1); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid var(--accent);">
+                    <p style="font-size: 13px; color: var(--accent); font-weight: 600;">⚠️ 입력하신 학급 비밀번호에 해당하는 학급이 없습니다.<br>새로운 학급을 개설하시겠습니까? (선생님/관리자학생 권장)</p>
                 </div>
-                <div class="modal-footer"><button class="btn btn-outline pop" onclick="UI.hidePublishModal()">취소</button><button class="btn btn-primary pop" onclick="GameApp.createNewGame()">생성</button></div>
-            </div>
+                <div class="form-group">
+                    <label>개설할 학급 이름</label>
+                    <input type="text" id="create-class-name" placeholder="예: 3학년 2반" required>
+                </div>
+                <div class="form-group">
+                    <label>학급 비밀번호 (자동 입력됨)</label>
+                    <input type="password" id="create-class-pwd" readonly required style="background: #e5e7eb;">
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" id="btn-back-login" class="btn-secondary" style="flex: 1;">뒤로</button>
+                    <button type="submit" class="btn-primary" style="flex: 2;"><i class="fas fa-school"></i> 학급 개설</button>
+                </div>
+            </form>
         </div>
-
-        <div id="modal-atm" class="modal-backdrop hidden">
-            <div class="modal-dialog atm-dialog">
-                <div class="modal-header atm-header">
-                    <h3 style="color:#fff;"><i class="fa-solid fa-building-columns text-gold"></i> CreateVerse Bank</h3>
-                    <button class="icon-btn" onclick="UI.hideATMModal()"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                <div class="modal-body" style="padding:40px; text-align:center;">
-                    <div style="font-size:14px; color:var(--cv-text-muted);">현재 보유 자산</div>
-                    <div style="font-size:48px; font-weight:900; color:#fff; margin:10px 0; text-shadow:0 2px 10px rgba(251,191,36,0.3);"><i class="fa-solid fa-coins text-gold"></i> <span id="atm-balance-display">0</span> AND</div>
-                    <div style="display:flex; gap:15px; justify-content:center; margin-top:30px;">
-                        <button class="btn btn-success pop" onclick="GameApp.claimDailyReward()" style="padding:15px 30px; font-size:14px;"><i class="fa-solid fa-calendar-check"></i> 일일 출석 보상 (+100 AND)</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="particle-container"></div>
-        <div id="toast-container"></div>
     </div>
 
-    <!-- ============================================================================
-         JS LOGIC CORE
-         ============================================================================ -->
+    <!-- 2. 대시보드 뷰 (로그인 후 화면) -->
+    <div id="dashboard-view" class="hidden">
+        <!-- 좌측 사이드바 -->
+        <div class="sidebar">
+            <div class="brand">
+                <i class="fas fa-graduation-cap"></i> <span>ClassSpace</span>
+            </div>
+            <div class="nav-menu">
+                <div class="nav-item active" data-view="home"><i class="fas fa-home"></i> 홈</div>
+                <div class="nav-item" data-view="shop"><i class="fas fa-store"></i> 상점</div>
+                <div class="nav-item" data-view="board"><i class="fas fa-chalkboard"></i> 게시 (패들렛)</div>
+                <!-- 주식은 클릭 시 외부 사이트 이동 -->
+                <div class="nav-item" id="nav-stock"><i class="fas fa-chart-line"></i> 주식 거래</div>
+                
+                <!-- 관리자 전용 메뉴 -->
+                <div class="nav-item admin-only hidden" data-view="admin"><i class="fas fa-cog"></i> 학급 관리</div>
+            </div>
+            
+            <div class="user-profile">
+                <div class="avatar" id="ui-avatar">홍</div>
+                <div class="user-info">
+                    <div class="name" id="ui-name">홍길동</div>
+                    <div class="role" id="ui-role">학생</div>
+                </div>
+                <div class="logout-btn" id="btn-logout" title="로그아웃"><i class="fas fa-sign-out-alt"></i></div>
+            </div>
+        </div>
+
+        <!-- 우측 메인 컨텐츠 -->
+        <div class="main-content">
+            <!-- 상단 바 -->
+            <div class="topbar">
+                <h2 id="topbar-title"><i class="fas fa-home"></i> 홈 대시보드</h2>
+                <div class="topbar-right">
+                    <div class="class-info-badge" id="ui-class-name">3학년 2반</div>
+                    <div class="woojung-badge">
+                        <i class="fas fa-coins"></i> <span id="ui-woojung">0</span> 우정
+                    </div>
+                </div>
+            </div>
+
+            <!-- 내용 영역 -->
+            <div class="content-body">
+                
+                <!-- 홈 뷰 -->
+                <div id="view-home" class="view-section active">
+                    <div style="background: linear-gradient(135deg, var(--primary), #9F7AEA); color: white; padding: 40px; border-radius: var(--radius-lg); margin-bottom: 30px; box-shadow: var(--shadow-md);">
+                        <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 10px;">환영합니다, <span id="welcome-name"></span>님! 🎉</h1>
+                        <p style="font-size: 16px; opacity: 0.9;">오늘도 즐거운 학급 생활을 만들어보아요. 좌측 메뉴를 통해 상점, 게시판, 주식 등을 이용할 수 있습니다.</p>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
+                        <div style="background: var(--surface); padding: 24px; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); text-align: center; cursor:pointer;" onclick="switchView('shop')">
+                            <i class="fas fa-store" style="font-size: 40px; color: var(--secondary); margin-bottom: 15px;"></i>
+                            <h3 style="font-size: 18px; margin-bottom: 10px;">우정 상점</h3>
+                            <p style="color: var(--text-muted); font-size: 14px;">모은 우정으로 상품을 구매하세요.</p>
+                        </div>
+                        <div style="background: var(--surface); padding: 24px; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); text-align: center; cursor:pointer;" onclick="switchView('board')">
+                            <i class="fas fa-chalkboard" style="font-size: 40px; color: var(--primary); margin-bottom: 15px;"></i>
+                            <h3 style="font-size: 18px; margin-bottom: 10px;">학급 게시판</h3>
+                            <p style="color: var(--text-muted); font-size: 14px;">패들렛처럼 자유롭게 글과 사진을 공유하세요.</p>
+                        </div>
+                        <div style="background: var(--surface); padding: 24px; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); text-align: center; cursor:pointer;" onclick="window.location.href='https://soopeh.com/classroom'">
+                            <i class="fas fa-chart-line" style="font-size: 40px; color: var(--accent); margin-bottom: 15px;"></i>
+                            <h3 style="font-size: 18px; margin-bottom: 10px;">주식 거래</h3>
+                            <p style="color: var(--text-muted); font-size: 14px;">외부 사이트로 이동하여 주식을 거래합니다.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 상점 뷰 -->
+                <div id="view-shop" class="view-section">
+                    <div class="section-header">
+                        <div>
+                            <h2 style="font-size: 24px;">우정 상점</h2>
+                            <p style="color: var(--text-muted);">보유한 '우정'으로 아이템을 구매하세요.</p>
+                        </div>
+                        <button class="btn-primary admin-only hidden" onclick="openModal('modal-add-item')">
+                            <i class="fas fa-plus"></i> 물품 추가
+                        </button>
+                    </div>
+                    <div class="shop-grid" id="shop-container">
+                        <!-- JS로 아이템 렌더링 됨 -->
+                    </div>
+                </div>
+
+                <!-- 게시판(Padlet 스타일) 뷰 -->
+                <div id="view-board" class="view-section">
+                    <div class="board-controls">
+                        <div>
+                            <h2 style="font-size: 24px; font-weight: 800;">자유 게시판</h2>
+                            <p style="color: var(--text-muted); font-size: 14px;">우리의 생각과 사진을 공유하는 핀보드입니다.</p>
+                        </div>
+                        <button class="btn-primary" onclick="openModal('modal-add-post')" style="border-radius: 30px; font-size: 16px; padding: 12px 24px; box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);">
+                            <i class="fas fa-pen"></i> 글쓰기
+                        </button>
+                    </div>
+                    <div class="masonry-grid" id="board-container">
+                        <!-- JS로 게시글 렌더링 됨 -->
+                    </div>
+                </div>
+
+                <!-- 관리자 뷰 -->
+                <div id="view-admin" class="view-section admin-only hidden">
+                    <h2 style="font-size: 24px; margin-bottom: 24px;">학급 관리 설정</h2>
+                    
+                    <div class="admin-panel" style="margin-bottom: 20px;">
+                        <h3 class="admin-section-title">학급 기본 정보</h3>
+                        <div class="setting-row">
+                            <div>
+                                <strong>학급 이름</strong>
+                                <p style="font-size: 13px; color: var(--text-muted);">현재 반 이름을 변경합니다.</p>
+                            </div>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="admin-class-name" value="3학년 2반">
+                                <button class="btn-secondary" onclick="updateClassInfo()">변경</button>
+                            </div>
+                        </div>
+                        <div class="setting-row">
+                            <div>
+                                <strong>학급 비밀번호 초기화</strong>
+                                <p style="font-size: 13px; color: var(--text-muted);">로그인에 필요한 비밀번호를 변경합니다.</p>
+                            </div>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="password" id="admin-class-pwd" placeholder="새 비밀번호">
+                                <button class="btn-danger" onclick="updateClassPwd()">변경</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="admin-panel">
+                        <h3 class="admin-section-title">학생 '우정' 지급/차감 (임시 UI)</h3>
+                        <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 15px;">이곳에서 전체 학생의 우정(화폐)을 관리할 수 있는 기능을 추가 구현할 수 있습니다.</p>
+                        <button class="btn-primary" onclick="showToast('기능 준비 중입니다.', 'info')">우정 관리 패널 열기</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= 모달 영역 ================= -->
+    
+    <!-- 1. 상점 물품 추가 모달 (관리자용) -->
+    <div class="modal-overlay" id="modal-add-item">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>새 상품 등록</h3>
+                <button class="close-modal" onclick="closeModal('modal-add-item')">&times;</button>
+            </div>
+            <form id="form-add-item">
+                <div class="form-group">
+                    <label>상품 이미지 업로드</label>
+                    <div class="file-upload-wrapper">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span style="font-size: 14px; color: var(--text-muted); font-weight:600;">클릭하여 이미지 파일 선택</span>
+                        <input type="file" id="item-img-upload" accept="image/*" required>
+                        <img id="item-img-preview" class="preview-img">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>상품 이름</label>
+                    <input type="text" id="item-name" placeholder="예: 간식 교환권" required>
+                </div>
+                <div class="form-group">
+                    <label>가격 (우정 단위)</label>
+                    <input type="number" id="item-price" placeholder="예: 500" required min="0">
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%;"><i class="fas fa-check"></i> 상점에 등록하기</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. 게시판 글쓰기 모달 -->
+    <div class="modal-overlay" id="modal-add-post">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>새 게시물 작성</h3>
+                <button class="close-modal" onclick="closeModal('modal-add-post')">&times;</button>
+            </div>
+            <form id="form-add-post">
+                <div class="form-group">
+                    <label>내용</label>
+                    <textarea id="post-content" rows="4" placeholder="친구들과 나누고 싶은 이야기를 적어보세요!" required style="resize: none;"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>사진 첨부 (선택)</label>
+                    <div class="file-upload-wrapper" style="height: 100px;">
+                        <i class="fas fa-image" style="font-size: 24px;"></i>
+                        <span style="font-size: 12px; color: var(--text-muted);">이미지 파일 선택</span>
+                        <input type="file" id="post-img-upload" accept="image/*">
+                        <img id="post-img-preview" class="preview-img">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>배경 색상 (포스트잇)</label>
+                    <div class="color-picker" id="post-color-picker">
+                        <div class="color-option active" style="background: #FFFFFF; border: 2px solid #E5E7EB;" data-color="default"></div>
+                        <div class="color-option" style="background: #FEF3C7;" data-color="yellow"></div>
+                        <div class="color-option" style="background: #D1FAE5;" data-color="green"></div>
+                        <div class="color-option" style="background: #DBEAFE;" data-color="blue"></div>
+                        <div class="color-option" style="background: #FCE7F3;" data-color="pink"></div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-primary" style="width: 100%;"><i class="fas fa-paper-plane"></i> 보드에 핀 꽂기</button>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ================= 자바스크립트 로직 (초고퀄리티 스크립트) ================= -->
     <script>
-        class Vector2 {
-            constructor(x=0, y=0){this.x=x; this.y=y;}
-            add(v){return new Vector2(this.x+v.x, this.y+v.y);}
-            sub(v){return new Vector2(this.x-v.x, this.y-v.y);}
-            mag(){return Math.sqrt(this.x*this.x+this.y*this.y);}
+        /**
+         * 데이터베이스 시뮬레이션 (LocalStorage 활용)
+         * 백엔드가 없어도 데이터가 브라우저에 저장되어 재접속 시 유지됩니다.
+         */
+        const DB_KEY = 'EduPlatform_Data';
+        
+        // 기본 데이터 구조
+        let db = {
+            users: {}, // { username: { pwd, role, woojung } }
+            classes: {} // { classPwd: { name, items: [], posts: [] } }
+        };
+
+        // 세션(현재 로그인 상태)
+        let session = {
+            currentUser: null,  // username
+            currentClassPwd: null // 로그인 시 사용한 학급 코드
+        };
+
+        let selectedPostColor = 'default';
+        let itemImageBase64 = null;
+        let postImageBase64 = null;
+
+        // ================= 데이터 초기화 및 로드 =================
+        function loadDB() {
+            const saved = localStorage.getItem(DB_KEY);
+            if(saved) {
+                db = JSON.parse(saved);
+            }
         }
-        const Utils = {
-            generateId: () => 'cv_' + Math.random().toString(36).substr(2,9),
-            lerp: (start, end, amt) => (1-amt)*start+amt*end,
-            checkAABB: (r1, r2) => r1.pos.x<r2.pos.x+r2.size.x && r1.pos.x+r1.size.x>r2.pos.x && r1.pos.y<r2.pos.y+r2.size.y && r1.pos.y+r1.size.y>r2.pos.y
-        };
-
-        const Logger = {
-            log: (msg, type='info') => {
-                const el = document.getElementById('console-logs');
-                if(el) { el.innerHTML += `<div class="log-line ${type}">${msg}</div>`; el.scrollTop = el.scrollHeight; }
-            }
-        };
-
-        class Block {
-            constructor(c){
-                this.id = c.id||Utils.generateId(); this.name = c.name||'Part'; this.type = c.type||'normal';
-                this.pos = new Vector2(c.x||0, c.y||0); this.size = new Vector2(c.w||50, c.h||50);
-                this.color = c.color||'#5c6bc0'; this.anchored = c.anchored!==undefined?c.anchored:true; this.canCollide = c.canCollide!==undefined?c.canCollide:true;
-                this.velocity = new Vector2(0,0);
-            }
+        function saveDB() {
+            localStorage.setItem(DB_KEY, JSON.stringify(db));
         }
 
-        const AppState = {
-            user: { peerId: Utils.generateId(), andBalance: 0, purchased: [], lastDailyReward: null },
-            games: [], currentWorld: null,
-            engine: { mode: 'menu', camera: new Vector2(0,0), gridSnap: 25, gravity: 1500 },
-            editor: { activeTool: 'select', selectedObjId: null, isDragging: false, dragOffset: new Vector2(0,0) }
+        // ================= 유틸리티 함수 =================
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.style.borderLeftColor = type === 'error' ? 'var(--accent)' : (type === 'info' ? 'var(--primary)' : 'var(--secondary)');
+            
+            let icon = 'check-circle';
+            if(type === 'error') icon = 'exclamation-circle';
+            if(type === 'info') icon = 'info-circle';
+
+            toast.innerHTML = `<i class="fas fa-${icon}" style="color: ${toast.style.borderLeftColor}; font-size: 20px;"></i> <span>${message}</span>`;
+            container.appendChild(toast);
+            
+            setTimeout(() => { toast.remove(); }, 3000);
+        }
+
+        // 이미지 파일을 Base64 문자열로 변환 (로컬 저장소 저장용)
+        function fileToBase64(file, callback) {
+            const reader = new FileReader();
+            reader.onload = function(e) { callback(e.target.result); };
+            reader.readAsDataURL(file);
+        }
+
+        // ================= UI / 화면 전환 제어 =================
+        const views = {
+            lobby: document.getElementById('lobby-view'),
+            dashboard: document.getElementById('dashboard-view')
+        };
+        const forms = {
+            login: document.getElementById('login-form'),
+            signup: document.getElementById('signup-form'),
+            createClass: document.getElementById('create-class-form')
         };
 
-        const DataManager = {
-            load: () => {
-                const d = localStorage.getItem('CreateVerse_SPA_DB');
-                if(d) { const p = JSON.parse(d); AppState.user = p.user||AppState.user; AppState.games = p.games||[]; }
-            },
-            save: () => localStorage.setItem('CreateVerse_SPA_DB', JSON.stringify({user: AppState.user, games: AppState.games}))
-        };
-
-        const UI = {
-            showScreen: (id) => { document.querySelectorAll('.app-screen').forEach(s=>s.classList.remove('active', 'hidden')); document.querySelectorAll('.app-screen').forEach(s=>{ if(s.id!==id) s.classList.add('hidden'); else s.classList.add('active'); }); },
-            updateBalanceUI: () => document.querySelectorAll('#and-balance, #atm-balance-display').forEach(el=>el.innerText=AppState.user.andBalance),
-            showPublishModal: () => document.getElementById('modal-publish').classList.remove('hidden'),
-            hidePublishModal: () => document.getElementById('modal-publish').classList.add('hidden'),
-            showATMModal: () => { UI.updateBalanceUI(); document.getElementById('modal-atm').classList.remove('hidden'); },
-            hideATMModal: () => document.getElementById('modal-atm').classList.add('hidden'),
-            showToast: (msg) => { const c = document.getElementById('toast-container'); const t = document.createElement('div'); t.className='toast'; t.innerHTML=`<i class="fa-solid fa-bell text-gold"></i> ${msg}`; c.appendChild(t); setTimeout(()=>t.remove(),3000); },
-            spawnParticle: (x,y,t) => { const c = document.getElementById('particle-container'); const el = document.createElement('div'); el.className='floating-coin-text'; el.innerText=t; el.style.left=x+'px'; el.style.top=y+'px'; c.appendChild(el); setTimeout(()=>el.remove(),1000); }
-        };
-
-        const LobbyUI = {
-            renderGames: () => {
-                const list = document.getElementById('game-list');
-                if(!list) return;
-                list.innerHTML = '';
-                AppState.games.forEach(g => {
-                    const isMine = g.creator === AppState.user.peerId;
-                    const isOwned = g.passPrice === 0 || AppState.user.purchased.includes(g.id) || isMine;
-                    const editBtn = isMine ? `<button class="btn btn-outline-full mt-1 pop" onclick="GameApp.editGame('${g.id}')"><i class="fa-solid fa-pen"></i> 에디터</button>` : '';
-                    const playBtn = isOwned ? `<button class="btn btn-success w-100 pop" onclick="GameApp.playGame('${g.id}')"><i class="fa-solid fa-play"></i> 플레이</button>` : `<button class="btn btn-warning w-100 pop" onclick="GameApp.buyPass('${g.id}', ${g.passPrice})"><i class="fa-solid fa-lock"></i> ${g.passPrice} AND 구매</button>`;
-                    list.innerHTML += `<div class="game-card"><div class="card-icon">🎮</div><div class="card-title">${g.name}</div><div class="card-actions" style="flex-direction:column;">${playBtn}${editBtn}</div></div>`;
-                });
-            }
-        };
-
-        const EditorUI = {
-            sync: () => {
-                const p = AppState.currentWorld?.blocks.find(b=>b.id===AppState.editor.selectedObjId);
-                const c = document.getElementById('workspace-children');
-                if(c) {
-                    c.innerHTML = '';
-                    AppState.currentWorld.blocks.forEach(b => {
-                        const div = document.createElement('div'); div.className=`tree-node ${AppState.editor.selectedObjId===b.id?'selected':''}`;
-                        div.innerHTML=`<i class="fa-solid fa-cube node-icon"></i> ${b.name}`; div.onclick=()=>Editor.selectBlock(b.id); c.appendChild(div);
-                    });
-                }
-                const empty = document.getElementById('prop-empty'), form = document.getElementById('prop-content');
-                if(!p) { empty?.classList.remove('hidden'); form?.classList.add('hidden'); return; }
-                empty?.classList.add('hidden'); form?.classList.remove('hidden');
-                document.getElementById('prop-type-display').value = p.type;
-                document.getElementById('prop-color').value = p.color!=='transparent'?p.color:'#000000';
-                document.getElementById('prop-x').value = Math.round(p.pos.x); document.getElementById('prop-y').value = Math.round(p.pos.y);
-                document.getElementById('prop-w').value = Math.round(p.size.x); document.getElementById('prop-h').value = Math.round(p.size.y);
-                document.getElementById('prop-anchored').checked = p.anchored; document.getElementById('prop-collide').checked = p.canCollide;
-            }
-        };
-
-        const Editor = {
-            setTool: (t) => { AppState.editor.activeTool = t; document.querySelectorAll('.r-btn-large').forEach(b=>b.classList.remove('active')); document.getElementById('tool-'+t)?.classList.add('active'); if(t!=='select') Editor.selectBlock(null); },
-            selectBlock: (id) => { AppState.editor.selectedObjId = id; EditorUI.sync(); },
-            insertPart: (type) => {
-                if(!AppState.currentWorld) return;
-                const cam = AppState.engine.camera;
-                const c = { normal: '#5c6bc0', bounce: '#4caf50', lava: '#ef4444', clicker: '#fbbf24', spawn: 'transparent' };
-                const b = new Block({ type: type, name: type+'Part', x: Math.floor(cam.x/25)*25, y: Math.floor(cam.y/25)*25, w: type==='clicker'?100:50, h: type==='clicker'?100:50, color: c[type]||'#fff', canCollide: type!=='spawn' });
-                AppState.currentWorld.blocks.push(b); Editor.selectBlock(b.id); Editor.setTool('move');
-            },
-            deleteSelected: () => { if(!AppState.editor.selectedObjId) return; AppState.currentWorld.blocks = AppState.currentWorld.blocks.filter(b=>b.id!==AppState.editor.selectedObjId); Editor.selectBlock(null); },
-            updateProp: (k) => {
-                const p = AppState.currentWorld?.blocks.find(b=>b.id===AppState.editor.selectedObjId); if(!p) return;
-                if(k==='x') p.pos.x=parseFloat(document.getElementById('prop-x').value); if(k==='y') p.pos.y=parseFloat(document.getElementById('prop-y').value);
-                if(k==='w') p.size.x=parseFloat(document.getElementById('prop-w').value); if(k==='h') p.size.y=parseFloat(document.getElementById('prop-h').value);
-                if(k==='color') p.color=document.getElementById('prop-color').value;
-                if(k==='anchored') p.anchored=document.getElementById('prop-anchored').checked; if(k==='canCollide') p.canCollide=document.getElementById('prop-collide').checked;
-                EditorUI.sync();
-            }
-        };
-
-        const Physics = {
-            player: { pos: new Vector2(0,0), size: new Vector2(35,35), vel: new Vector2(0,0), grounded: false },
-            otherPlayers: {},
-            update: (dt) => {
-                if(AppState.engine.mode!=='play'||!AppState.currentWorld) return;
-                const p = Physics.player, blocks = AppState.currentWorld.blocks;
+        // 로비 탭 전환
+        document.querySelectorAll('.auth-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+                e.target.classList.add('active');
                 
-                let tv = 0;
-                if(Input.keys['a']||Input.joyX<-20) tv = -400; else if(Input.keys['d']||Input.joyX>20) tv = 400;
-                p.vel.x = Utils.lerp(p.vel.x, tv, 1-Math.pow(0.8, dt*60));
+                forms.login.classList.add('hidden');
+                forms.signup.classList.add('hidden');
+                forms.createClass.classList.add('hidden');
                 
-                if((Input.keys['w']||Input.keys[' ']||Input.jump)&&p.grounded) { p.vel.y = -650; p.grounded = false; }
-                p.vel.y += AppState.engine.gravity*dt;
+                document.getElementById(e.target.dataset.target).classList.remove('hidden');
+            });
+        });
 
-                p.pos.x += p.vel.x*dt;
-                blocks.forEach(b => { if(b.canCollide && Utils.checkAABB(p,b)) { if(p.vel.x>0) p.pos.x=b.pos.x-p.size.x; else if(p.vel.x<0) p.pos.x=b.pos.x+b.size.x; p.vel.x=0; } });
+        // 학급 생성 폼에서 로그인으로 돌아가기
+        document.getElementById('btn-back-login').addEventListener('click', () => {
+            forms.createClass.classList.add('hidden');
+            forms.login.classList.remove('hidden');
+        });
 
-                p.pos.y += p.vel.y*dt; p.grounded = false;
-                blocks.forEach(b => {
-                    if(Utils.checkAABB(p,b) && b.type==='lava') { GameApp.respawn(); return; }
-                    if(b.canCollide && Utils.checkAABB(p,b)) {
-                        if(p.vel.y>0) { p.pos.y=b.pos.y-p.size.y; p.grounded=true; p.vel.y = b.type==='bounce'?-900:0; }
-                        else if(p.vel.y<0) { p.pos.y=b.pos.y+b.size.y; p.vel.y=0; }
-                    }
-                });
+        // 대시보드 내부 뷰 전환 (사이드바)
+        function switchView(viewName) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(`view-${viewName}`).classList.add('active');
+            document.querySelector(`.nav-item[data-view="${viewName}"]`).classList.add('active');
 
-                blocks.forEach(b => { if(!b.anchored) { b.velocity.y+=AppState.engine.gravity*dt; b.pos.y+=b.velocity.y*dt; } });
-                AppState.engine.camera.x = Utils.lerp(AppState.engine.camera.x, p.pos.x-window.innerWidth/2, 5*dt);
-                AppState.engine.camera.y = Utils.lerp(AppState.engine.camera.y, p.pos.y-window.innerHeight/2, 5*dt);
+            const titles = { 'home': '홈 대시보드', 'shop': '우정 상점', 'board': '자유 게시판', 'admin': '학급 설정' };
+            const icons = { 'home': 'home', 'shop': 'store', 'board': 'chalkboard', 'admin': 'cog' };
+            
+            document.getElementById('topbar-title').innerHTML = `<i class="fas fa-${icons[viewName]}"></i> ${titles[viewName]}`;
+
+            // 화면 전환 시 데이터 렌더링 갱신
+            if(viewName === 'shop') renderShop();
+            if(viewName === 'board') renderBoard();
+        }
+        document.querySelectorAll('.nav-item[data-view]').forEach(item => {
+            item.addEventListener('click', (e) => {
+                switchView(e.currentTarget.dataset.view);
+            });
+        });
+
+        // 주식 사이트 외부 링크
+        document.getElementById('nav-stock').addEventListener('click', () => {
+            window.location.href = 'https://soopeh.com/classroom';
+        });
+
+        // ================= 모달 제어 =================
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+            // 모달 열 때 폼 초기화
+            if(modalId === 'modal-add-item') {
+                document.getElementById('form-add-item').reset();
+                document.getElementById('item-img-preview').style.display = 'none';
+                itemImageBase64 = null;
+            } else if(modalId === 'modal-add-post') {
+                document.getElementById('form-add-post').reset();
+                document.getElementById('post-img-preview').style.display = 'none';
+                postImageBase64 = null;
+                document.querySelectorAll('.color-option').forEach(el => el.classList.remove('active'));
+                document.querySelector('.color-option[data-color="default"]').classList.add('active');
+                selectedPostColor = 'default';
             }
-        };
+        }
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
 
-        const Renderer = {
-            canvas: document.getElementById('game-canvas'), ctx: null, loopId: null, lastTime: 0,
-            init: () => { Renderer.ctx = Renderer.canvas.getContext('2d'); window.addEventListener('resize', Renderer.resize); Renderer.resize(); },
-            resize: () => { const p = Renderer.canvas.parentElement; Renderer.canvas.width=p.clientWidth; Renderer.canvas.height=p.clientHeight; },
-            start: () => { if(Renderer.loopId) cancelAnimationFrame(Renderer.loopId); Renderer.lastTime=performance.now(); const loop=(now)=>{ const dt=(now-Renderer.lastTime)/1000; Renderer.lastTime=now; Physics.update(dt); Renderer.draw(); Renderer.loopId=requestAnimationFrame(loop); }; loop(performance.now()); },
-            stop: () => { if(Renderer.loopId) cancelAnimationFrame(Renderer.loopId); Renderer.loopId=null; },
-            draw: () => {
-                if(!AppState.currentWorld||!Renderer.ctx) return;
-                const ctx = Renderer.ctx, cam = AppState.engine.camera;
-                ctx.fillStyle = AppState.engine.mode==='edit'?'#141722':'#87CEEB'; ctx.fillRect(0,0,Renderer.canvas.width,Renderer.canvas.height);
-                ctx.save(); ctx.translate(Math.floor(-cam.x), Math.floor(-cam.y));
-                if(AppState.engine.mode==='edit') {
-                    ctx.strokeStyle='rgba(255,255,255,0.05)'; ctx.beginPath();
-                    const sX=Math.floor(cam.x/25)*25, sY=Math.floor(cam.y/25)*25;
-                    for(let x=sX; x<sX+Renderer.canvas.width+25; x+=25){ctx.moveTo(x,cam.y); ctx.lineTo(x,cam.y+Renderer.canvas.height);}
-                    for(let y=sY; y<sY+Renderer.canvas.height+25; y+=25){ctx.moveTo(cam.x,y); ctx.lineTo(cam.x+Renderer.canvas.width,y);} ctx.stroke();
-                }
-                AppState.currentWorld.blocks.forEach(b => {
-                    ctx.fillStyle = b.color;
-                    if(b.type==='spawn'){ ctx.strokeStyle='#fbbf24'; ctx.setLineDash([5,5]); ctx.strokeRect(b.pos.x,b.pos.y,b.size.x,b.size.y); ctx.setLineDash([]); }
-                    else if(b.type==='clicker') { ctx.fillRect(b.pos.x,b.pos.y,b.size.x,b.size.y); ctx.fillStyle='#000'; ctx.font='bold 24px Arial'; ctx.textAlign='center'; ctx.fillText('$', b.pos.x+b.size.x/2, b.pos.y+b.size.y/2+8); }
-                    else { ctx.fillRect(b.pos.x,b.pos.y,b.size.x,b.size.y); ctx.strokeStyle='rgba(0,0,0,0.5)'; ctx.strokeRect(b.pos.x,b.pos.y,b.size.x,b.size.y); }
-                    if(AppState.engine.mode==='edit'&&AppState.editor.selectedObjId===b.id){ ctx.strokeStyle='#3b82f6'; ctx.lineWidth=2; ctx.strokeRect(b.pos.x-1,b.pos.y-1,b.size.x+2,b.size.y+2); }
-                });
-                if(AppState.engine.mode==='play') {
-                    const lp=Physics.player; ctx.fillStyle='#6366f1'; ctx.fillRect(lp.pos.x,lp.pos.y,lp.size.x,lp.size.y); ctx.fillStyle='#fff'; ctx.textAlign='center'; ctx.fillText('Me', lp.pos.x+lp.size.x/2, lp.pos.y-5);
-                }
-                ctx.restore();
-                const coord = document.getElementById('editor-coords'); if(coord) coord.innerText = `X: ${Math.round(cam.x)}, Y: ${Math.round(cam.y)}`;
+        // ================= 인증 로직 (회원가입/로그인) =================
+        
+        // 1. 회원가입
+        forms.signup.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('signup-name').value.trim();
+            const pwd = document.getElementById('signup-pwd').value;
+            const role = document.querySelector('input[name="role"]:checked').value;
+
+            if(db.users[name]) {
+                showToast('이미 존재하는 이름입니다. 다른 이름을 사용해주세요.', 'error');
+                return;
             }
+
+            db.users[name] = { pwd, role, woojung: 1000 }; // 기본 우정 1000 지급
+            saveDB();
+            
+            showToast('회원가입이 완료되었습니다. 로그인해주세요!');
+            document.querySelector('.auth-tab[data-target="login-form"]').click();
+        });
+
+        // 2. 로그인 및 학급 확인
+        let tempLoginAttempt = { name: '', classPwd: '' };
+
+        forms.login.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('login-name').value.trim();
+            const pwd = document.getElementById('login-pwd').value;
+            const classPwd = document.getElementById('login-class-pwd').value;
+
+            // 회원 확인
+            if(!db.users[name] || db.users[name].pwd !== pwd) {
+                showToast('이름 또는 비밀번호가 틀렸습니다.', 'error');
+                return;
+            }
+
+            // 학급 비밀번호 확인
+            if(db.classes[classPwd]) {
+                // 로그인 성공
+                loginSuccess(name, classPwd);
+            } else {
+                // 학급이 존재하지 않음 -> 학급 생성 화면으로 유도
+                tempLoginAttempt = { name, classPwd };
+                forms.login.classList.add('hidden');
+                forms.createClass.classList.remove('hidden');
+                document.getElementById('create-class-pwd').value = classPwd;
+            }
+        });
+
+        // 3. 학급 생성
+        forms.createClass.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const user = db.users[tempLoginAttempt.name];
+            
+            if(user.role === 'student') {
+                showToast('일반 학생은 학급을 생성할 수 없습니다. 선생님께 문의하세요.', 'error');
+                return;
+            }
+
+            const className = document.getElementById('create-class-name').value.trim();
+            const classPwd = tempLoginAttempt.classPwd;
+
+            // 학급 데이터 생성
+            db.classes[classPwd] = {
+                name: className,
+                items: [
+                    // 기본 아이템 예시
+                    { id: Date.now(), name: '자리 변경권', price: 2000, img: 'https://via.placeholder.com/300x200?text=Seat+Change' }
+                ],
+                posts: []
+            };
+            saveDB();
+
+            showToast(`'${className}' 학급이 성공적으로 개설되었습니다!`);
+            loginSuccess(tempLoginAttempt.name, classPwd);
+        });
+
+        // 로그인 성공 처리 함수
+        function loginSuccess(name, classPwd) {
+            session.currentUser = name;
+            session.currentClassPwd = classPwd;
+            
+            const user = db.users[name];
+            const cls = db.classes[classPwd];
+
+            // UI 업데이트
+            document.getElementById('ui-name').innerText = name;
+            document.getElementById('ui-avatar').innerText = name.charAt(0);
+            
+            let roleStr = '학생';
+            if(user.role === 'teacher') roleStr = '선생님';
+            if(user.role === 'admin_student') roleStr = '관리자학생';
+            document.getElementById('ui-role').innerText = roleStr;
+            document.getElementById('welcome-name').innerText = name;
+            
+            document.getElementById('ui-class-name').innerText = cls.name;
+            document.getElementById('admin-class-name').value = cls.name;
+            document.getElementById('ui-woojung').innerText = user.woojung.toLocaleString();
+
+            // 권한에 따른 관리자 기능 숨김/표시
+            if(user.role === 'student') {
+                document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
+            } else {
+                document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
+            }
+
+            // 화면 전환
+            views.lobby.classList.add('hidden');
+            views.dashboard.classList.remove('hidden');
+            switchView('home');
+            showToast('로그인 성공! 환영합니다.');
+        }
+
+        // 로그아웃
+        document.getElementById('btn-logout').addEventListener('click', () => {
+            session.currentUser = null;
+            session.currentClassPwd = null;
+            views.dashboard.classList.add('hidden');
+            views.lobby.classList.remove('hidden');
+            document.querySelector('.auth-tab[data-target="login-form"]').click();
+            forms.login.reset();
+        });
+
+
+        // ================= 파일 업로드 프리뷰 로직 =================
+        document.getElementById('item-img-upload').addEventListener('change', function(e) {
+            if(this.files && this.files[0]) {
+                fileToBase64(this.files[0], (base64) => {
+                    itemImageBase64 = base64;
+                    const preview = document.getElementById('item-img-preview');
+                    preview.src = base64;
+                    preview.style.display = 'block';
+                });
+            }
+        });
+        
+        document.getElementById('post-img-upload').addEventListener('change', function(e) {
+            if(this.files && this.files[0]) {
+                fileToBase64(this.files[0], (base64) => {
+                    postImageBase64 = base64;
+                    const preview = document.getElementById('post-img-preview');
+                    preview.src = base64;
+                    preview.style.display = 'block';
+                });
+            }
+        });
+
+        // 색상 선택 로직
+        document.querySelectorAll('.color-option').forEach(opt => {
+            opt.addEventListener('click', (e) => {
+                document.querySelectorAll('.color-option').forEach(el => el.classList.remove('active'));
+                e.target.classList.add('active');
+                selectedPostColor = e.target.dataset.color;
+            });
+        });
+
+
+        // ================= 상점 (우정) 로직 =================
+        
+        // 물품 렌더링
+        function renderShop() {
+            const cls = db.classes[session.currentClassPwd];
+            const container = document.getElementById('shop-container');
+            container.innerHTML = '';
+
+            if(cls.items.length === 0) {
+                container.innerHTML = '<div style="grid-column: 1/-1; padding: 40px; text-align: center; color: var(--text-muted);">등록된 물품이 없습니다. 관리자가 추가해주세요.</div>';
+                return;
+            }
+
+            cls.items.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'shop-item';
+                div.innerHTML = `
+                    <img src="${item.img || 'https://via.placeholder.com/300x200?text=No+Image'}" class="shop-img" alt="item">
+                    <div class="shop-info">
+                        <div class="shop-title">${item.name}</div>
+                        <div class="shop-price"><i class="fas fa-coins" style="color: #F59E0B;"></i> ${Number(item.price).toLocaleString()} 우정</div>
+                        <button class="btn-secondary shop-action" onclick="buyItem(${item.id})">구매하기</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // 물품 등록 (관리자)
+        document.getElementById('form-add-item').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('item-name').value.trim();
+            const price = parseInt(document.getElementById('item-price').value);
+
+            if(!itemImageBase64) {
+                showToast('상품 이미지를 업로드해주세요.', 'error');
+                return;
+            }
+
+            const cls = db.classes[session.currentClassPwd];
+            cls.items.push({
+                id: Date.now(),
+                name: name,
+                price: price,
+                img: itemImageBase64
+            });
+            saveDB();
+            
+            showToast(`'${name}' 상품이 성공적으로 등록되었습니다.`);
+            closeModal('modal-add-item');
+            renderShop();
+        });
+
+        // 물품 구매
+        window.buyItem = function(itemId) {
+            const user = db.users[session.currentUser];
+            const cls = db.classes[session.currentClassPwd];
+            const item = cls.items.find(i => i.id === itemId);
+
+            if(!item) return;
+
+            if(user.woojung < item.price) {
+                showToast(`우정이 부족합니다. (필요: ${item.price}, 보유: ${user.woojung})`, 'error');
+                return;
+            }
+
+            // 구매 로직
+            user.woojung -= item.price;
+            saveDB();
+            
+            document.getElementById('ui-woojung').innerText = user.woojung.toLocaleString();
+            showToast(`'${item.name}'을(를) 성공적으로 구매했습니다! 🎉`);
         };
 
-        const Input = {
-            keys: {}, joyX: 0, joyY: 0, jump: false,
-            init: () => {
-                window.addEventListener('keydown', e=>Input.keys[e.key.toLowerCase()]=true); window.addEventListener('keyup', e=>Input.keys[e.key.toLowerCase()]=false);
-                const cvs = Renderer.canvas;
-                cvs.addEventListener('mousedown', Input.onDown); window.addEventListener('mousemove', Input.onMove); window.addEventListener('mouseup', Input.onUp);
-                cvs.addEventListener('touchstart', e=>Input.onDown(e.touches[0]), {passive:false}); window.addEventListener('touchmove', e=>Input.onMove(e.touches[0]), {passive:false}); window.addEventListener('touchend', Input.onUp);
-                const joyBase=document.getElementById('joystick'), knob=document.getElementById('knob');
-                if(joyBase&&knob){
-                    const hJoy = (e) => { e.preventDefault(); const r=joyBase.getBoundingClientRect(); let dx=e.touches[0].clientX-r.left-r.width/2, dy=e.touches[0].clientY-r.top-r.height/2; const dist=Math.min(Math.sqrt(dx*dx+dy*dy), r.width/2-10); const a=Math.atan2(dy,dx); Input.joyX=Math.cos(a)*dist; Input.joyY=Math.sin(a)*dist; knob.style.transform=`translate(${Input.joyX}px, ${Input.joyY}px)`; };
-                    joyBase.addEventListener('touchstart', hJoy, {passive:false}); joyBase.addEventListener('touchmove', hJoy, {passive:false}); joyBase.addEventListener('touchend', ()=>{Input.joyX=0; Input.joyY=0; knob.style.transform='translate(0,0)';});
-                }
-                document.getElementById('jump-btn')?.addEventListener('touchstart', e=>{e.preventDefault(); Input.jump=true;}); document.getElementById('jump-btn')?.addEventListener('touchend', e=>{e.preventDefault(); Input.jump=false;});
-            },
-            onDown: (e) => {
-                if(e.target!==Renderer.canvas||!AppState.currentWorld) return;
-                const rect=Renderer.canvas.getBoundingClientRect(), wX=e.clientX-rect.left+AppState.engine.camera.x, wY=e.clientY-rect.top+AppState.engine.camera.y;
-                if(AppState.engine.mode==='edit'){
-                    let hit=null; for(let i=AppState.currentWorld.blocks.length-1; i>=0; i--){ let b=AppState.currentWorld.blocks[i]; if(wX>=b.pos.x&&wX<=b.pos.x+b.size.x&&wY>=b.pos.y&&wY<=b.pos.y+b.size.y){ hit=b; break; } }
-                    if(AppState.editor.activeTool==='select'||AppState.editor.activeTool==='move'){ Editor.selectBlock(hit?hit.id:null); if(hit&&AppState.editor.activeTool==='move'){ AppState.editor.isDragging=true; AppState.editor.dragOffset=new Vector2(hit.pos.x-wX, hit.pos.y-wY); } }
-                    else if(AppState.editor.activeTool==='erase'&&hit){ Editor.selectBlock(hit.id); Editor.deleteSelected(); }
-                } else if(AppState.engine.mode==='play') {
-                    AppState.currentWorld.blocks.forEach(b=>{ if(b.type==='clicker'&&wX>=b.pos.x&&wX<=b.pos.x+b.size.x&&wY>=b.pos.y&&wY<=b.pos.y+b.size.y){ AppState.user.andBalance+=1; DataManager.save(); UI.updateBalanceUI(); UI.spawnParticle(e.clientX, e.clientY, '+1 AND'); }});
-                }
-            },
-            onMove: (e) => {
-                if(AppState.engine.mode==='edit'&&e.buttons===2){ AppState.engine.camera.x-=e.movementX; AppState.engine.camera.y-=e.movementY; }
-                if(AppState.engine.mode==='edit'&&AppState.editor.isDragging&&AppState.editor.selectedObjId){ const p=AppState.currentWorld.blocks.find(b=>b.id===AppState.editor.selectedObjId); if(!p) return; const rect=Renderer.canvas.getBoundingClientRect(); const wX=e.clientX-rect.left+AppState.engine.camera.x, wY=e.clientY-rect.top+AppState.engine.camera.y; p.pos.x=Math.floor((wX+AppState.editor.dragOffset.x)/25)*25; p.pos.y=Math.floor((wY+AppState.editor.dragOffset.y)/25)*25; EditorUI.sync(); }
-            },
-            onUp: () => AppState.editor.isDragging = false
+
+        // ================= 게시판 (Padlet 스타일) 로직 =================
+        
+        // 게시물 렌더링
+        function renderBoard() {
+            const cls = db.classes[session.currentClassPwd];
+            const container = document.getElementById('board-container');
+            container.innerHTML = '';
+
+            if(cls.posts.length === 0) {
+                container.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-muted); width: 100%;">아직 작성된 글이 없습니다. 첫 번째 핀을 꽂아보세요!</div>';
+                return;
+            }
+
+            // 최신글이 위로 오도록 역순 렌더링
+            [...cls.posts].reverse().forEach(post => {
+                const div = document.createElement('div');
+                div.className = `post-card post-color-${post.color}`;
+                
+                // 삭제 권한 (작성자 본인 또는 관리자/선생님)
+                const user = db.users[session.currentUser];
+                const isAuthor = post.author === session.currentUser;
+                const isAdmin = user.role !== 'student';
+                const deleteBtnHtml = (isAuthor || isAdmin) ? `<button onclick="deletePost(${post.id})" style="color: var(--accent);"><i class="fas fa-trash"></i></button>` : '';
+
+                // 좋아요 표시 여부
+                const hasLiked = post.likedBy && post.likedBy.includes(session.currentUser);
+                const likeColor = hasLiked ? 'liked' : '';
+                const likeIcon = hasLiked ? 'fas' : 'far';
+
+                // 이미지 태그
+                const imgHtml = post.img ? `<img src="${post.img}" class="post-image" alt="post img">` : '';
+
+                div.innerHTML = `
+                    <div class="post-header">
+                        <div class="post-author">
+                            <div class="mini-avatar">${post.author.charAt(0)}</div>
+                            ${post.author}
+                        </div>
+                        ${deleteBtnHtml}
+                    </div>
+                    ${imgHtml}
+                    <div class="post-content">${post.content.replace(/\n/g, '<br>')}</div>
+                    <div class="post-footer">
+                        <div class="post-date">${post.date}</div>
+                        <div class="post-actions">
+                            <button class="${likeColor}" onclick="toggleLike(${post.id})">
+                                <i class="${likeIcon} fa-heart"></i> ${post.likes || 0}
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // 새 글 작성
+        document.getElementById('form-add-post').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const content = document.getElementById('post-content').value;
+            
+            const now = new Date();
+            const dateStr = `${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+            const cls = db.classes[session.currentClassPwd];
+            cls.posts.push({
+                id: Date.now(),
+                author: session.currentUser,
+                content: content,
+                img: postImageBase64,
+                color: selectedPostColor,
+                date: dateStr,
+                likes: 0,
+                likedBy: []
+            });
+            saveDB();
+            
+            closeModal('modal-add-post');
+            showToast('게시물이 성공적으로 등록되었습니다.');
+            renderBoard();
+        });
+
+        // 좋아요 토글
+        window.toggleLike = function(postId) {
+            const cls = db.classes[session.currentClassPwd];
+            const post = cls.posts.find(p => p.id === postId);
+            if(!post) return;
+
+            if(!post.likedBy) post.likedBy = [];
+            
+            const idx = post.likedBy.indexOf(session.currentUser);
+            if(idx > -1) {
+                // 이미 좋아요 -> 취소
+                post.likedBy.splice(idx, 1);
+                post.likes = Math.max(0, post.likes - 1);
+            } else {
+                // 좋아요 추가
+                post.likedBy.push(session.currentUser);
+                post.likes = (post.likes || 0) + 1;
+            }
+            saveDB();
+            renderBoard();
         };
 
-        const GameApp = {
-            boot: () => {
-                DataManager.load(); UI.updateBalanceUI(); Renderer.init(); Input.init();
-                if(AppState.games.length===0){ AppState.games.push({id:'demo_w', name:'튜토리얼 맵', desc:'조작법과 클릭커 튜토리얼입니다.', passPrice:0, creator:AppState.user.peerId, blocks:[new Block({name:'Baseplate',x:-500,y:200,w:1000,h:50,color:'#1e2233'}), new Block({name:'Spawn',x:0,y:150,w:50,h:50,type:'spawn',color:'transparent',canCollide:false}), new Block({name:'Coin',x:150,y:100,w:100,h:100,type:'clicker',color:'#ffb300'})]}); DataManager.save(); }
-                LobbyUI.renderGames();
-                setTimeout(()=>{ const ls=document.getElementById('screen-loading'); if(ls){ ls.style.opacity='0'; setTimeout(()=>{ UI.showScreen('screen-lobby'); }, 300); } }, 1000);
-            },
-            createNewGame: () => {
-                const n = document.getElementById('game-name')?.value||'새 월드'; const p = parseInt(document.getElementById('game-pass-price')?.value)||0;
-                const g = { id:'world_'+Date.now(), name:n, desc:'', passPrice:p, creator:AppState.user.peerId, blocks:[new Block({name:'Baseplate',x:-500,y:200,w:1000,h:50,color:'#1e2233'}), new Block({name:'Spawn',x:0,y:150,w:50,h:50,type:'spawn',color:'transparent',canCollide:false})] };
-                AppState.games.push(g); DataManager.save(); UI.hidePublishModal(); GameApp.editGame(g.id);
-            },
-            editGame: (id) => {
-                const g = AppState.games.find(x=>x.id===id); if(!g) return;
-                AppState.currentWorld = {...g, blocks:g.blocks.map(b=>new Block(b))}; AppState.engine.mode='edit'; Editor.selectBlock(null);
-                document.getElementById('editor-canvas-container').appendChild(Renderer.canvas); Renderer.resize(); UI.showScreen('screen-editor'); Renderer.start(); Logger.info('Editor Opened.');
-            },
-            playGame: (id) => {
-                const g = AppState.games.find(x=>x.id===id); if(!g) return;
-                AppState.currentWorld = {...g, blocks:g.blocks.map(b=>new Block(b))}; AppState.engine.mode='play';
-                document.getElementById('play-canvas-container').appendChild(Renderer.canvas); Renderer.resize(); UI.showScreen('screen-play'); GameApp.respawn(); Renderer.start();
-            },
-            testPlay: () => { if(!AppState.currentWorld||AppState.engine.mode==='play') return; AppState.engine.mode='play'; document.getElementById('play-canvas-container').appendChild(Renderer.canvas); Renderer.resize(); UI.showScreen('screen-play'); GameApp.respawn(); UI.showToast('Test Play Started'); },
-            stopPlay: () => { AppState.engine.mode='edit'; document.getElementById('editor-canvas-container').appendChild(Renderer.canvas); Renderer.resize(); UI.showScreen('screen-editor'); AppState.currentWorld.blocks.forEach(b=>{if(!b.anchored)b.velocity=new Vector2(0,0);}); },
-            exitPlay: () => { Renderer.stop(); if(AppState.currentWorld.creator===AppState.user.peerId){ GameApp.stopPlay(); Renderer.start(); } else { UI.showScreen('screen-lobby'); LobbyUI.renderGames(); } },
-            saveAndExit: () => { if(AppState.currentWorld){ const idx=AppState.games.findIndex(g=>g.id===AppState.currentWorld.id); if(idx!==-1){ AppState.games[idx].blocks=AppState.currentWorld.blocks; DataManager.save(); } } Renderer.stop(); UI.showScreen('screen-lobby'); LobbyUI.renderGames(); },
-            buyPass: (id, price) => { if(AppState.user.andBalance>=price){ AppState.user.andBalance-=price; AppState.user.purchased.push(id); DataManager.save(); LobbyUI.renderGames(); UI.showToast('구매 성공!'); } else UI.showToast('AND 부족'); },
-            respawn: () => { const s = AppState.currentWorld.blocks.find(b=>b.type==='spawn'); Physics.player.pos = s ? new Vector2(s.pos.x, s.pos.y-60) : new Vector2(0,-100); Physics.player.vel=new Vector2(0,0); },
-            claimDailyReward: () => { const t=new Date().toDateString(); if(AppState.user.lastDailyReward===t){ UI.showToast('이미 받았습니다.'); return; } AppState.user.andBalance+=100; AppState.user.lastDailyReward=t; DataManager.save(); UI.updateBalanceUI(); UI.showToast('+100 AND 지급'); }
+        // 게시글 삭제
+        window.deletePost = function(postId) {
+            if(!confirm('정말 이 글을 삭제하시겠습니까?')) return;
+            
+            const cls = db.classes[session.currentClassPwd];
+            cls.posts = cls.posts.filter(p => p.id !== postId);
+            saveDB();
+            showToast('글이 삭제되었습니다.', 'info');
+            renderBoard();
         };
 
-        window.addEventListener('DOMContentLoaded', GameApp.boot);
+        // ================= 관리자 설정 로직 =================
+        window.updateClassInfo = function() {
+            const newName = document.getElementById('admin-class-name').value.trim();
+            if(!newName) return;
+            
+            const cls = db.classes[session.currentClassPwd];
+            cls.name = newName;
+            saveDB();
+            
+            document.getElementById('ui-class-name').innerText = newName;
+            showToast('학급 이름이 변경되었습니다.');
+        };
+        
+        window.updateClassPwd = function() {
+            const newPwd = document.getElementById('admin-class-pwd').value;
+            if(!newPwd || newPwd.length < 3) {
+                showToast('새 비밀번호는 3자리 이상 입력해주세요.', 'error');
+                return;
+            }
+
+            if(db.classes[newPwd]) {
+                showToast('이미 사용중인 학급 코드입니다. 다른 코드를 입력하세요.', 'error');
+                return;
+            }
+
+            // 기존 데이터 새 키로 이동
+            db.classes[newPwd] = db.classes[session.currentClassPwd];
+            delete db.classes[session.currentClassPwd];
+            session.currentClassPwd = newPwd; // 세션 업데이트
+            saveDB();
+
+            document.getElementById('admin-class-pwd').value = '';
+            showToast('학급 비밀번호가 변경되었습니다. 다음 로그인부터 새 비밀번호를 사용하세요!');
+        };
+
+
+        // ================= 앱 초기화 =================
+        window.onload = () => {
+            loadDB();
+            // 최초 접속 시 임시 관리자 계정 등이 필요한 경우를 위한 디버깅 메시지
+            console.log("초고퀄리티 플랫폼이 준비되었습니다!");
+        };
+
     </script>
 </body>
 </html>
