@@ -3,232 +3,390 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>초고퀄리티 학급 플랫폼</title>
-    <!-- 폰트 및 아이콘 로드 -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <title>ClassSpace | 차원이 다른 학급 플랫폼</title>
+    <!-- 구글 폰트 및 폰트어썸 -->
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* ================= 초고퀄리티 CSS 시작 ================= */
+        /* ================= 초고퀄리티 CSS 및 다크모드 변수 ================= */
         :root {
             --primary: #4F46E5;
             --primary-hover: #4338CA;
+            --primary-light: rgba(79, 70, 229, 0.1);
             --secondary: #10B981;
             --accent: #F43F5E;
-            --bg-color: #F3F4F6;
-            --surface: #FFFFFF;
-            --text-main: #111827;
-            --text-muted: #6B7280;
-            --border: #E5E7EB;
+            --warning: #F59E0B;
+            
+            /* Light Theme (Default) */
+            --bg-body: #F1F5F9;
+            --bg-surface: #FFFFFF;
+            --bg-surface-hover: #F8FAFC;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --border: #E2E8F0;
             --glass-bg: rgba(255, 255, 255, 0.85);
             --glass-border: rgba(255, 255, 255, 0.2);
             --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
             --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            
+            --radius-sm: 8px;
             --radius-md: 12px;
-            --radius-lg: 20px;
+            --radius-lg: 24px;
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Noto Sans KR', 'Poppins', sans-serif; }
-        body { background: var(--bg-color); color: var(--text-main); overflow-x: hidden; }
+        /* Dark Theme */
+        [data-theme="dark"] {
+            --bg-body: #0F172A;
+            --bg-surface: #1E293B;
+            --bg-surface-hover: #334155;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --border: #334155;
+            --glass-bg: rgba(30, 41, 59, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.05);
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Pretendard', 'Poppins', sans-serif; }
+        body { background: var(--bg-body); color: var(--text-main); overflow-x: hidden; transition: background-color 0.3s, color 0.3s; }
         a { text-decoration: none; color: inherit; }
-        button { cursor: pointer; border: none; outline: none; font-family: inherit; transition: var(--transition); }
-        input, select, textarea { font-family: inherit; border: 1px solid var(--border); border-radius: 8px; padding: 12px; font-size: 14px; outline: none; transition: var(--transition); }
-        input:focus, textarea:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2); }
+        ul { list-style: none; }
+        button { cursor: pointer; border: none; outline: none; background: none; font-family: inherit; transition: var(--transition); }
+        input, select, textarea { font-family: inherit; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); border-radius: var(--radius-sm); padding: 14px; font-size: 15px; outline: none; transition: var(--transition); width: 100%; }
+        input:focus, textarea:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
         
-        /* 공통 유틸리티 */
+        /* 커스텀 스크롤바 */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-body); }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+        [data-theme="dark"] ::-webkit-scrollbar-thumb { background: #475569; }
+        ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
         .hidden { display: none !important; }
-        .btn-primary { background: var(--primary); color: white; padding: 12px 24px; border-radius: var(--radius-md); font-weight: 600; }
-        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: var(--shadow-md); }
-        .btn-secondary { background: var(--surface); color: var(--text-main); border: 1px solid var(--border); padding: 12px 24px; border-radius: var(--radius-md); font-weight: 600; }
-        .btn-secondary:hover { background: var(--bg-color); }
-        .btn-danger { background: var(--accent); color: white; padding: 10px 16px; border-radius: var(--radius-md); font-weight: 600; }
         
+        /* 버튼 스타일 */
+        .btn { padding: 12px 24px; border-radius: var(--radius-sm); font-weight: 600; font-size: 15px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary { background: var(--primary); color: #fff; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4); }
+        .btn-secondary { background: var(--bg-surface-hover); color: var(--text-main); border: 1px solid var(--border); }
+        .btn-secondary:hover { background: var(--border); }
+        .btn-danger { background: var(--accent); color: #fff; }
+
         /* 토스트 알림 */
-        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
-        .toast { background: var(--surface); color: var(--text-main); padding: 16px 24px; border-radius: var(--radius-md); box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 12px; animation: slideIn 0.3s ease-out forwards, fadeOut 0.5s ease-out 2.5s forwards; border-left: 5px solid var(--primary); }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .toast { background: var(--bg-surface); color: var(--text-main); padding: 16px 24px; border-radius: var(--radius-sm); box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 12px; animation: slideInRight 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, fadeOut 0.5s ease-out 3s forwards; border-left: 4px solid var(--primary); pointer-events: auto; font-weight: 500; }
+        @keyframes slideInRight { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
 
-        /* ================= 로비 (로그인/회원가입/학급생성) ================= */
-        #lobby-view { height: 100vh; width: 100vw; display: flex; justify-content: center; align-items: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); position: relative; overflow: hidden; }
-        /* 배경 장식 */
-        .circle-shape { position: absolute; border-radius: 50%; filter: blur(60px); z-index: 0; }
-        .shape1 { width: 400px; height: 400px; background: #ff9a9e; top: -100px; left: -100px; }
-        .shape2 { width: 500px; height: 500px; background: #a18cd1; bottom: -150px; right: -150px; }
+        /* ================= 1. 랜딩 페이지 (실제 사이트 감성) ================= */
+        #landing-view { min-height: 100vh; width: 100vw; background: var(--bg-body); position: relative; z-index: 1; display: flex; flex-direction: column; }
         
-        .auth-card { background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--glass-border); padding: 50px; border-radius: var(--radius-lg); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); width: 100%; max-width: 480px; z-index: 10; animation: scaleUp 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
-        @keyframes scaleUp { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .landing-nav { padding: 20px 5%; display: flex; justify-content: space-between; align-items: center; background: var(--glass-bg); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--glass-border); }
+        .landing-logo { font-size: 24px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 10px; }
         
-        .auth-header { text-align: center; margin-bottom: 30px; }
-        .auth-header h1 { font-size: 28px; font-weight: 800; color: #1e1e2f; margin-bottom: 8px; }
+        .hero-section { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 100px 20px; position: relative; overflow: hidden; }
+        
+        /* 멋진 배경 그라데이션 및 애니메이션 */
+        .hero-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; }
+        .hero-blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.5; animation: float 10s infinite ease-in-out alternate; }
+        .blob-1 { width: 500px; height: 500px; background: rgba(79, 70, 229, 0.4); top: -100px; left: -100px; }
+        .blob-2 { width: 600px; height: 600px; background: rgba(244, 63, 94, 0.3); bottom: -200px; right: -100px; animation-delay: -5s; }
+        @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(50px, 50px) scale(1.1); } }
+
+        .hero-badge { background: var(--primary-light); color: var(--primary); padding: 8px 16px; border-radius: 30px; font-weight: 600; font-size: 14px; margin-bottom: 24px; display: inline-block; border: 1px solid rgba(79,70,229,0.2); }
+        .hero-title { font-size: 56px; font-weight: 900; line-height: 1.2; margin-bottom: 24px; color: var(--text-main); letter-spacing: -1px; }
+        .hero-title span { background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero-subtitle { font-size: 20px; color: var(--text-muted); max-width: 600px; margin: 0 auto 40px auto; line-height: 1.6; }
+        
+        .hero-buttons { display: flex; gap: 16px; justify-content: center; }
+        .hero-buttons .btn { padding: 16px 32px; font-size: 18px; border-radius: 30px; }
+
+        .features-section { padding: 100px 5%; background: var(--bg-surface); }
+        .section-title { text-align: center; font-size: 32px; font-weight: 800; margin-bottom: 60px; }
+        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto; }
+        .feature-card { background: var(--bg-body); padding: 40px 30px; border-radius: var(--radius-lg); text-align: center; transition: var(--transition); border: 1px solid var(--border); }
+        .feature-card:hover { transform: translateY(-10px); box-shadow: var(--shadow-lg); border-color: var(--primary-light); }
+        .feature-icon { width: 70px; height: 70px; background: var(--bg-surface); border-radius: 20px; display: flex; justify-content: center; align-items: center; font-size: 30px; color: var(--primary); margin: 0 auto 20px auto; box-shadow: var(--shadow-sm); }
+        .feature-card h3 { font-size: 20px; margin-bottom: 12px; font-weight: 700; }
+        .feature-card p { color: var(--text-muted); line-height: 1.6; }
+
+        /* ================= 2. 로비 (로그인/회원가입) ================= */
+        #lobby-view { height: 100vh; width: 100vw; display: flex; justify-content: center; align-items: center; background: url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover; position: relative; }
+        #lobby-view::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(10px); }
+        
+        .auth-card { background: var(--bg-surface); padding: 48px; border-radius: var(--radius-lg); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); width: 100%; max-width: 450px; z-index: 10; animation: scaleUp 0.5s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid var(--border); }
+        @keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        .auth-header { text-align: center; margin-bottom: 32px; }
+        .auth-header h1 { font-size: 28px; font-weight: 800; color: var(--primary); margin-bottom: 8px; }
         .auth-header p { color: var(--text-muted); font-size: 15px; }
         
-        .auth-tabs { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 30px; }
-        .auth-tab { flex: 1; text-align: center; padding: 12px; cursor: pointer; font-weight: 600; color: var(--text-muted); transition: var(--transition); border-bottom: 2px solid transparent; margin-bottom: -2px; }
-        .auth-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .auth-tabs { display: flex; margin-bottom: 32px; background: var(--bg-body); border-radius: var(--radius-sm); padding: 4px; }
+        .auth-tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; font-weight: 600; color: var(--text-muted); border-radius: 6px; transition: var(--transition); }
+        .auth-tab.active { background: var(--bg-surface); color: var(--primary); box-shadow: var(--shadow-sm); }
         
-        .form-group { margin-bottom: 20px; text-align: left; }
-        .form-group label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #374151; }
-        .form-group input { width: 100%; padding: 14px; background: rgba(255,255,255,0.9); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--text-main); }
         
-        .role-selector { display: flex; gap: 10px; margin-top: 10px; }
-        .role-option { flex: 1; text-align: center; }
+        .role-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         .role-option input[type="radio"] { display: none; }
-        .role-option label { display: block; padding: 12px 8px; background: var(--bg-color); border-radius: 8px; cursor: pointer; border: 2px solid transparent; font-size: 13px; font-weight: 600; transition: var(--transition); }
-        .role-option input[type="radio"]:checked + label { background: rgba(79, 70, 229, 0.1); border-color: var(--primary); color: var(--primary); }
+        .role-option label { display: block; padding: 12px 0; text-align: center; background: var(--bg-body); border-radius: var(--radius-sm); cursor: pointer; border: 2px solid transparent; font-size: 13px; font-weight: 600; transition: var(--transition); color: var(--text-muted); }
+        .role-option input[type="radio"]:checked + label { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
         
-        .auth-btn { width: 100%; font-size: 16px; padding: 16px; margin-top: 10px; }
+        .btn-auth { width: 100%; height: 50px; font-size: 16px; margin-top: 10px; }
+        
+        .back-to-home { position: absolute; top: 30px; left: 40px; color: white; font-size: 16px; font-weight: 600; cursor: pointer; z-index: 20; display: flex; align-items: center; gap: 8px; transition: var(--transition); }
+        .back-to-home:hover { opacity: 0.8; transform: translateX(-5px); }
 
-        /* ================= 대시보드 (메인 화면) ================= */
-        #dashboard-view { display: flex; height: 100vh; width: 100vw; background: #F8FAFC; }
+        /* ================= 3. 대시보드 (메인 앱) ================= */
+        #dashboard-view { display: flex; height: 100vh; width: 100vw; background: var(--bg-body); }
         
         /* 사이드바 */
-        .sidebar { width: 280px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 24px; box-shadow: var(--shadow-sm); z-index: 10; }
-        .brand { display: flex; align-items: center; gap: 12px; font-size: 24px; font-weight: 800; color: var(--primary); margin-bottom: 40px; }
-        .brand i { font-size: 28px; }
+        .sidebar { width: 280px; background: var(--bg-surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 24px; z-index: 10; transition: var(--transition); }
+        .brand { display: flex; align-items: center; gap: 12px; font-size: 24px; font-weight: 800; color: var(--primary); margin-bottom: 40px; padding: 0 10px; }
         
-        .nav-menu { flex: 1; display: flex; flex-direction: column; gap: 8px; }
-        .nav-item { padding: 14px 18px; border-radius: var(--radius-md); display: flex; align-items: center; gap: 14px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: var(--transition); }
-        .nav-item:hover { background: #F3F4F6; color: var(--text-main); }
-        .nav-item.active { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
+        .nav-menu { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+        .nav-label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin: 16px 0 8px 10px; }
+        .nav-item { padding: 14px 16px; border-radius: var(--radius-sm); display: flex; align-items: center; gap: 14px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: var(--transition); }
+        .nav-item:hover { background: var(--bg-surface-hover); color: var(--text-main); }
+        .nav-item.active { background: var(--primary-light); color: var(--primary); font-weight: 700; }
         .nav-item i { font-size: 18px; width: 24px; text-align: center; }
         
-        .user-profile { margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
-        .avatar { width: 48px; height: 48px; background: linear-gradient(135deg, var(--primary), #9F7AEA); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; font-weight: bold; font-size: 18px; }
+        .user-profile-card { background: var(--bg-surface-hover); padding: 16px; border-radius: var(--radius-md); display: flex; align-items: center; gap: 12px; margin-top: auto; border: 1px solid var(--border); }
+        .avatar { width: 44px; height: 44px; background: linear-gradient(135deg, var(--primary), #9F7AEA); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; font-weight: bold; font-size: 18px; flex-shrink: 0; }
         .user-info { flex: 1; overflow: hidden; }
-        .user-info .name { font-weight: 700; color: var(--text-main); font-size: 15px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
-        .user-info .role { font-size: 12px; color: var(--text-muted); background: #E5E7EB; padding: 2px 8px; border-radius: 12px; display: inline-block; margin-top: 4px; }
-        .logout-btn { cursor: pointer; color: var(--text-muted); padding: 8px; transition: var(--transition); }
-        .logout-btn:hover { color: var(--accent); }
+        .user-info .name { font-weight: 700; color: var(--text-main); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .user-info .role { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+        .btn-icon-only { width: 32px; height: 32px; border-radius: 8px; display: flex; justify-content: center; align-items: center; color: var(--text-muted); cursor: pointer; transition: var(--transition); }
+        .btn-icon-only:hover { background: var(--border); color: var(--accent); }
 
         /* 메인 컨텐츠 영역 */
-        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-        .topbar { background: var(--surface); height: 80px; padding: 0 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
-        .topbar h2 { font-size: 22px; font-weight: 700; color: #1e1e2f; display: flex; align-items: center; gap: 10px; }
-        .topbar-right { display: flex; align-items: center; gap: 20px; }
-        .woojung-badge { background: linear-gradient(135deg, #FFD700, #F59E0B); color: white; padding: 8px 16px; border-radius: 20px; font-weight: 800; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3); font-size: 15px; }
-        .class-info-badge { background: rgba(79, 70, 229, 0.1); color: var(--primary); padding: 8px 16px; border-radius: 20px; font-weight: 700; }
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
         
-        .content-body { flex: 1; overflow-y: auto; padding: 40px; background: #F8FAFC; }
+        /* 탑바 */
+        .topbar { background: var(--bg-surface); height: 70px; padding: 0 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); z-index: 5; }
+        .topbar-left h2 { font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        
+        .topbar-right { display: flex; align-items: center; gap: 16px; }
+        .theme-toggle { font-size: 20px; color: var(--text-muted); cursor: pointer; padding: 8px; border-radius: 50%; transition: var(--transition); }
+        .theme-toggle:hover { background: var(--bg-surface-hover); color: var(--primary); }
+        
+        .class-badge { background: var(--bg-surface-hover); border: 1px solid var(--border); color: var(--text-main); padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 14px; }
+        .woojung-display { background: var(--text-main); color: var(--bg-surface); padding: 8px 20px; border-radius: 20px; font-weight: 800; display: flex; align-items: center; gap: 8px; box-shadow: var(--shadow-md); font-size: 15px; }
+        
+        /* 컨텐츠 본문 */
+        .content-body { flex: 1; overflow-y: auto; padding: 40px; position: relative; }
         .view-section { display: none; animation: fadeIn 0.4s ease; }
         .view-section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* ================= 상점 기능 ================= */
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 24px; }
-        .shop-item { background: var(--surface); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); transition: var(--transition); border: 1px solid var(--border); display: flex; flex-direction: column; }
-        .shop-item:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
-        .shop-img { width: 100%; height: 180px; object-fit: cover; background: #E5E7EB; display: flex; justify-content: center; align-items: center; color: #9CA3AF; }
-        .shop-info { padding: 20px; flex: 1; display: flex; flex-direction: column; }
-        .shop-title { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
-        .shop-price { color: var(--accent); font-weight: 800; font-size: 18px; display: flex; align-items: center; gap: 6px; margin-bottom: 20px; }
-        .shop-action { margin-top: auto; width: 100%; }
-
-        /* ================= 게시판 (Padlet 스타일 고퀄리티 구현) ================= */
-        .board-controls { background: var(--surface); padding: 16px; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
+        /* ================= 뷰 전용 스타일 ================= */
         
-        /* 핀보드(Masonry) 레이아웃 */
+        /* 3-1. 홈 대시보드 */
+        .welcome-banner { background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%); color: white; padding: 40px; border-radius: var(--radius-lg); margin-bottom: 32px; box-shadow: var(--shadow-md); position: relative; overflow: hidden; display: flex; justify-content: space-between; align-items: center; }
+        .welcome-text h1 { font-size: 32px; font-weight: 800; margin-bottom: 12px; }
+        .welcome-text p { font-size: 16px; opacity: 0.9; max-width: 500px; line-height: 1.5; }
+        .attendance-btn { background: rgba(255,255,255,0.2); backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 14px 28px; border-radius: 30px; font-weight: 700; font-size: 16px; cursor: pointer; transition: var(--transition); display: flex; align-items: center; gap: 10px; }
+        .attendance-btn:hover { background: white; color: var(--primary); transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .attendance-btn.done { background: rgba(0,0,0,0.1); border: none; cursor: not-allowed; color: rgba(255,255,255,0.5); }
+        .attendance-btn.done:hover { transform: none; box-shadow: none; }
+
+        .dashboard-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 32px; }
+        @media(max-width: 1200px) { .dashboard-grid { grid-template-columns: 1fr; } }
+        
+        .panel { background: var(--bg-surface); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
+        .panel-title { font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+
+        /* 공지사항 리스트 */
+        .notice-list { display: flex; flex-direction: column; gap: 12px; }
+        .notice-item { padding: 16px; background: var(--bg-body); border-radius: var(--radius-sm); border-left: 4px solid var(--accent); }
+        .notice-title { font-weight: 700; margin-bottom: 4px; font-size: 15px; }
+        .notice-meta { font-size: 12px; color: var(--text-muted); display: flex; gap: 10px; }
+
+        /* 바로가기 그리드 */
+        .quick-links { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        .quick-card { background: var(--bg-body); padding: 24px; border-radius: var(--radius-md); text-align: center; cursor: pointer; transition: var(--transition); border: 1px solid transparent; }
+        .quick-card:hover { background: var(--bg-surface-hover); border-color: var(--primary); transform: translateY(-5px); box-shadow: var(--shadow-md); }
+        .quick-card i { font-size: 32px; margin-bottom: 12px; }
+
+        /* 3-2. 상점 */
+        .section-header-flex { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px; }
+        .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+        .shop-item { background: var(--bg-surface); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); transition: var(--transition); border: 1px solid var(--border); display: flex; flex-direction: column; position: relative; }
+        .shop-item:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); border-color: var(--primary-light); }
+        .shop-img { width: 100%; height: 200px; object-fit: cover; background: var(--bg-body); }
+        .shop-info { padding: 24px; display: flex; flex-direction: column; flex: 1; }
+        .shop-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; color: var(--text-main); }
+        .shop-price { color: var(--warning); font-weight: 800; font-size: 20px; display: flex; align-items: center; gap: 8px; margin-bottom: 24px; }
+        .shop-action { margin-top: auto; width: 100%; font-size: 16px; padding: 14px; border-radius: var(--radius-sm); }
+        
+        .empty-state { text-align: center; padding: 80px 20px; color: var(--text-muted); background: var(--bg-surface); border-radius: var(--radius-lg); border: 1px dashed var(--border); grid-column: 1/-1; }
+        .empty-state i { font-size: 64px; color: var(--border); margin-bottom: 20px; }
+
+        /* 3-3. 랭킹 (명예의 전당) */
+        .ranking-list { background: var(--bg-surface); border-radius: var(--radius-lg); border: 1px solid var(--border); overflow: hidden; }
+        .rank-item { display: flex; align-items: center; padding: 20px 30px; border-bottom: 1px solid var(--border); transition: var(--transition); }
+        .rank-item:last-child { border-bottom: none; }
+        .rank-item:hover { background: var(--bg-surface-hover); }
+        .rank-num { font-size: 24px; font-weight: 900; color: var(--text-muted); width: 50px; }
+        .rank-item:nth-child(1) .rank-num { color: #F59E0B; font-size: 32px; } /* 1등 금색 */
+        .rank-item:nth-child(2) .rank-num { color: #94A3B8; font-size: 28px; } /* 2등 은색 */
+        .rank-item:nth-child(3) .rank-num { color: #B45309; font-size: 26px; } /* 3등 동색 */
+        .rank-user { flex: 1; display: flex; align-items: center; gap: 16px; font-size: 18px; font-weight: 700; }
+        .rank-score { font-size: 20px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+
+        /* 3-4. 게시판 (Masonry Grid) */
         .masonry-grid { column-count: 3; column-gap: 24px; }
-        @media (max-width: 1200px) { .masonry-grid { column-count: 2; } }
-        @media (max-width: 800px) { .masonry-grid { column-count: 1; } }
+        @media (max-width: 1400px) { .masonry-grid { column-count: 2; } }
+        @media (max-width: 900px) { .masonry-grid { column-count: 1; } }
         
-        .post-card { background: var(--surface); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 24px; break-inside: avoid; box-shadow: var(--shadow-md); transition: var(--transition); border: 1px solid var(--border); position: relative; overflow: hidden; }
-        .post-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-3px); }
+        .post-card { background: var(--bg-surface); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 24px; break-inside: avoid; box-shadow: var(--shadow-sm); transition: var(--transition); border: 1px solid var(--border); }
+        .post-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); }
         .post-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-        .post-author { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 14px; }
-        .post-author .mini-avatar { width: 32px; height: 32px; background: var(--primary); border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; }
-        .post-date { font-size: 12px; color: var(--text-muted); }
-        .post-content { font-size: 15px; line-height: 1.6; margin-bottom: 16px; word-break: break-word; }
-        .post-image { width: 100%; border-radius: 12px; margin-bottom: 16px; max-height: 300px; object-fit: cover; }
-        .post-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 12px; }
-        .post-actions button { background: none; color: var(--text-muted); font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 8px; }
-        .post-actions button:hover { background: rgba(0,0,0,0.05); color: var(--accent); }
-        .post-actions button.liked { color: var(--accent); }
-        
-        /* 게시물 색상 테마 */
-        .post-color-yellow { background-color: #FEF3C7; border-color: #FDE68A; }
-        .post-color-green { background-color: #D1FAE5; border-color: #A7F3D0; }
-        .post-color-blue { background-color: #DBEAFE; border-color: #BFDBFE; }
-        .post-color-pink { background-color: #FCE7F3; border-color: #FBCFE8; }
-        
-        /* ================= 관리자 페이지 ================= */
-        .admin-panel { background: var(--surface); border-radius: var(--radius-lg); padding: 30px; box-shadow: var(--shadow-sm); }
-        .admin-section-title { font-size: 18px; font-weight: 700; margin-bottom: 20px; border-bottom: 2px solid var(--bg-color); padding-bottom: 10px; }
-        .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--border); }
-        
-        /* ================= 모달 (팝업창) ================= */
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(5px); z-index: 1000; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: var(--transition); }
+        .post-author { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 15px; }
+        .mini-avatar { width: 36px; height: 36px; background: var(--primary); border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; }
+        .post-content { font-size: 15px; line-height: 1.6; margin-bottom: 16px; word-break: break-word; color: var(--text-main); }
+        .post-image { width: 100%; border-radius: 8px; margin-bottom: 16px; max-height: 300px; object-fit: cover; }
+        .post-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 16px; margin-top: 16px; }
+        .btn-like { background: var(--bg-body); color: var(--text-muted); font-size: 14px; font-weight: 600; padding: 8px 16px; border-radius: 20px; display: flex; align-items: center; gap: 8px; border: 1px solid var(--border); }
+        .btn-like:hover { background: rgba(244, 63, 94, 0.1); color: var(--accent); border-color: var(--accent); }
+        .btn-like.liked { background: var(--accent); color: white; border-color: var(--accent); }
+
+        /* 포스트 색상 */
+        [data-theme="light"] .post-color-yellow { background-color: #FEF3C7; border-color: #FDE68A; }
+        [data-theme="light"] .post-color-green { background-color: #D1FAE5; border-color: #A7F3D0; }
+        [data-theme="light"] .post-color-blue { background-color: #DBEAFE; border-color: #BFDBFE; }
+        [data-theme="light"] .post-color-pink { background-color: #FCE7F3; border-color: #FBCFE8; }
+        /* 다크모드 포스트 색상 보정 */
+        [data-theme="dark"] .post-color-yellow { background-color: rgba(253, 230, 138, 0.1); border-color: rgba(253, 230, 138, 0.3); }
+        [data-theme="dark"] .post-color-green { background-color: rgba(167, 243, 208, 0.1); border-color: rgba(167, 243, 208, 0.3); }
+        [data-theme="dark"] .post-color-blue { background-color: rgba(191, 219, 254, 0.1); border-color: rgba(191, 219, 254, 0.3); }
+        [data-theme="dark"] .post-color-pink { background-color: rgba(251, 207, 232, 0.1); border-color: rgba(251, 207, 232, 0.3); }
+
+        /* ================= 4. 모달 팝업 ================= */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); z-index: 9999; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: var(--transition); }
         .modal-overlay.active { opacity: 1; visibility: visible; }
-        .modal-content { background: var(--surface); width: 100%; max-width: 500px; border-radius: var(--radius-lg); padding: 32px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); transform: scale(0.9); transition: var(--transition); max-height: 90vh; overflow-y: auto; }
-        .modal-overlay.active .modal-content { transform: scale(1); }
+        .modal-content { background: var(--bg-surface); width: 100%; max-width: 500px; border-radius: var(--radius-lg); padding: 32px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); transform: scale(0.95) translateY(20px); transition: var(--transition); max-height: 90vh; overflow-y: auto; border: 1px solid var(--border); }
+        .modal-overlay.active .modal-content { transform: scale(1) translateY(0); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
         .modal-header h3 { font-size: 20px; font-weight: 800; }
-        .close-modal { background: none; border: none; font-size: 24px; color: var(--text-muted); cursor: pointer; }
+        .close-modal { font-size: 24px; color: var(--text-muted); cursor: pointer; }
         .close-modal:hover { color: var(--accent); }
         
-        /* 파일 업로드 커스텀 UI */
-        .file-upload-wrapper { position: relative; width: 100%; height: 150px; border: 2px dashed var(--border); border-radius: var(--radius-md); display: flex; justify-content: center; align-items: center; flex-direction: column; background: #F9FAFB; cursor: pointer; transition: var(--transition); margin-bottom: 20px; overflow: hidden;}
-        .file-upload-wrapper:hover { border-color: var(--primary); background: #EEF2FF; }
-        .file-upload-wrapper input[type="file"] { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 2; }
-        .file-upload-wrapper i { font-size: 32px; color: var(--text-muted); margin-bottom: 10px; }
-        .preview-img { position: absolute; width: 100%; height: 100%; object-fit: cover; z-index: 1; display: none; }
+        /* 파일 업로드 커스텀 */
+        .file-upload-box { position: relative; width: 100%; height: 160px; border: 2px dashed var(--border); border-radius: var(--radius-md); display: flex; flex-direction: column; justify-content: center; align-items: center; background: var(--bg-body); cursor: pointer; transition: var(--transition); overflow: hidden; margin-bottom: 20px; }
+        .file-upload-box:hover { border-color: var(--primary); background: var(--primary-light); }
+        .file-upload-box input[type="file"] { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10; }
+        .preview-img { position: absolute; width: 100%; height: 100%; object-fit: cover; z-index: 5; display: none; }
+
+        /* 색상 팔레트 */
+        .color-picker { display: flex; gap: 12px; margin-top: 10px; }
+        .color-circle { width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: var(--transition); }
+        .color-circle.active { transform: scale(1.15); border-color: var(--text-main); }
         
-        /* 색상 선택기 */
-        .color-picker { display: flex; gap: 12px; margin-bottom: 20px; }
-        .color-option { width: 36px; height: 36px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: var(--transition); }
-        .color-option.active { border-color: var(--text-main); transform: scale(1.1); }
+        /* 커스텀 구매 모달 (앤드맨 팝업) */
+        #modal-purchase .modal-content { max-width: 400px; text-align: center; }
+        .endman-icon { font-size: 64px; color: var(--primary); margin-bottom: 20px; }
+        .purchase-msg { font-size: 22px; font-weight: 800; line-height: 1.4; margin-bottom: 30px; word-break: keep-all; }
+        .purchase-msg span { color: var(--accent); }
+
     </style>
 </head>
-<body>
+<body data-theme="light">
 
     <!-- 토스트 알림 컨테이너 -->
     <div id="toast-container"></div>
 
-    <!-- 1. 로비 뷰 (로그인 / 회원가입 / 학급 생성) -->
-    <div id="lobby-view">
-        <div class="circle-shape shape1"></div>
-        <div class="circle-shape shape2"></div>
+    <!-- ================= 1. 랜딩 페이지 ================= -->
+    <div id="landing-view">
+        <div class="hero-bg">
+            <div class="hero-blob blob-1"></div>
+            <div class="hero-blob blob-2"></div>
+        </div>
+        
+        <nav class="landing-nav">
+            <div class="landing-logo"><i class="fas fa-graduation-cap"></i> ClassSpace</div>
+            <button class="btn btn-primary" onclick="showLobby()">로그인 / 시작하기</button>
+        </nav>
+
+        <section class="hero-section">
+            <div class="hero-badge">✨ 2026년형 완전히 새로운 플랫폼</div>
+            <h1 class="hero-title">교실의 모든 것을<br><span>하나의 공간</span>에서.</h1>
+            <p class="hero-subtitle">출석부터 상점, 게시판, 주식 거래까지. 초고퀄리티 학급 관리 시스템으로 우리 반만의 특별한 생태계를 구축하세요.</p>
+            <div class="hero-buttons">
+                <button class="btn btn-primary" onclick="showLobby()">무료로 시작하기 <i class="fas fa-arrow-right"></i></button>
+            </div>
+        </section>
+
+        <section class="features-section">
+            <h2 class="section-title">압도적인 기능들을 경험하세요</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-store"></i></div>
+                    <h3>경제 시스템 (우정 상점)</h3>
+                    <p>우리 반 화폐 '우정'으로 경제 활동을 체험합니다. 관리자가 등록한 상품을 둘러보고 거래하세요.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-chalkboard"></i></div>
+                    <h3>소통형 핀보드 (패들렛)</h3>
+                    <p>자유롭게 글과 사진을 남기고 친구들과 소통할 수 있는 아름다운 디자인의 게시판을 제공합니다.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
+                    <h3>실전 주식 거래</h3>
+                    <p>외부 주식 플랫폼과 다이렉트로 연동되어 생생한 투자 시뮬레이션 환경을 지원합니다.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ================= 2. 로비 (로그인/회원가입) ================= -->
+    <div id="lobby-view" class="hidden">
+        <div class="back-to-home" onclick="showLanding()"><i class="fas fa-chevron-left"></i> 돌아가기</div>
         
         <div class="auth-card">
             <div class="auth-header">
-                <h1>🎓 EduPlatform</h1>
-                <p>초고퀄리티 학급 관리 통합 플랫폼</p>
+                <h1>ClassSpace</h1>
+                <p>학급 공간에 입장하세요</p>
             </div>
             
-            <div class="auth-tabs" id="auth-tabs">
+            <div class="auth-tabs">
                 <div class="auth-tab active" data-target="login-form">로그인</div>
                 <div class="auth-tab" data-target="signup-form">회원가입</div>
             </div>
 
-            <!-- 로그인 폼 -->
+            <!-- 로그인 -->
             <form id="login-form">
                 <div class="form-group">
                     <label>이름</label>
-                    <input type="text" id="login-name" placeholder="이름을 입력하세요" required>
+                    <input type="text" id="login-name" placeholder="실명 입력" required>
                 </div>
                 <div class="form-group">
                     <label>비밀번호</label>
-                    <input type="password" id="login-pwd" placeholder="비밀번호를 입력하세요" required>
+                    <input type="password" id="login-pwd" placeholder="비밀번호 입력" required>
                 </div>
                 <div class="form-group">
                     <label>학급 비밀번호 (입장 코드)</label>
-                    <input type="password" id="login-class-pwd" placeholder="선생님이 알려주신 학급 코드를 입력하세요" required>
+                    <input type="password" id="login-class-pwd" placeholder="선생님이 부여한 코드" required>
                 </div>
-                <button type="submit" class="btn-primary auth-btn"><i class="fas fa-sign-in-alt"></i> 접속하기</button>
+                <button type="submit" class="btn btn-primary btn-auth">입장하기</button>
             </form>
 
-            <!-- 회원가입 폼 -->
+            <!-- 회원가입 -->
             <form id="signup-form" class="hidden">
                 <div class="form-group">
                     <label>이름</label>
-                    <input type="text" id="signup-name" placeholder="실명을 입력하세요" required>
+                    <input type="text" id="signup-name" placeholder="실명을 정확히 입력하세요" required>
                 </div>
                 <div class="form-group">
                     <label>비밀번호</label>
-                    <input type="password" id="signup-pwd" placeholder="사용할 비밀번호 설정" required>
+                    <input type="password" id="signup-pwd" placeholder="사용할 비밀번호" required>
                 </div>
                 <div class="form-group">
                     <label>역할 선택</label>
@@ -238,8 +396,8 @@
                             <label for="role-student">학생</label>
                         </div>
                         <div class="role-option">
-                            <input type="radio" name="role" id="role-admin-student" value="admin_student">
-                            <label for="role-admin-student">관리자학생</label>
+                            <input type="radio" name="role" id="role-admin" value="admin_student">
+                            <label for="role-admin">관리자학생</label>
                         </div>
                         <div class="role-option">
                             <input type="radio" name="role" id="role-teacher" value="teacher">
@@ -247,771 +405,710 @@
                         </div>
                     </div>
                 </div>
-                <button type="submit" class="btn-primary auth-btn" style="background: var(--secondary);"><i class="fas fa-user-plus"></i> 가입하기</button>
+                <button type="submit" class="btn btn-primary btn-auth" style="background: var(--secondary);">회원가입 완료</button>
             </form>
 
-            <!-- 학급 생성 폼 (로그인 시 학급이 없을 때 노출) -->
+            <!-- 학급 생성 -->
             <form id="create-class-form" class="hidden">
-                <div class="form-group" style="background: rgba(244,63,94,0.1); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid var(--accent);">
-                    <p style="font-size: 13px; color: var(--accent); font-weight: 600;">⚠️ 입력하신 학급 비밀번호에 해당하는 학급이 없습니다.<br>새로운 학급을 개설하시겠습니까? (선생님/관리자학생 권장)</p>
+                <div style="background: rgba(245, 158, 11, 0.1); color: var(--warning); padding: 16px; border-radius: var(--radius-sm); margin-bottom: 24px; font-size: 14px; font-weight: 600; border: 1px solid rgba(245, 158, 11, 0.3);">
+                    ⚠️ 일치하는 학급이 없습니다.<br>새로운 학급을 개설합니다. (선생님/관리자 권장)
                 </div>
                 <div class="form-group">
                     <label>개설할 학급 이름</label>
                     <input type="text" id="create-class-name" placeholder="예: 3학년 2반" required>
                 </div>
                 <div class="form-group">
-                    <label>학급 비밀번호 (자동 입력됨)</label>
-                    <input type="password" id="create-class-pwd" readonly required style="background: #e5e7eb;">
+                    <label>학급 코드</label>
+                    <input type="text" id="create-class-pwd" readonly style="background: var(--bg-body); cursor: not-allowed;">
                 </div>
-                <div style="display: flex; gap: 10px;">
-                    <button type="button" id="btn-back-login" class="btn-secondary" style="flex: 1;">뒤로</button>
-                    <button type="submit" class="btn-primary" style="flex: 2;"><i class="fas fa-school"></i> 학급 개설</button>
+                <div style="display: flex; gap: 12px; margin-top: 24px;">
+                    <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="backToLogin()">취소</button>
+                    <button type="submit" class="btn btn-primary" style="flex: 2;">학급 개설하기</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- 2. 대시보드 뷰 (로그인 후 화면) -->
+    <!-- ================= 3. 대시보드 (메인) ================= -->
     <div id="dashboard-view" class="hidden">
-        <!-- 좌측 사이드바 -->
-        <div class="sidebar">
-            <div class="brand">
-                <i class="fas fa-graduation-cap"></i> <span>ClassSpace</span>
-            </div>
+        <!-- 사이드바 -->
+        <aside class="sidebar">
+            <div class="brand"><i class="fas fa-graduation-cap"></i> ClassSpace</div>
+            
             <div class="nav-menu">
-                <div class="nav-item active" data-view="home"><i class="fas fa-home"></i> 홈</div>
-                <div class="nav-item" data-view="shop"><i class="fas fa-store"></i> 상점</div>
-                <div class="nav-item" data-view="board"><i class="fas fa-chalkboard"></i> 게시 (패들렛)</div>
-                <!-- 주식은 클릭 시 외부 사이트 이동 -->
-                <div class="nav-item" id="nav-stock"><i class="fas fa-chart-line"></i> 주식 거래</div>
+                <div class="nav-label">Main Menu</div>
+                <div class="nav-item active" data-view="home"><i class="fas fa-home"></i> 대시보드</div>
+                <div class="nav-item" data-view="board"><i class="fas fa-chalkboard"></i> 게시판</div>
+                <div class="nav-item" data-view="shop"><i class="fas fa-store"></i> 우정 상점</div>
+                <div class="nav-item" data-view="ranking"><i class="fas fa-trophy"></i> 랭킹 (명예의 전당)</div>
+                <div class="nav-item" onclick="window.open('https://soopeh.com/classroom', '_blank')">
+                    <i class="fas fa-chart-line"></i> 주식 거래 <i class="fas fa-external-link-alt" style="font-size: 12px; margin-left: auto;"></i>
+                </div>
                 
-                <!-- 관리자 전용 메뉴 -->
-                <div class="nav-item admin-only hidden" data-view="admin"><i class="fas fa-cog"></i> 학급 관리</div>
+                <div class="admin-only hidden">
+                    <div class="nav-label" style="margin-top: 24px;">Admin Menu</div>
+                    <div class="nav-item" data-view="admin"><i class="fas fa-cog"></i> 학급 설정</div>
+                </div>
             </div>
             
-            <div class="user-profile">
-                <div class="avatar" id="ui-avatar">홍</div>
+            <div class="user-profile-card">
+                <div class="avatar" id="ui-avatar"></div>
                 <div class="user-info">
-                    <div class="name" id="ui-name">홍길동</div>
+                    <div class="name" id="ui-name">이름</div>
                     <div class="role" id="ui-role">학생</div>
                 </div>
-                <div class="logout-btn" id="btn-logout" title="로그아웃"><i class="fas fa-sign-out-alt"></i></div>
+                <button class="btn-icon-only" onclick="logout()" title="로그아웃"><i class="fas fa-sign-out-alt"></i></button>
             </div>
-        </div>
+        </aside>
 
-        <!-- 우측 메인 컨텐츠 -->
-        <div class="main-content">
+        <!-- 우측 메인 -->
+        <main class="main-content">
             <!-- 상단 바 -->
-            <div class="topbar">
-                <h2 id="topbar-title"><i class="fas fa-home"></i> 홈 대시보드</h2>
+            <header class="topbar">
+                <div class="topbar-left">
+                    <h2 id="topbar-title"><i class="fas fa-home"></i> 대시보드</h2>
+                </div>
                 <div class="topbar-right">
-                    <div class="class-info-badge" id="ui-class-name">3학년 2반</div>
-                    <div class="woojung-badge">
-                        <i class="fas fa-coins"></i> <span id="ui-woojung">0</span> 우정
+                    <button class="theme-toggle" onclick="toggleTheme()" title="다크모드 전환"><i class="fas fa-moon" id="theme-icon"></i></button>
+                    <div class="class-badge" id="ui-class-name">학급 이름</div>
+                    <div class="woojung-display">
+                        <i class="fas fa-coins" style="color: #FCD34D;"></i> <span id="ui-woojung">0</span> 우정
                     </div>
                 </div>
-            </div>
+            </header>
 
-            <!-- 내용 영역 -->
             <div class="content-body">
                 
-                <!-- 홈 뷰 -->
+                <!-- 3-1. 홈 화면 -->
                 <div id="view-home" class="view-section active">
-                    <div style="background: linear-gradient(135deg, var(--primary), #9F7AEA); color: white; padding: 40px; border-radius: var(--radius-lg); margin-bottom: 30px; box-shadow: var(--shadow-md);">
-                        <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 10px;">환영합니다, <span id="welcome-name"></span>님! 🎉</h1>
-                        <p style="font-size: 16px; opacity: 0.9;">오늘도 즐거운 학급 생활을 만들어보아요. 좌측 메뉴를 통해 상점, 게시판, 주식 등을 이용할 수 있습니다.</p>
+                    <div class="welcome-banner">
+                        <div class="welcome-text">
+                            <h1>안녕하세요, <span id="welcome-name"></span>님! 👋</h1>
+                            <p>오늘도 활기찬 하루 보내세요. 매일 출석체크를 통해 우정을 모으고 상점을 이용해보세요.</p>
+                        </div>
+                        <button class="attendance-btn" id="btn-attendance" onclick="checkAttendance()">
+                            <i class="fas fa-calendar-check"></i> 오늘 출석하기 (+10 우정)
+                        </button>
                     </div>
-                    
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
-                        <div style="background: var(--surface); padding: 24px; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); text-align: center; cursor:pointer;" onclick="switchView('shop')">
-                            <i class="fas fa-store" style="font-size: 40px; color: var(--secondary); margin-bottom: 15px;"></i>
-                            <h3 style="font-size: 18px; margin-bottom: 10px;">우정 상점</h3>
-                            <p style="color: var(--text-muted); font-size: 14px;">모은 우정으로 상품을 구매하세요.</p>
+
+                    <div class="dashboard-grid">
+                        <!-- 좌측 패널 -->
+                        <div style="display: flex; flex-direction: column; gap: 32px;">
+                            <div class="panel">
+                                <div class="panel-header">
+                                    <div class="panel-title"><i class="fas fa-bullhorn" style="color: var(--primary);"></i> 공지사항</div>
+                                    <button class="btn btn-secondary btn-sm admin-only hidden" onclick="openModal('modal-add-notice')" style="padding: 6px 12px; font-size: 13px;">작성</button>
+                                </div>
+                                <div class="notice-list" id="notice-container">
+                                    <!-- JS 렌더링 -->
+                                </div>
+                            </div>
                         </div>
-                        <div style="background: var(--surface); padding: 24px; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); text-align: center; cursor:pointer;" onclick="switchView('board')">
-                            <i class="fas fa-chalkboard" style="font-size: 40px; color: var(--primary); margin-bottom: 15px;"></i>
-                            <h3 style="font-size: 18px; margin-bottom: 10px;">학급 게시판</h3>
-                            <p style="color: var(--text-muted); font-size: 14px;">패들렛처럼 자유롭게 글과 사진을 공유하세요.</p>
-                        </div>
-                        <div style="background: var(--surface); padding: 24px; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); text-align: center; cursor:pointer;" onclick="window.location.href='https://soopeh.com/classroom'">
-                            <i class="fas fa-chart-line" style="font-size: 40px; color: var(--accent); margin-bottom: 15px;"></i>
-                            <h3 style="font-size: 18px; margin-bottom: 10px;">주식 거래</h3>
-                            <p style="color: var(--text-muted); font-size: 14px;">외부 사이트로 이동하여 주식을 거래합니다.</p>
+                        
+                        <!-- 우측 패널 (바로가기) -->
+                        <div class="panel">
+                            <div class="panel-header">
+                                <div class="panel-title">빠른 이동</div>
+                            </div>
+                            <div class="quick-links">
+                                <div class="quick-card" onclick="switchView('shop')">
+                                    <i class="fas fa-store" style="color: var(--secondary);"></i>
+                                    <div style="font-weight: 700;">상점 가기</div>
+                                </div>
+                                <div class="quick-card" onclick="switchView('board')">
+                                    <i class="fas fa-chalkboard" style="color: var(--primary);"></i>
+                                    <div style="font-weight: 700;">게시판 가기</div>
+                                </div>
+                                <div class="quick-card" onclick="switchView('ranking')">
+                                    <i class="fas fa-trophy" style="color: #F59E0B;"></i>
+                                    <div style="font-weight: 700;">명예의 전당</div>
+                                </div>
+                                <div class="quick-card" onclick="window.open('https://soopeh.com/classroom')">
+                                    <i class="fas fa-chart-line" style="color: var(--accent);"></i>
+                                    <div style="font-weight: 700;">주식 거래</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- 상점 뷰 -->
+                <!-- 3-2. 상점 -->
                 <div id="view-shop" class="view-section">
-                    <div class="section-header">
+                    <div class="section-header-flex">
                         <div>
-                            <h2 style="font-size: 24px;">우정 상점</h2>
-                            <p style="color: var(--text-muted);">보유한 '우정'으로 아이템을 구매하세요.</p>
+                            <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 8px;">우정 상점</h2>
+                            <p style="color: var(--text-muted);">원하는 물품을 선택하고 앤드맨에게 가격을 지불하세요.</p>
                         </div>
-                        <button class="btn-primary admin-only hidden" onclick="openModal('modal-add-item')">
-                            <i class="fas fa-plus"></i> 물품 추가
+                        <button class="btn btn-primary admin-only hidden" onclick="openModal('modal-add-item')">
+                            <i class="fas fa-plus"></i> 새 상품 등록
                         </button>
                     </div>
                     <div class="shop-grid" id="shop-container">
-                        <!-- JS로 아이템 렌더링 됨 -->
+                        <!-- JS 렌더링 -->
                     </div>
                 </div>
 
-                <!-- 게시판(Padlet 스타일) 뷰 -->
-                <div id="view-board" class="view-section">
-                    <div class="board-controls">
+                <!-- 3-3. 랭킹 (명예의 전당) -->
+                <div id="view-ranking" class="view-section">
+                    <div class="section-header-flex">
                         <div>
-                            <h2 style="font-size: 24px; font-weight: 800;">자유 게시판</h2>
-                            <p style="color: var(--text-muted); font-size: 14px;">우리의 생각과 사진을 공유하는 핀보드입니다.</p>
+                            <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 8px;">명예의 전당 🏆</h2>
+                            <p style="color: var(--text-muted);">우리 반에서 우정을 가장 많이 모은 학생 순위입니다.</p>
                         </div>
-                        <button class="btn-primary" onclick="openModal('modal-add-post')" style="border-radius: 30px; font-size: 16px; padding: 12px 24px; box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);">
-                            <i class="fas fa-pen"></i> 글쓰기
+                    </div>
+                    <div class="ranking-list" id="ranking-container">
+                        <!-- JS 렌더링 -->
+                    </div>
+                </div>
+
+                <!-- 3-4. 게시판 (패들렛) -->
+                <div id="view-board" class="view-section">
+                    <div class="section-header-flex">
+                        <div>
+                            <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 8px;">소통 게시판</h2>
+                            <p style="color: var(--text-muted);">자유롭게 포스트잇을 붙여 우리 반의 이야기를 완성하세요.</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="openModal('modal-add-post')" style="border-radius: 30px; box-shadow: var(--shadow-lg);">
+                            <i class="fas fa-pen"></i> 핀 꽂기
                         </button>
                     </div>
                     <div class="masonry-grid" id="board-container">
-                        <!-- JS로 게시글 렌더링 됨 -->
+                        <!-- JS 렌더링 -->
                     </div>
                 </div>
 
-                <!-- 관리자 뷰 -->
+                <!-- 3-5. 학급 관리 -->
                 <div id="view-admin" class="view-section admin-only hidden">
-                    <h2 style="font-size: 24px; margin-bottom: 24px;">학급 관리 설정</h2>
+                    <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 24px;">학급 설정 (관리자 전용)</h2>
                     
-                    <div class="admin-panel" style="margin-bottom: 20px;">
-                        <h3 class="admin-section-title">학급 기본 정보</h3>
-                        <div class="setting-row">
-                            <div>
-                                <strong>학급 이름</strong>
-                                <p style="font-size: 13px; color: var(--text-muted);">현재 반 이름을 변경합니다.</p>
+                    <div class="dashboard-grid">
+                        <div class="panel">
+                            <div class="panel-header"><div class="panel-title">기본 정보 수정</div></div>
+                            <div class="form-group">
+                                <label>학급 이름</label>
+                                <div style="display: flex; gap: 10px;">
+                                    <input type="text" id="admin-class-name">
+                                    <button class="btn btn-secondary" onclick="updateClassName()">변경</button>
+                                </div>
                             </div>
-                            <div style="display: flex; gap: 10px;">
-                                <input type="text" id="admin-class-name" value="3학년 2반">
-                                <button class="btn-secondary" onclick="updateClassInfo()">변경</button>
+                            <div class="form-group" style="margin-top: 20px;">
+                                <label>학급 접속 코드 (비밀번호) 변경</label>
+                                <div style="display: flex; gap: 10px;">
+                                    <input type="text" id="admin-class-pwd" placeholder="새 코드 입력">
+                                    <button class="btn btn-danger" onclick="updateClassPwd()">변경</button>
+                                </div>
+                                <p style="font-size: 12px; color: var(--accent); margin-top: 8px;">* 코드를 변경하면 학생들이 다음 접속 시 새 코드를 알아야 합니다.</p>
                             </div>
                         </div>
-                        <div class="setting-row">
-                            <div>
-                                <strong>학급 비밀번호 초기화</strong>
-                                <p style="font-size: 13px; color: var(--text-muted);">로그인에 필요한 비밀번호를 변경합니다.</p>
-                            </div>
-                            <div style="display: flex; gap: 10px;">
-                                <input type="password" id="admin-class-pwd" placeholder="새 비밀번호">
-                                <button class="btn-danger" onclick="updateClassPwd()">변경</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="admin-panel">
-                        <h3 class="admin-section-title">학생 '우정' 지급/차감 (임시 UI)</h3>
-                        <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 15px;">이곳에서 전체 학생의 우정(화폐)을 관리할 수 있는 기능을 추가 구현할 수 있습니다.</p>
-                        <button class="btn-primary" onclick="showToast('기능 준비 중입니다.', 'info')">우정 관리 패널 열기</button>
                     </div>
                 </div>
 
             </div>
+        </main>
+    </div>
+
+    <!-- ================= 4. 모달 창들 ================= -->
+    
+    <!-- 아이템 구매 안내 팝업 (우정 차감 없음) -->
+    <div class="modal-overlay" id="modal-purchase">
+        <div class="modal-content">
+            <button class="close-modal" style="float: right;" onclick="closeModal('modal-purchase')">&times;</button>
+            <div style="clear: both;"></div>
+            <i class="fas fa-shopping-bag endman-icon"></i>
+            <div class="purchase-msg">
+                상품 구매를 위해<br>
+                <span>앤드맨에게 <span id="purchase-price-text"></span></span><br>
+                보내세요!
+            </div>
+            <button class="btn btn-primary" style="width: 100%; font-size: 16px; padding: 14px;" onclick="closeModal('modal-purchase')">확인했습니다</button>
         </div>
     </div>
 
-    <!-- ================= 모달 영역 ================= -->
-    
-    <!-- 1. 상점 물품 추가 모달 (관리자용) -->
+    <!-- 상품 등록 모달 -->
     <div class="modal-overlay" id="modal-add-item">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>새 상품 등록</h3>
+                <h3>상점 물품 등록</h3>
                 <button class="close-modal" onclick="closeModal('modal-add-item')">&times;</button>
             </div>
             <form id="form-add-item">
                 <div class="form-group">
-                    <label>상품 이미지 업로드</label>
-                    <div class="file-upload-wrapper">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                        <span style="font-size: 14px; color: var(--text-muted); font-weight:600;">클릭하여 이미지 파일 선택</span>
+                    <label>상품 사진</label>
+                    <div class="file-upload-box">
+                        <i class="fas fa-image" style="font-size: 32px; color: var(--text-muted); margin-bottom: 12px;"></i>
+                        <span style="font-size: 14px; font-weight: 600; color: var(--text-muted);">클릭하여 이미지 업로드</span>
                         <input type="file" id="item-img-upload" accept="image/*" required>
                         <img id="item-img-preview" class="preview-img">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>상품 이름</label>
+                    <label>상품명</label>
                     <input type="text" id="item-name" placeholder="예: 간식 교환권" required>
                 </div>
                 <div class="form-group">
-                    <label>가격 (우정 단위)</label>
+                    <label>가격 (우정)</label>
                     <input type="number" id="item-price" placeholder="예: 500" required min="0">
                 </div>
-                <button type="submit" class="btn-primary" style="width: 100%;"><i class="fas fa-check"></i> 상점에 등록하기</button>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">상점에 등록</button>
             </form>
         </div>
     </div>
 
-    <!-- 2. 게시판 글쓰기 모달 -->
+    <!-- 게시글 작성 모달 -->
     <div class="modal-overlay" id="modal-add-post">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>새 게시물 작성</h3>
+                <h3>새 포스트잇 작성</h3>
                 <button class="close-modal" onclick="closeModal('modal-add-post')">&times;</button>
             </div>
             <form id="form-add-post">
                 <div class="form-group">
                     <label>내용</label>
-                    <textarea id="post-content" rows="4" placeholder="친구들과 나누고 싶은 이야기를 적어보세요!" required style="resize: none;"></textarea>
+                    <textarea id="post-content" rows="4" placeholder="무슨 생각을 하고 계신가요?" required style="resize: none;"></textarea>
                 </div>
-                
                 <div class="form-group">
                     <label>사진 첨부 (선택)</label>
-                    <div class="file-upload-wrapper" style="height: 100px;">
-                        <i class="fas fa-image" style="font-size: 24px;"></i>
-                        <span style="font-size: 12px; color: var(--text-muted);">이미지 파일 선택</span>
+                    <div class="file-upload-box" style="height: 120px;">
+                        <i class="fas fa-camera" style="font-size: 24px; color: var(--text-muted); margin-bottom: 8px;"></i>
+                        <span style="font-size: 13px; color: var(--text-muted);">클릭하여 사진 추가</span>
                         <input type="file" id="post-img-upload" accept="image/*">
                         <img id="post-img-preview" class="preview-img">
                     </div>
                 </div>
-
                 <div class="form-group">
-                    <label>배경 색상 (포스트잇)</label>
-                    <div class="color-picker" id="post-color-picker">
-                        <div class="color-option active" style="background: #FFFFFF; border: 2px solid #E5E7EB;" data-color="default"></div>
-                        <div class="color-option" style="background: #FEF3C7;" data-color="yellow"></div>
-                        <div class="color-option" style="background: #D1FAE5;" data-color="green"></div>
-                        <div class="color-option" style="background: #DBEAFE;" data-color="blue"></div>
-                        <div class="color-option" style="background: #FCE7F3;" data-color="pink"></div>
+                    <label>배경 색상</label>
+                    <div class="color-picker">
+                        <div class="color-circle active" style="background: var(--bg-surface); border: 2px solid var(--border);" data-color="default"></div>
+                        <div class="color-circle" style="background: #FDE68A;" data-color="yellow"></div>
+                        <div class="color-circle" style="background: #A7F3D0;" data-color="green"></div>
+                        <div class="color-circle" style="background: #BFDBFE;" data-color="blue"></div>
+                        <div class="color-circle" style="background: #FBCFE8;" data-color="pink"></div>
                     </div>
                 </div>
-                
-                <button type="submit" class="btn-primary" style="width: 100%;"><i class="fas fa-paper-plane"></i> 보드에 핀 꽂기</button>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">게시판에 올리기</button>
             </form>
         </div>
     </div>
 
+    <!-- 공지사항 작성 모달 -->
+    <div class="modal-overlay" id="modal-add-notice">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>새 공지사항 등록</h3>
+                <button class="close-modal" onclick="closeModal('modal-add-notice')">&times;</button>
+            </div>
+            <form id="form-add-notice">
+                <div class="form-group">
+                    <label>공지 내용</label>
+                    <textarea id="notice-content" rows="3" placeholder="중요한 내용을 입력하세요." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">공지 등록</button>
+            </form>
+        </div>
+    </div>
 
-    <!-- ================= 자바스크립트 로직 (초고퀄리티 스크립트) ================= -->
+    <!-- ================= 5. 자바스크립트 ================= -->
     <script>
-        /**
-         * 데이터베이스 시뮬레이션 (LocalStorage 활용)
-         * 백엔드가 없어도 데이터가 브라우저에 저장되어 재접속 시 유지됩니다.
-         */
-        const DB_KEY = 'EduPlatform_Data';
-        
-        // 기본 데이터 구조
+        // --- 1. 데이터베이스 시뮬레이션 ---
+        const DB_KEY = 'ClassSpace_DB_v2';
         let db = {
-            users: {}, // { username: { pwd, role, woojung } }
-            classes: {} // { classPwd: { name, items: [], posts: [] } }
+            users: {}, // { name: { pwd, role, woojung, lastAttend: 'YYYY-MM-DD' } }
+            classes: {} // { classPwd: { name, items: [], posts: [], notices: [] } }
         };
+        let session = { user: null, classPwd: null };
 
-        // 세션(현재 로그인 상태)
-        let session = {
-            currentUser: null,  // username
-            currentClassPwd: null // 로그인 시 사용한 학급 코드
-        };
+        function loadDB() { const saved = localStorage.getItem(DB_KEY); if(saved) db = JSON.parse(saved); }
+        function saveDB() { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
 
-        let selectedPostColor = 'default';
-        let itemImageBase64 = null;
-        let postImageBase64 = null;
-
-        // ================= 데이터 초기화 및 로드 =================
-        function loadDB() {
-            const saved = localStorage.getItem(DB_KEY);
-            if(saved) {
-                db = JSON.parse(saved);
-            }
-        }
-        function saveDB() {
-            localStorage.setItem(DB_KEY, JSON.stringify(db));
-        }
-
-        // ================= 유틸리티 함수 =================
-        function showToast(message, type = 'success') {
-            const container = document.getElementById('toast-container');
+        // --- 2. 기본 유틸 및 UI 제어 ---
+        const getEl = id => document.getElementById(id);
+        
+        function showToast(msg, type='success') {
+            const box = getEl('toast-container');
             const toast = document.createElement('div');
             toast.className = 'toast';
-            toast.style.borderLeftColor = type === 'error' ? 'var(--accent)' : (type === 'info' ? 'var(--primary)' : 'var(--secondary)');
-            
-            let icon = 'check-circle';
-            if(type === 'error') icon = 'exclamation-circle';
-            if(type === 'info') icon = 'info-circle';
-
-            toast.innerHTML = `<i class="fas fa-${icon}" style="color: ${toast.style.borderLeftColor}; font-size: 20px;"></i> <span>${message}</span>`;
-            container.appendChild(toast);
-            
-            setTimeout(() => { toast.remove(); }, 3000);
+            toast.style.borderLeftColor = type==='error' ? 'var(--accent)' : 'var(--primary)';
+            toast.innerHTML = `<i class="fas fa-${type==='error'?'exclamation-circle':'check-circle'}" style="color:${toast.style.borderLeftColor}"></i> ${msg}`;
+            box.appendChild(toast);
+            setTimeout(() => toast.remove(), 3500);
         }
 
-        // 이미지 파일을 Base64 문자열로 변환 (로컬 저장소 저장용)
-        function fileToBase64(file, callback) {
-            const reader = new FileReader();
-            reader.onload = function(e) { callback(e.target.result); };
-            reader.readAsDataURL(file);
+        function toggleTheme() {
+            const body = document.body;
+            const isDark = body.getAttribute('data-theme') === 'dark';
+            body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+            getEl('theme-icon').className = isDark ? 'fas fa-moon' : 'fas fa-sun';
         }
 
-        // ================= UI / 화면 전환 제어 =================
-        const views = {
-            lobby: document.getElementById('lobby-view'),
-            dashboard: document.getElementById('dashboard-view')
-        };
-        const forms = {
-            login: document.getElementById('login-form'),
-            signup: document.getElementById('signup-form'),
-            createClass: document.getElementById('create-class-form')
-        };
+        // 화면 전환 로직
+        function showLanding() { getEl('landing-view').classList.remove('hidden'); getEl('lobby-view').classList.add('hidden'); }
+        function showLobby() { getEl('landing-view').classList.add('hidden'); getEl('lobby-view').classList.remove('hidden'); }
+        function backToLogin() { getEl('create-class-form').classList.add('hidden'); getEl('login-form').classList.remove('hidden'); }
 
-        // 로비 탭 전환
+        function switchView(viewName) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item[data-view]').forEach(el => el.classList.remove('active'));
+            
+            getEl(`view-${viewName}`).classList.add('active');
+            const navItem = document.querySelector(`.nav-item[data-view="${viewName}"]`);
+            if(navItem) navItem.classList.add('active');
+
+            const titles = { 'home': '대시보드', 'board': '소통 게시판', 'shop': '우정 상점', 'ranking': '명예의 전당', 'admin': '학급 설정' };
+            const icons = { 'home': 'home', 'board': 'chalkboard', 'shop': 'store', 'ranking': 'trophy', 'admin': 'cog' };
+            getEl('topbar-title').innerHTML = `<i class="fas fa-${icons[viewName]}"></i> ${titles[viewName]}`;
+
+            // 뷰 렌더링 트리거
+            if(viewName === 'home') renderNotices();
+            if(viewName === 'shop') renderShop();
+            if(viewName === 'board') renderBoard();
+            if(viewName === 'ranking') renderRanking();
+        }
+
+        // --- 3. 인증 (회원가입, 로그인, 학급생성) ---
+        // 로그인/회원가입 탭
         document.querySelectorAll('.auth-tab').forEach(tab => {
             tab.addEventListener('click', (e) => {
                 document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
                 e.target.classList.add('active');
-                
-                forms.login.classList.add('hidden');
-                forms.signup.classList.add('hidden');
-                forms.createClass.classList.add('hidden');
-                
-                document.getElementById(e.target.dataset.target).classList.remove('hidden');
+                getEl('login-form').classList.add('hidden');
+                getEl('signup-form').classList.add('hidden');
+                getEl('create-class-form').classList.add('hidden');
+                getEl(e.target.dataset.target).classList.remove('hidden');
             });
         });
 
-        // 학급 생성 폼에서 로그인으로 돌아가기
-        document.getElementById('btn-back-login').addEventListener('click', () => {
-            forms.createClass.classList.add('hidden');
-            forms.login.classList.remove('hidden');
-        });
-
-        // 대시보드 내부 뷰 전환 (사이드바)
-        function switchView(viewName) {
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            
-            document.getElementById(`view-${viewName}`).classList.add('active');
-            document.querySelector(`.nav-item[data-view="${viewName}"]`).classList.add('active');
-
-            const titles = { 'home': '홈 대시보드', 'shop': '우정 상점', 'board': '자유 게시판', 'admin': '학급 설정' };
-            const icons = { 'home': 'home', 'shop': 'store', 'board': 'chalkboard', 'admin': 'cog' };
-            
-            document.getElementById('topbar-title').innerHTML = `<i class="fas fa-${icons[viewName]}"></i> ${titles[viewName]}`;
-
-            // 화면 전환 시 데이터 렌더링 갱신
-            if(viewName === 'shop') renderShop();
-            if(viewName === 'board') renderBoard();
-        }
-        document.querySelectorAll('.nav-item[data-view]').forEach(item => {
-            item.addEventListener('click', (e) => {
-                switchView(e.currentTarget.dataset.view);
-            });
-        });
-
-        // 주식 사이트 외부 링크
-        document.getElementById('nav-stock').addEventListener('click', () => {
-            window.location.href = 'https://soopeh.com/classroom';
-        });
-
-        // ================= 모달 제어 =================
-        function openModal(modalId) {
-            document.getElementById(modalId).classList.add('active');
-            // 모달 열 때 폼 초기화
-            if(modalId === 'modal-add-item') {
-                document.getElementById('form-add-item').reset();
-                document.getElementById('item-img-preview').style.display = 'none';
-                itemImageBase64 = null;
-            } else if(modalId === 'modal-add-post') {
-                document.getElementById('form-add-post').reset();
-                document.getElementById('post-img-preview').style.display = 'none';
-                postImageBase64 = null;
-                document.querySelectorAll('.color-option').forEach(el => el.classList.remove('active'));
-                document.querySelector('.color-option[data-color="default"]').classList.add('active');
-                selectedPostColor = 'default';
-            }
-        }
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.remove('active');
-        }
-
-        // ================= 인증 로직 (회원가입/로그인) =================
-        
-        // 1. 회원가입
-        forms.signup.addEventListener('submit', (e) => {
+        // 회원가입
+        getEl('signup-form').addEventListener('submit', e => {
             e.preventDefault();
-            const name = document.getElementById('signup-name').value.trim();
-            const pwd = document.getElementById('signup-pwd').value;
+            const name = getEl('signup-name').value.trim();
+            const pwd = getEl('signup-pwd').value;
             const role = document.querySelector('input[name="role"]:checked').value;
 
-            if(db.users[name]) {
-                showToast('이미 존재하는 이름입니다. 다른 이름을 사용해주세요.', 'error');
-                return;
-            }
-
-            db.users[name] = { pwd, role, woojung: 1000 }; // 기본 우정 1000 지급
-            saveDB();
+            if(db.users[name]) return showToast('이미 존재하는 이름입니다.', 'error');
             
-            showToast('회원가입이 완료되었습니다. 로그인해주세요!');
+            // 초기 우정 0으로 설정
+            db.users[name] = { pwd, role, woojung: 0, lastAttend: '' }; 
+            saveDB();
+            showToast('가입 완료! 로그인해주세요.');
             document.querySelector('.auth-tab[data-target="login-form"]').click();
         });
 
-        // 2. 로그인 및 학급 확인
-        let tempLoginAttempt = { name: '', classPwd: '' };
-
-        forms.login.addEventListener('submit', (e) => {
+        // 로그인
+        let tempLogin = {};
+        getEl('login-form').addEventListener('submit', e => {
             e.preventDefault();
-            const name = document.getElementById('login-name').value.trim();
-            const pwd = document.getElementById('login-pwd').value;
-            const classPwd = document.getElementById('login-class-pwd').value;
+            const name = getEl('login-name').value.trim();
+            const pwd = getEl('login-pwd').value;
+            const classPwd = getEl('login-class-pwd').value;
 
-            // 회원 확인
-            if(!db.users[name] || db.users[name].pwd !== pwd) {
-                showToast('이름 또는 비밀번호가 틀렸습니다.', 'error');
-                return;
-            }
+            if(!db.users[name] || db.users[name].pwd !== pwd) return showToast('정보가 일치하지 않습니다.', 'error');
 
-            // 학급 비밀번호 확인
             if(db.classes[classPwd]) {
-                // 로그인 성공
                 loginSuccess(name, classPwd);
             } else {
-                // 학급이 존재하지 않음 -> 학급 생성 화면으로 유도
-                tempLoginAttempt = { name, classPwd };
-                forms.login.classList.add('hidden');
-                forms.createClass.classList.remove('hidden');
-                document.getElementById('create-class-pwd').value = classPwd;
+                tempLogin = { name, classPwd };
+                getEl('login-form').classList.add('hidden');
+                getEl('create-class-form').classList.remove('hidden');
+                getEl('create-class-pwd').value = classPwd;
             }
         });
 
-        // 3. 학급 생성
-        forms.createClass.addEventListener('submit', (e) => {
+        // 학급 생성 (아이템 없음)
+        getEl('create-class-form').addEventListener('submit', e => {
             e.preventDefault();
-            const user = db.users[tempLoginAttempt.name];
+            const user = db.users[tempLogin.name];
+            if(user.role === 'student') return showToast('학생은 학급을 생성할 수 없습니다.', 'error');
             
-            if(user.role === 'student') {
-                showToast('일반 학생은 학급을 생성할 수 없습니다. 선생님께 문의하세요.', 'error');
-                return;
-            }
-
-            const className = document.getElementById('create-class-name').value.trim();
-            const classPwd = tempLoginAttempt.classPwd;
-
-            // 학급 데이터 생성
-            db.classes[classPwd] = {
-                name: className,
-                items: [
-                    // 기본 아이템 예시
-                    { id: Date.now(), name: '자리 변경권', price: 2000, img: 'https://via.placeholder.com/300x200?text=Seat+Change' }
-                ],
-                posts: []
-            };
+            const name = getEl('create-class-name').value;
+            db.classes[tempLogin.classPwd] = { name, items: [], posts: [], notices: [] }; // 빈 배열 시작
             saveDB();
-
-            showToast(`'${className}' 학급이 성공적으로 개설되었습니다!`);
-            loginSuccess(tempLoginAttempt.name, classPwd);
+            loginSuccess(tempLogin.name, tempLogin.classPwd);
         });
 
-        // 로그인 성공 처리 함수
         function loginSuccess(name, classPwd) {
-            session.currentUser = name;
-            session.currentClassPwd = classPwd;
-            
-            const user = db.users[name];
-            const cls = db.classes[classPwd];
+            session = { user: name, classPwd };
+            const u = db.users[name];
+            const c = db.classes[classPwd];
 
-            // UI 업데이트
-            document.getElementById('ui-name').innerText = name;
-            document.getElementById('ui-avatar').innerText = name.charAt(0);
+            getEl('ui-name').innerText = name;
+            getEl('ui-avatar').innerText = name.charAt(0);
+            getEl('ui-role').innerText = u.role === 'teacher' ? '선생님' : (u.role === 'admin_student' ? '관리자학생' : '학생');
+            getEl('welcome-name').innerText = name;
+            getEl('ui-class-name').innerText = c.name;
+            getEl('admin-class-name').value = c.name;
             
-            let roleStr = '학생';
-            if(user.role === 'teacher') roleStr = '선생님';
-            if(user.role === 'admin_student') roleStr = '관리자학생';
-            document.getElementById('ui-role').innerText = roleStr;
-            document.getElementById('welcome-name').innerText = name;
+            updateWoojungUI();
+            checkAttendanceUI();
+
+            document.querySelectorAll('.admin-only').forEach(el => {
+                u.role === 'student' ? el.classList.add('hidden') : el.classList.remove('hidden');
+            });
+
+            getEl('lobby-view').classList.add('hidden');
+            getEl('dashboard-view').classList.remove('hidden');
             
-            document.getElementById('ui-class-name').innerText = cls.name;
-            document.getElementById('admin-class-name').value = cls.name;
-            document.getElementById('ui-woojung').innerText = user.woojung.toLocaleString();
+            // 사이드바 이벤트 설정
+            document.querySelectorAll('.nav-item[data-view]').forEach(item => {
+                // 기존 리스너 방지 후 재등록
+                const newEl = item.cloneNode(true);
+                item.parentNode.replaceChild(newEl, item);
+                newEl.addEventListener('click', (e) => switchView(e.currentTarget.dataset.view));
+            });
 
-            // 권한에 따른 관리자 기능 숨김/표시
-            if(user.role === 'student') {
-                document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
-            } else {
-                document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
-            }
-
-            // 화면 전환
-            views.lobby.classList.add('hidden');
-            views.dashboard.classList.remove('hidden');
             switchView('home');
-            showToast('로그인 성공! 환영합니다.');
+            showToast('환영합니다!');
         }
 
-        // 로그아웃
-        document.getElementById('btn-logout').addEventListener('click', () => {
-            session.currentUser = null;
-            session.currentClassPwd = null;
-            views.dashboard.classList.add('hidden');
-            views.lobby.classList.remove('hidden');
-            document.querySelector('.auth-tab[data-target="login-form"]').click();
-            forms.login.reset();
-        });
-
-
-        // ================= 파일 업로드 프리뷰 로직 =================
-        document.getElementById('item-img-upload').addEventListener('change', function(e) {
-            if(this.files && this.files[0]) {
-                fileToBase64(this.files[0], (base64) => {
-                    itemImageBase64 = base64;
-                    const preview = document.getElementById('item-img-preview');
-                    preview.src = base64;
-                    preview.style.display = 'block';
-                });
-            }
-        });
-        
-        document.getElementById('post-img-upload').addEventListener('change', function(e) {
-            if(this.files && this.files[0]) {
-                fileToBase64(this.files[0], (base64) => {
-                    postImageBase64 = base64;
-                    const preview = document.getElementById('post-img-preview');
-                    preview.src = base64;
-                    preview.style.display = 'block';
-                });
-            }
-        });
-
-        // 색상 선택 로직
-        document.querySelectorAll('.color-option').forEach(opt => {
-            opt.addEventListener('click', (e) => {
-                document.querySelectorAll('.color-option').forEach(el => el.classList.remove('active'));
-                e.target.classList.add('active');
-                selectedPostColor = e.target.dataset.color;
-            });
-        });
-
-
-        // ================= 상점 (우정) 로직 =================
-        
-        // 물품 렌더링
-        function renderShop() {
-            const cls = db.classes[session.currentClassPwd];
-            const container = document.getElementById('shop-container');
-            container.innerHTML = '';
-
-            if(cls.items.length === 0) {
-                container.innerHTML = '<div style="grid-column: 1/-1; padding: 40px; text-align: center; color: var(--text-muted);">등록된 물품이 없습니다. 관리자가 추가해주세요.</div>';
-                return;
-            }
-
-            cls.items.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'shop-item';
-                div.innerHTML = `
-                    <img src="${item.img || 'https://via.placeholder.com/300x200?text=No+Image'}" class="shop-img" alt="item">
-                    <div class="shop-info">
-                        <div class="shop-title">${item.name}</div>
-                        <div class="shop-price"><i class="fas fa-coins" style="color: #F59E0B;"></i> ${Number(item.price).toLocaleString()} 우정</div>
-                        <button class="btn-secondary shop-action" onclick="buyItem(${item.id})">구매하기</button>
-                    </div>
-                `;
-                container.appendChild(div);
-            });
+        function logout() {
+            session = { user: null, classPwd: null };
+            getEl('dashboard-view').classList.add('hidden');
+            showLanding();
+            getEl('login-form').reset();
         }
 
-        // 물품 등록 (관리자)
-        document.getElementById('form-add-item').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const name = document.getElementById('item-name').value.trim();
-            const price = parseInt(document.getElementById('item-price').value);
+        function updateWoojungUI() {
+            getEl('ui-woojung').innerText = db.users[session.user].woojung.toLocaleString();
+        }
 
-            if(!itemImageBase64) {
-                showToast('상품 이미지를 업로드해주세요.', 'error');
-                return;
+        // --- 4. 출석체크 및 공지 (홈 기능) ---
+        function getTodayStr() {
+            const d = new Date();
+            return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+        }
+
+        function checkAttendanceUI() {
+            const u = db.users[session.user];
+            const btn = getEl('btn-attendance');
+            if(u.lastAttend === getTodayStr()) {
+                btn.innerHTML = '<i class="fas fa-check"></i> 출석 완료';
+                btn.classList.add('done');
+            } else {
+                btn.innerHTML = '<i class="fas fa-calendar-check"></i> 오늘 출석하기 (+10 우정)';
+                btn.classList.remove('done');
             }
+        }
 
-            const cls = db.classes[session.currentClassPwd];
-            cls.items.push({
-                id: Date.now(),
-                name: name,
-                price: price,
-                img: itemImageBase64
-            });
-            saveDB();
+        function checkAttendance() {
+            const u = db.users[session.user];
+            if(u.lastAttend === getTodayStr()) return;
             
-            showToast(`'${name}' 상품이 성공적으로 등록되었습니다.`);
+            u.lastAttend = getTodayStr();
+            u.woojung += 10;
+            saveDB();
+            updateWoojungUI();
+            checkAttendanceUI();
+            showToast('출석 완료! 10 우정을 받았습니다.');
+        }
+
+        // 공지사항
+        getEl('form-add-notice').addEventListener('submit', e => {
+            e.preventDefault();
+            const text = getEl('notice-content').value;
+            const cls = db.classes[session.classPwd];
+            const d = new Date();
+            if(!cls.notices) cls.notices = [];
+            cls.notices.unshift({ id: Date.now(), text, date: `${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${d.getMinutes()}` });
+            saveDB();
+            closeModal('modal-add-notice');
+            renderNotices();
+            showToast('공지가 등록되었습니다.');
+        });
+
+        function renderNotices() {
+            const cls = db.classes[session.classPwd];
+            const box = getEl('notice-container');
+            if(!cls.notices || cls.notices.length === 0) {
+                box.innerHTML = '<div style="color:var(--text-muted); font-size:14px; text-align:center; padding:10px;">등록된 공지가 없습니다.</div>';
+                return;
+            }
+            box.innerHTML = cls.notices.slice(0,3).map(n => `
+                <div class="notice-item">
+                    <div class="notice-title">${n.text}</div>
+                    <div class="notice-meta"><i class="far fa-clock"></i> ${n.date}</div>
+                </div>
+            `).join('');
+        }
+
+        // --- 5. 랭킹 (명예의 전당) ---
+        function renderRanking() {
+            // 현재 학급의 학생들을 찾아야 하므로 우정을 기준으로 정렬 (학급별 유저 분리가 안되어있다면 전체유저 랭킹으로 대체)
+            // 상용화 모델에서는 user 객체 안에 소속 class 코드가 있어야하지만, 현재 단일 세션 모델이므로 전체 유저를 랭킹화
+            const usersArr = Object.keys(db.users).map(name => ({ name, ...db.users[name] }));
+            usersArr.sort((a,b) => b.woojung - a.woojung);
+
+            const box = getEl('ranking-container');
+            if(usersArr.length === 0) return;
+
+            box.innerHTML = usersArr.map((u, i) => `
+                <div class="rank-item">
+                    <div class="rank-num">${i+1}</div>
+                    <div class="rank-user">
+                        <div class="mini-avatar" style="width:40px;height:40px;font-size:16px;">${u.name.charAt(0)}</div>
+                        ${u.name} <span style="font-size:12px; color:var(--text-muted); font-weight:normal;">(${u.role==='student'?'학생':'선생님/관리자'})</span>
+                    </div>
+                    <div class="rank-score"><i class="fas fa-coins" style="color:#F59E0B;"></i> ${u.woojung.toLocaleString()}</div>
+                </div>
+            `).join('');
+        }
+
+        // --- 6. 상점 로직 ---
+        let itemImgBase64 = null;
+        setupImageUpload('item-img-upload', 'item-img-preview', b => itemImgBase64 = b);
+
+        getEl('form-add-item').addEventListener('submit', e => {
+            e.preventDefault();
+            if(!itemImgBase64) return showToast('이미지를 등록해주세요.', 'error');
+            const cls = db.classes[session.classPwd];
+            cls.items.push({ id: Date.now(), name: getEl('item-name').value, price: parseInt(getEl('item-price').value), img: itemImgBase64 });
+            saveDB();
             closeModal('modal-add-item');
             renderShop();
+            showToast('상품이 추가되었습니다.');
         });
 
-        // 물품 구매
-        window.buyItem = function(itemId) {
-            const user = db.users[session.currentUser];
-            const cls = db.classes[session.currentClassPwd];
-            const item = cls.items.find(i => i.id === itemId);
-
-            if(!item) return;
-
-            if(user.woojung < item.price) {
-                showToast(`우정이 부족합니다. (필요: ${item.price}, 보유: ${user.woojung})`, 'error');
+        function renderShop() {
+            const cls = db.classes[session.classPwd];
+            const box = getEl('shop-container');
+            if(cls.items.length === 0) {
+                box.innerHTML = '<div class="empty-state"><i class="fas fa-box-open"></i><p>등록된 상품이 없습니다.</p></div>';
                 return;
             }
+            box.innerHTML = cls.items.map(item => `
+                <div class="shop-item">
+                    <img src="${item.img}" class="shop-img">
+                    <div class="shop-info">
+                        <div class="shop-title">${item.name}</div>
+                        <div class="shop-price"><i class="fas fa-coins"></i> ${item.price.toLocaleString()} 우정</div>
+                        <button class="btn btn-secondary shop-action" onclick="buyItem(${item.price})">구매 신청</button>
+                    </div>
+                </div>
+            `).join('');
+        }
 
-            // 구매 로직
-            user.woojung -= item.price;
-            saveDB();
-            
-            document.getElementById('ui-woojung').innerText = user.woojung.toLocaleString();
-            showToast(`'${item.name}'을(를) 성공적으로 구매했습니다! 🎉`);
+        // 구매 시 차감 없이 알림만!
+        window.buyItem = function(price) {
+            getEl('purchase-price-text').innerText = `${price.toLocaleString()}우정 만큼`;
+            openModal('modal-purchase');
         };
 
+        // --- 7. 게시판 로직 ---
+        let postImgBase64 = null;
+        let postColor = 'default';
+        setupImageUpload('post-img-upload', 'post-img-preview', b => postImgBase64 = b);
 
-        // ================= 게시판 (Padlet 스타일) 로직 =================
-        
-        // 게시물 렌더링
+        document.querySelectorAll('.color-circle').forEach(el => {
+            el.addEventListener('click', e => {
+                document.querySelectorAll('.color-circle').forEach(c => c.classList.remove('active'));
+                e.target.classList.add('active');
+                postColor = e.target.dataset.color;
+            });
+        });
+
+        getEl('form-add-post').addEventListener('submit', e => {
+            e.preventDefault();
+            const cls = db.classes[session.classPwd];
+            const d = new Date();
+            cls.posts.push({
+                id: Date.now(), author: session.user, content: getEl('post-content').value.replace(/\n/g, '<br>'),
+                img: postImgBase64, color: postColor, date: `${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${d.getMinutes()}`,
+                likes: [],
+            });
+            saveDB();
+            closeModal('modal-add-post');
+            renderBoard();
+        });
+
         function renderBoard() {
-            const cls = db.classes[session.currentClassPwd];
-            const container = document.getElementById('board-container');
-            container.innerHTML = '';
-
+            const cls = db.classes[session.classPwd];
+            const box = getEl('board-container');
             if(cls.posts.length === 0) {
-                container.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-muted); width: 100%;">아직 작성된 글이 없습니다. 첫 번째 핀을 꽂아보세요!</div>';
+                box.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><i class="far fa-clipboard"></i><p>첫 번째 핀을 꽂아보세요!</p></div>';
                 return;
             }
-
-            // 최신글이 위로 오도록 역순 렌더링
-            [...cls.posts].reverse().forEach(post => {
-                const div = document.createElement('div');
-                div.className = `post-card post-color-${post.color}`;
-                
-                // 삭제 권한 (작성자 본인 또는 관리자/선생님)
-                const user = db.users[session.currentUser];
-                const isAuthor = post.author === session.currentUser;
-                const isAdmin = user.role !== 'student';
-                const deleteBtnHtml = (isAuthor || isAdmin) ? `<button onclick="deletePost(${post.id})" style="color: var(--accent);"><i class="fas fa-trash"></i></button>` : '';
-
-                // 좋아요 표시 여부
-                const hasLiked = post.likedBy && post.likedBy.includes(session.currentUser);
-                const likeColor = hasLiked ? 'liked' : '';
-                const likeIcon = hasLiked ? 'fas' : 'far';
-
-                // 이미지 태그
-                const imgHtml = post.img ? `<img src="${post.img}" class="post-image" alt="post img">` : '';
-
-                div.innerHTML = `
+            
+            box.innerHTML = [...cls.posts].reverse().map(p => {
+                const liked = p.likes.includes(session.user);
+                const isAuth = p.author === session.user || db.users[session.user].role !== 'student';
+                return `
+                <div class="post-card post-color-${p.color}">
                     <div class="post-header">
-                        <div class="post-author">
-                            <div class="mini-avatar">${post.author.charAt(0)}</div>
-                            ${post.author}
-                        </div>
-                        ${deleteBtnHtml}
+                        <div class="post-author"><div class="mini-avatar">${p.author.charAt(0)}</div>${p.author}</div>
+                        ${isAuth ? `<button onclick="deletePost(${p.id})" style="color:var(--accent);"><i class="fas fa-trash"></i></button>` : ''}
                     </div>
-                    ${imgHtml}
-                    <div class="post-content">${post.content.replace(/\n/g, '<br>')}</div>
+                    ${p.img ? `<img src="${p.img}" class="post-image">` : ''}
+                    <div class="post-content">${p.content}</div>
                     <div class="post-footer">
-                        <div class="post-date">${post.date}</div>
-                        <div class="post-actions">
-                            <button class="${likeColor}" onclick="toggleLike(${post.id})">
-                                <i class="${likeIcon} fa-heart"></i> ${post.likes || 0}
-                            </button>
-                        </div>
+                        <span style="font-size:12px;color:var(--text-muted);">${p.date}</span>
+                        <button class="btn-like ${liked?'liked':''}" onclick="toggleLike(${p.id})">
+                            <i class="${liked?'fas':'far'} fa-heart"></i> ${p.likes.length}
+                        </button>
                     </div>
-                `;
-                container.appendChild(div);
+                </div>
+            `}).join('');
+        }
+
+        window.toggleLike = function(id) {
+            const p = db.classes[session.classPwd].posts.find(x => x.id === id);
+            const idx = p.likes.indexOf(session.user);
+            idx > -1 ? p.likes.splice(idx, 1) : p.likes.push(session.user);
+            saveDB(); renderBoard();
+        };
+
+        window.deletePost = function(id) {
+            if(confirm('이 글을 삭제할까요?')) {
+                const cls = db.classes[session.classPwd];
+                cls.posts = cls.posts.filter(x => x.id !== id);
+                saveDB(); renderBoard();
+            }
+        };
+
+        // --- 8. 관리자 로직 ---
+        window.updateClassName = function() {
+            const name = getEl('admin-class-name').value.trim();
+            if(!name) return;
+            db.classes[session.classPwd].name = name;
+            saveDB();
+            getEl('ui-class-name').innerText = name;
+            showToast('학급 이름 변경 완료');
+        };
+
+        window.updateClassPwd = function() {
+            const newPwd = getEl('admin-class-pwd').value.trim();
+            if(newPwd.length < 3) return showToast('코드는 3자 이상 입력하세요.', 'error');
+            if(db.classes[newPwd]) return showToast('이미 존재하는 코드입니다.', 'error');
+            
+            db.classes[newPwd] = db.classes[session.classPwd];
+            delete db.classes[session.classPwd];
+            session.classPwd = newPwd;
+            saveDB();
+            getEl('admin-class-pwd').value = '';
+            showToast('학급 코드가 변경되었습니다.');
+        };
+
+        // --- 9. 유틸 헬퍼 ---
+        function openModal(id) { 
+            getEl(id).classList.add('active'); 
+            const form = getEl(id).querySelector('form');
+            if(form) form.reset();
+            const img = getEl(id).querySelector('.preview-img');
+            if(img) { img.src = ''; img.style.display = 'none'; }
+            if(id === 'modal-add-item') itemImgBase64 = null;
+            if(id === 'modal-add-post') { postImgBase64 = null; postColor = 'default'; document.querySelector('.color-circle').click(); }
+        }
+        function closeModal(id) { getEl(id).classList.remove('active'); }
+        
+        function setupImageUpload(inputId, imgId, callback) {
+            getEl(inputId)?.addEventListener('change', function() {
+                if(this.files && this.files[0]) {
+                    const r = new FileReader();
+                    r.onload = e => { callback(e.target.result); const img = getEl(imgId); img.src = e.target.result; img.style.display = 'block'; };
+                    r.readAsDataURL(this.files[0]);
+                }
             });
         }
 
-        // 새 글 작성
-        document.getElementById('form-add-post').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const content = document.getElementById('post-content').value;
-            
-            const now = new Date();
-            const dateStr = `${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
-
-            const cls = db.classes[session.currentClassPwd];
-            cls.posts.push({
-                id: Date.now(),
-                author: session.currentUser,
-                content: content,
-                img: postImageBase64,
-                color: selectedPostColor,
-                date: dateStr,
-                likes: 0,
-                likedBy: []
-            });
-            saveDB();
-            
-            closeModal('modal-add-post');
-            showToast('게시물이 성공적으로 등록되었습니다.');
-            renderBoard();
-        });
-
-        // 좋아요 토글
-        window.toggleLike = function(postId) {
-            const cls = db.classes[session.currentClassPwd];
-            const post = cls.posts.find(p => p.id === postId);
-            if(!post) return;
-
-            if(!post.likedBy) post.likedBy = [];
-            
-            const idx = post.likedBy.indexOf(session.currentUser);
-            if(idx > -1) {
-                // 이미 좋아요 -> 취소
-                post.likedBy.splice(idx, 1);
-                post.likes = Math.max(0, post.likes - 1);
-            } else {
-                // 좋아요 추가
-                post.likedBy.push(session.currentUser);
-                post.likes = (post.likes || 0) + 1;
-            }
-            saveDB();
-            renderBoard();
-        };
-
-        // 게시글 삭제
-        window.deletePost = function(postId) {
-            if(!confirm('정말 이 글을 삭제하시겠습니까?')) return;
-            
-            const cls = db.classes[session.currentClassPwd];
-            cls.posts = cls.posts.filter(p => p.id !== postId);
-            saveDB();
-            showToast('글이 삭제되었습니다.', 'info');
-            renderBoard();
-        };
-
-        // ================= 관리자 설정 로직 =================
-        window.updateClassInfo = function() {
-            const newName = document.getElementById('admin-class-name').value.trim();
-            if(!newName) return;
-            
-            const cls = db.classes[session.currentClassPwd];
-            cls.name = newName;
-            saveDB();
-            
-            document.getElementById('ui-class-name').innerText = newName;
-            showToast('학급 이름이 변경되었습니다.');
-        };
-        
-        window.updateClassPwd = function() {
-            const newPwd = document.getElementById('admin-class-pwd').value;
-            if(!newPwd || newPwd.length < 3) {
-                showToast('새 비밀번호는 3자리 이상 입력해주세요.', 'error');
-                return;
-            }
-
-            if(db.classes[newPwd]) {
-                showToast('이미 사용중인 학급 코드입니다. 다른 코드를 입력하세요.', 'error');
-                return;
-            }
-
-            // 기존 데이터 새 키로 이동
-            db.classes[newPwd] = db.classes[session.currentClassPwd];
-            delete db.classes[session.currentClassPwd];
-            session.currentClassPwd = newPwd; // 세션 업데이트
-            saveDB();
-
-            document.getElementById('admin-class-pwd').value = '';
-            showToast('학급 비밀번호가 변경되었습니다. 다음 로그인부터 새 비밀번호를 사용하세요!');
-        };
-
-
-        // ================= 앱 초기화 =================
-        window.onload = () => {
-            loadDB();
-            // 최초 접속 시 임시 관리자 계정 등이 필요한 경우를 위한 디버깅 메시지
-            console.log("초고퀄리티 플랫폼이 준비되었습니다!");
-        };
-
+        // 초기 실행
+        window.onload = () => { loadDB(); console.log('SaaS Platform Loaded.'); };
     </script>
 </body>
 </html>
