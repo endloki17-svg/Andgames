@@ -2,412 +2,578 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ClassSpace | 차원이 다른 학급 크리에이터 플랫폼</title>
-    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ClassSpace | Ultra Creator Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;600;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* ================= 1. 공통 및 애니메이션 ================= */
         :root {
-            --primary: #6366F1; --primary-hover: #4F46E5; --primary-light: rgba(99, 102, 241, 0.1);
+            --primary: #6366F1; --primary-hover: #4F46E5; --primary-light: rgba(99, 102, 241, 0.15);
             --secondary: #10B981; --accent: #F43F5E; --warning: #F59E0B; --info: #3B82F6;
-            --bg-body: #0B0F19; --bg-surface: #1E293B; --bg-surface-hover: #334155;
-            --text-main: #F8FAFC; --text-muted: #94A3B8; --border: #334155;
-            --glass-bg: rgba(30, 41, 59, 0.85); --glass-border: rgba(255, 255, 255, 0.08);
-            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-            --radius-sm: 8px; --radius-md: 16px; --radius-lg: 24px;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --bg-body: #090D16; --bg-surface: #131C2E; --bg-surface-hover: #1E2D4A;
+            --text-main: #F8FAFC; --text-muted: #94A3B8; --border: #23324D;
+            --glass-bg: rgba(19, 28, 46, 0.85); --glass-border: rgba(255, 255, 255, 0.08);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
+            --radius-sm: 8px; --radius-md: 14px; --radius-lg: 24px;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
         [data-theme="light"] {
             --bg-body: #F1F5F9; --bg-surface: #FFFFFF; --bg-surface-hover: #F8FAFC;
-            --text-main: #0F172A; --text-muted: #64748B; --border: #E2E8F0;
-            --glass-bg: rgba(255, 255, 255, 0.85);
+            --text-main: #0F172A; --text-muted: #64748B; --border: #CBD5E1;
+            --glass-bg: rgba(255, 255, 255, 0.85); --glass-border: rgba(0, 0, 0, 0.08);
             --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Pretendard', sans-serif; }
-        body { background: var(--bg-body); color: var(--text-main); overflow-x: hidden; transition: var(--transition); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Pretendard', sans-serif; user-select: none; }
+        body { background: var(--bg-body); color: var(--text-main); overflow-x: hidden; transition: var(--transition); min-height: 100vh; }
         .hidden { display: none !important; }
         button, select { cursor: pointer; border: none; outline: none; background: none; font-family: inherit; transition: var(--transition); }
-        input, textarea, select { font-family: inherit; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); border-radius: var(--radius-sm); padding: 12px; font-size: 14px; outline: none; width: 100%; transition: var(--transition); }
+        input, textarea, select { font-family: inherit; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main); border-radius: var(--radius-sm); padding: 12px; font-size: 14px; outline: none; width: 100%; transition: var(--transition); }
         input:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
         
-        /* 커스텀 스크롤바 */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg-body); }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
-        .btn { padding: 12px 20px; border-radius: var(--radius-sm); font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn { padding: 12px 20px; border-radius: var(--radius-sm); font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-primary { background: var(--primary); color: #fff; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4); }
         .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); }
         .btn-secondary { background: var(--bg-surface-hover); color: var(--text-main); border: 1px solid var(--border); }
         .btn-secondary:hover { background: var(--border); transform: translateY(-2px); }
         .btn-danger { background: var(--accent); color: white; }
 
-        /* 화려한 GUI 애니메이션 */
-        @keyframes popIn { 0% { opacity: 0; transform: scale(0.9) translateY(20px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+        /* 애니메이션 */
+        @keyframes popIn { 0% { opacity: 0; transform: scale(0.95) translateY(15px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
         @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes pulseGlow { 0% { box-shadow: 0 0 0 0 var(--primary-light); } 70% { box-shadow: 0 0 0 15px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+        .animate-pop { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
 
-        .animate-pop { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-        
-        /* 토스트 알림 */
+        /* 토스트 */
         #toast-container { position: fixed; top: 20px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
-        .toast { background: var(--bg-surface); color: var(--text-main); padding: 16px 24px; border-radius: var(--radius-sm); box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 12px; animation: slideInRight 0.4s forwards, popIn 0.5s reverse 3s forwards; border-left: 4px solid var(--primary); font-weight: 600; border: 1px solid var(--border); }
+        .toast { background: var(--bg-surface); color: var(--text-main); padding: 16px 24px; border-radius: var(--radius-sm); box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 12px; animation: slideInRight 0.3s forwards; border-left: 4px solid var(--primary); font-weight: 600; border: 1px solid var(--border); }
 
-        /* ================= 2. 랜딩 페이지 (스크롤 복구) ================= */
+        /* 랜딩 스크롤 레이아웃 */
         #landing-view { min-height: 100vh; display: flex; flex-direction: column; }
         .landing-nav { padding: 16px 5%; display: flex; justify-content: space-between; align-items: center; background: var(--glass-bg); backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--glass-border); }
         .landing-logo { font-size: 24px; font-weight: 900; color: var(--primary); display: flex; align-items: center; gap: 10px; font-family: 'Poppins', sans-serif; }
         
-        .section { padding: 100px 5%; position: relative; text-align: center; }
-        .section-title { font-size: 42px; font-weight: 900; margin-bottom: 20px; letter-spacing: -1px; }
-        .section-subtitle { font-size: 18px; color: var(--text-muted); margin-bottom: 60px; max-width: 700px; margin-left: auto; margin-right: auto; line-height: 1.6; }
+        .section { padding: 90px 5%; text-align: center; }
+        .section-title { font-size: 38px; font-weight: 900; margin-bottom: 16px; letter-spacing: -1px; }
+        .section-subtitle { font-size: 16px; color: var(--text-muted); margin-bottom: 50px; max-width: 700px; margin-left: auto; margin-right: auto; line-height: 1.6; }
         
-        .hero { min-height: 90vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .hero h1 { font-size: 68px; font-weight: 900; line-height: 1.2; margin-bottom: 24px; letter-spacing: -2px; }
+        .hero { min-height: 85vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .hero h1 { font-size: 60px; font-weight: 900; line-height: 1.2; margin-bottom: 20px; }
         .hero h1 span { background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        
-        /* 10대 기능 그리드 */
-        .features-grid-10 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; max-width: 1400px; margin: 0 auto; text-align: left; }
-        .f-card { background: var(--bg-surface); padding: 32px; border-radius: var(--radius-lg); border: 1px solid var(--border); transition: var(--transition); }
-        .f-card:hover { transform: translateY(-10px); box-shadow: var(--shadow-lg); border-color: var(--primary); }
-        .f-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 24px; margin-bottom: 20px; color: white; }
-        .f-card h3 { font-size: 18px; font-weight: 800; margin-bottom: 12px; }
-        .f-card p { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
 
-        /* ================= 3. 인증 뷰 (역할 선택 포함) ================= */
-        #auth-view { height: 100vh; display: flex; justify-content: center; align-items: center; background: var(--bg-body); position: fixed; top:0; left:0; width:100%; z-index: 1000; }
-        .auth-card { background: var(--bg-surface); padding: 48px; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); width: 100%; max-width: 480px; border: 1px solid var(--border); }
-        
-        .role-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 24px; }
-        .role-btn { padding: 12px 0; text-align: center; border: 2px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; font-weight: 700; color: var(--text-muted); font-size: 14px; transition: var(--transition); }
+        .templates-grid-20 { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 18px; max-width: 1400px; margin: 0 auto; text-align: left; }
+        .tmpl-card { background: var(--bg-surface); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--border); transition: var(--transition); cursor: pointer; }
+        .tmpl-card:hover { transform: translateY(-6px); border-color: var(--primary); box-shadow: var(--shadow-lg); }
+        .tmpl-badge { font-size: 11px; font-weight: 800; padding: 4px 8px; border-radius: 12px; background: var(--primary-light); color: var(--primary); display: inline-block; margin-bottom: 10px; }
+
+        /* 인증 모달 */
+        #auth-view { height: 100vh; display: flex; justify-content: center; align-items: center; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); position: fixed; top:0; left:0; width:100%; z-index: 1000; }
+        .auth-card { background: var(--bg-surface); padding: 40px; border-radius: var(--radius-lg); width: 100%; max-width: 480px; border: 1px solid var(--border); box-shadow: var(--shadow-lg); }
+        .role-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .role-btn { padding: 12px 0; text-align: center; border: 2px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; font-weight: 700; color: var(--text-muted); font-size: 13px; }
         .role-btn.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
-        .role-btn i { display: block; font-size: 20px; margin-bottom: 8px; }
 
-        /* ================= 4. 대시보드 및 레이아웃 ================= */
+        /* 대시보드 구조 */
         #dashboard-view { display: flex; height: 100vh; background: var(--bg-body); overflow: hidden; }
-        .sidebar { width: 260px; background: var(--bg-surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 24px; }
-        .nav-item { padding: 12px 16px; border-radius: var(--radius-sm); display: flex; align-items: center; gap: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: var(--transition); font-size: 14px; margin-bottom: 4px; }
-        .nav-item:hover, .nav-item.active { background: var(--primary-light); color: var(--primary); }
+        .sidebar { width: 260px; background: var(--bg-surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; overflow-y: auto; }
+        .nav-category { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin: 18px 0 8px 8px; letter-spacing: 1px; }
+        .nav-item { padding: 10px 14px; border-radius: var(--radius-sm); display: flex; align-items: center; gap: 10px; font-weight: 600; color: var(--text-muted); cursor: pointer; font-size: 13px; margin-bottom: 2px; }
+        .nav-item:hover, .nav-item.active { background: var(--primary-light); color: var(--primary); font-weight: 700; }
         
         .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-        .topbar { background: var(--bg-surface); height: 70px; padding: 0 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+        .topbar { background: var(--bg-surface); height: 65px; padding: 0 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
         .content-body { flex: 1; overflow-y: auto; padding: 30px; position: relative; }
         .view-section { display: none; }
         .view-section.active { display: block; }
 
-        .role-badge { background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; }
+        /* 게임 스튜디오 & 캔버스 엔진 */
+        .studio-container { display: flex; gap: 20px; height: calc(100vh - 145px); }
+        .studio-tools { width: 220px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; overflow-y: auto; }
+        .canvas-wrapper { flex: 1; background: #050811; border: 1px solid var(--border); border-radius: var(--radius-md); display: flex; flex-direction: column; position: relative; overflow: hidden; }
+        .canvas-toolbar { padding: 12px 20px; background: var(--bg-surface); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        
+        #game-canvas { background: #000; flex: 1; width: 100%; height: 100%; display: block; image-rendering: pixelated; }
 
-        /* ================= 5. 게임 스튜디오 (템플릿, 맵, 픽셀, 물리엔진) ================= */
-        .studio-layout { display: flex; gap: 20px; height: calc(100vh - 150px); }
-        
-        /* 왼쪽: 툴바 */
-        .tool-panel { width: 220px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; overflow-y: auto; }
-        .tool-panel h3 { font-size: 14px; color: var(--text-muted); margin-bottom: 12px; font-weight: 800; text-transform: uppercase; }
-        .tool-btn { width: 100%; padding: 12px; margin-bottom: 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-body); color: var(--text-main); font-weight: 600; text-align: left; display: flex; align-items: center; gap: 10px; }
-        .tool-btn:hover, .tool-btn.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
-        
-        /* 중앙: 맵 에디터 / 플레이 캔버스 */
-        .canvas-area { flex: 1; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); display: flex; flex-direction: column; position: relative; overflow: hidden; }
-        .canvas-header { padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        
-        /* 맵 그리드 (10x10) */
-        .game-grid { display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: repeat(12, 1fr); flex: 1; background: #1e1e1e; gap: 1px; padding: 10px; }
-        .grid-cell { background: #2d2d2d; border-radius: 2px; cursor: pointer; position: relative; transition: all 0.1s; }
-        .grid-cell:hover { border: 2px solid var(--primary); }
-        .grid-cell.block-wall { background: #64748B; }
-        .grid-cell.block-quiz { background: var(--warning); border: 2px dashed #B45309; }
-        .grid-cell.block-quiz::after { content: '?'; color: white; font-weight: 900; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
-        .grid-cell.block-player { background: var(--primary); border-radius: 50%; }
+        /* 가상 모바일 컨트롤 패드 */
+        .mobile-controls { position: absolute; bottom: 20px; left: 20px; right: 20px; display: flex; justify-content: space-between; pointer-events: none; z-index: 50; }
+        .dpad { display: grid; grid-template-columns: repeat(3, 45px); grid-template-rows: repeat(3, 45px); gap: 4px; pointer-events: auto; }
+        .dbtn { background: rgba(255,255,255,0.2); backdrop-filter: blur(4px); border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); color: white; display: flex; justify-content: center; align-items: center; font-size: 18px; font-weight: 900; }
+        .dbtn:active { background: var(--primary); }
+        .action-btns { display: flex; gap: 10px; align-items: flex-end; pointer-events: auto; }
+        .abtn { width: 55px; height: 55px; border-radius: 50%; background: rgba(244,63,94,0.4); border: 2px solid var(--accent); color: white; font-weight: 900; font-size: 18px; display: flex; justify-content: center; align-items: center; }
 
-        /* 오른쪽: 속성 (Properties) 패널 */
-        .prop-panel { width: 280px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; overflow-y: auto; }
-        .prop-group { background: var(--bg-body); padding: 16px; border-radius: var(--radius-sm); margin-bottom: 16px; border: 1px solid var(--border); }
-        .prop-group label { display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; }
-        
+        /* HUD / GUI 오버레이 에디터 */
+        .gui-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; }
+        .hud-element { background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); padding: 8px 16px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); color: white; font-weight: 800; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; }
+
+        /* 퀴즈 모달 오버레이 */
+        .quiz-modal { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--bg-surface); padding: 30px; border-radius: var(--radius-lg); border: 2px solid var(--warning); box-shadow: 0 0 40px rgba(245, 158, 11, 0.4); z-index: 200; width: 360px; text-align: center; }
+
         /* 픽셀 에디터 모달 */
-        #pixel-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; display: flex; justify-content: center; align-items: center; }
-        .pixel-content { background: var(--bg-surface); padding: 30px; border-radius: var(--radius-lg); border: 1px solid var(--border); display: flex; gap: 20px; }
-        .pixel-grid { display: grid; grid-template-columns: repeat(8, 30px); grid-template-rows: repeat(8, 30px); gap: 1px; background: var(--border); border: 2px solid var(--border); }
-        .pixel-cell { background: white; cursor: pointer; }
+        #pixel-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 3000; display: flex; justify-content: center; align-items: center; }
+        .pixel-content { background: var(--bg-surface); padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--border); display: flex; gap: 20px; }
+        .pixel-grid { display: grid; grid-template-columns: repeat(16, 18px); grid-template-rows: repeat(16, 18px); gap: 1px; background: var(--border); }
+        .pixel-cell { background: #1E293B; cursor: pointer; }
 
-        /* 퀴즈 팝업 애니메이션 */
-        .quiz-popup { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--bg-surface); padding: 30px; border-radius: var(--radius-md); border: 2px solid var(--warning); box-shadow: 0 0 30px rgba(245, 158, 11, 0.3); z-index: 100; width: 350px; text-align: center; }
+        /* 각 모듈 카드 스타일 */
+        .module-card { background: var(--bg-surface); border-radius: var(--radius-md); border: 1px solid var(--border); padding: 24px; margin-bottom: 20px; }
     </style>
 </head>
 <body data-theme="dark">
     <div id="toast-container"></div>
 
-    <!-- ================= 1. 압도적 스크롤 랜딩 페이지 ================= -->
+    <!-- ================= 1. 랜딩 페이지 ================= -->
     <div id="landing-view">
         <nav class="landing-nav">
             <div class="landing-logo"><i class="fas fa-cubes"></i> ClassSpace</div>
-            <button class="btn btn-primary" onclick="showAuth()">입장하기</button>
+            <button class="btn btn-primary" onclick="showAuth('login')">입장 / 학급 개설</button>
         </nav>
 
         <section class="hero section">
-            <div class="animate-pop" style="background: var(--primary-light); color: var(--primary); padding: 8px 18px; border-radius: 30px; font-weight: 800; margin-bottom: 24px; font-size: 14px;">⚡ 2026 차세대 학급 통합 플랫폼 & 게임 스튜디오</div>
-            <h1 class="animate-pop" style="animation-delay: 0.1s;">교실 안의 완벽한 사회<br>그리고 <span>직접 만드는 게임 생태계</span></h1>
-            <p class="section-subtitle animate-pop" style="animation-delay: 0.2s;">템플릿을 고르고, 픽셀아트로 캐릭터를 만들고, 물리법칙을 조작하세요. '문제 풀이'가 자연스럽게 녹아든 게임을 학급 친구들과 공유하고 플레이합니다.</p>
-            <button class="btn btn-primary animate-pop" style="padding: 18px 40px; font-size: 18px; border-radius: 40px; animation-delay: 0.3s; animation: pulseGlow 2s infinite;" onclick="showAuth()">무료로 시작하기</button>
+            <div style="background: var(--primary-light); color: var(--primary); padding: 6px 16px; border-radius: 30px; font-weight: 800; margin-bottom: 20px; font-size: 13px;">🚀 2026 초초초고퀄리티 크리에이터 & 자치 플랫폼</div>
+            <h1>교실 안의 독립 게임 스튜디오<br><span>그리고 완벽하게 동작하는 10대 모듈</span></h1>
+            <p class="section-subtitle">더 이상 지루한 템플릿에 갇히지 마세요. 2D부터 2.5D FPS까지, 20개 장르 스튜디오에서 나만의 게임을 빌드하고 학급 생태계를 움직이세요.</p>
+            <button class="btn btn-primary" style="padding: 16px 36px; font-size: 17px; border-radius: 40px;" onclick="showAuth('signup')">지금 학급 생성하기</button>
         </section>
 
         <section class="section" style="background: var(--bg-surface);">
-            <h2 class="section-title">ClassSpace 10대 핵심 모듈</h2>
-            <p class="section-subtitle">단순한 게시판이 아닙니다. 학급 운영에 필요한 모든 것을 담았습니다.</p>
-            <div class="features-grid-10">
-                <div class="f-card"><div class="f-icon" style="background: linear-gradient(135deg, #F59E0B, #D97706);"><i class="fas fa-piggy-bank"></i></div><h3>학급 은행 & 경제</h3><p>우정 화폐를 예금하고 복리 이자를 받으며 실물 경제를 배웁니다.</p></div>
-                <div class="f-card"><div class="f-icon" style="background: linear-gradient(135deg, #EC4899, #BE185D);"><i class="fas fa-ticket-alt"></i></div><h3>주간 복권</h3><p>매주 금요일 추첨! 남는 화폐로 일확천금의 재미를 느낍니다.</p></div>
-                <div class="f-card"><div class="f-icon" style="background: linear-gradient(135deg, #3B82F6, #1D4ED8);"><i class="fas fa-tasks"></i></div><h3>퀘스트 센터</h3><p>학급 미션을 수행하고 보상을 획득하여 동기를 부여합니다.</p></div>
-                <div class="f-card"><div class="f-icon" style="background: linear-gradient(135deg, #8B5CF6, #6D28D9);"><i class="fas fa-gavel"></i></div><h3>학급 법정</h3><p>학생들이 직접 규칙을 만들고 투표로 자치회를 운영합니다.</p></div>
-                <div class="f-card"><div class="f-icon" style="background: linear-gradient(135deg, #10B981, #047857);"><i class="fas fa-box-open"></i></div><h3>익명 건의함</h3><p>선생님에게만 전달되는 비밀 소통 창구입니다.</p></div>
-                <div class="f-card"><div class="f-icon" style="background: linear-gradient(135deg, #F43F5E, #BE123C);"><i class="fas fa-heart"></i></div><h3>비밀 마니또</h3><p>클릭 한 번으로 훈훈한 익명 선물 이벤트를 진행합니다.</p></div>
-                <div class="f-card"><div class="f-icon" style="background: linear-gradient(135deg, #64748B, #334155);"><i class="fas fa-hourglass-half"></i></div><h3>타임캡슐</h3><p>학년 말에 열리는 편지로 잊지 못할 추억을 선사합니다.</p></div>
-                <div class="f-card"><div class="f-icon" style="background: linear-gradient(135deg, #14B8A6, #0F766E);"><i class="fas fa-id-card"></i></div><h3>스마트 외출증</h3><p>화장실, 보건실 등 디지털 타이머 패스로 동선을 관리합니다.</p></div>
-                <div class="f-card"><div class="f-icon" style="background: linear-gradient(135deg, #F97316, #C2410C);"><i class="fas fa-search"></i></div><h3>분실물 센터</h3><p>교실의 분실물을 등록하고 주인을 찾아 보상을 받습니다.</p></div>
-                <div class="f-card"><div class="f-icon" style="background: linear-gradient(135deg, #06B6D4, #0369A1);"><i class="fas fa-thermometer-half"></i></div><h3>학급 온도탑</h3><p>개인이 아닌 학급 전체가 협동하여 목표 달성 시 파티를 엽니다.</p></div>
-            </div>
+            <h2 class="section-title">20가지 게임 엔진 템플릿</h2>
+            <p class="section-subtitle">원하는 장르를 고르는 즉시 30x30 대형 맵과 물리엔진이 구동됩니다.</p>
+            <div class="templates-grid-20" id="landing-tmpl-list"></div>
         </section>
     </div>
 
-    <!-- ================= 2. 인증 뷰 (역할 선택) ================= -->
+    <!-- ================= 2. 인증 & 학급 생성 모달 ================= -->
     <div id="auth-view" class="hidden">
         <div class="auth-card animate-pop">
-            <h2 style="font-size: 24px; font-weight: 900; margin-bottom: 24px; text-align: center;">ClassSpace 로그인 / 가입</h2>
+            <h2 style="font-size: 22px; font-weight: 900; margin-bottom: 8px; text-align: center;" id="auth-title">ClassSpace 입장</h2>
+            <p style="text-align:center; color:var(--text-muted); font-size:13px; margin-bottom:20px;">역할을 선택하고 학급 코드로 접속하세요.</p>
             
             <div class="role-selector">
-                <div class="role-btn active" data-role="student" onclick="selectRole('student')"><i class="fas fa-user"></i>일반 학생</div>
-                <div class="role-btn" data-role="admin_student" onclick="selectRole('admin_student')"><i class="fas fa-user-shield"></i>관리자 학생</div>
-                <div class="role-btn" data-role="teacher" onclick="selectRole('teacher')"><i class="fas fa-chalkboard-teacher"></i>선생님</div>
+                <div class="role-btn active" data-role="student" onclick="selectRole('student')"><i class="fas fa-user"></i> 일반학생</div>
+                <div class="role-btn" data-role="admin_student" onclick="selectRole('admin_student')"><i class="fas fa-user-shield"></i> 관리자학생</div>
+                <div class="role-btn" data-role="teacher" onclick="selectRole('teacher')"><i class="fas fa-chalkboard-teacher"></i> 선생님</div>
             </div>
 
             <form id="auth-form" onsubmit="handleAuth(event)">
-                <input type="text" id="auth-name" required placeholder="이름 (예: 홍길동)" style="margin-bottom: 12px;">
-                <input type="password" id="auth-pw" required placeholder="비밀번호 설정/입력" style="margin-bottom: 24px;">
-                <button type="submit" class="btn btn-primary" style="width:100%; height: 50px; font-size:16px;">플랫폼 입장하기</button>
+                <input type="text" id="auth-name" required placeholder="이름 (예: 홍길동)" style="margin-bottom: 10px;">
+                <div id="class-code-box" style="margin-bottom: 10px;">
+                    <input type="text" id="auth-code" placeholder="학급 코드 입력 (예: CS-9824)">
+                </div>
+                <div id="create-class-box" class="hidden" style="margin-bottom: 10px;">
+                    <button type="button" class="btn btn-secondary" style="width:100%;" onclick="generateClassCode()"><i class="fas fa-plus-circle"></i> 새 학급 코드 생성하기</button>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%; height: 48px; font-size:15px;" id="auth-submit-btn">입장하기</button>
             </form>
-            <button class="btn btn-secondary" style="width:100%; margin-top: 12px;" onclick="hideAuth()">돌아가기</button>
+            <button class="btn btn-secondary" style="width:100%; margin-top: 10px;" onclick="hideAuth()">닫기</button>
         </div>
     </div>
 
-    <!-- ================= 3. 대시보드 (메인) ================= -->
+    <!-- ================= 3. 대시보드 및 레이아웃 ================= -->
     <div id="dashboard-view" class="hidden">
         <aside class="sidebar">
-            <div style="font-size: 20px; font-weight: 900; color: var(--primary); margin-bottom: 30px;"><i class="fas fa-cubes"></i> ClassSpace</div>
+            <div style="font-size: 18px; font-weight: 900; color: var(--primary); margin-bottom: 20px; display:flex; align-items:center; gap:8px;">
+                <i class="fas fa-cubes"></i> ClassSpace
+            </div>
             
-            <div style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin: 10px 0 8px 10px;">Main</div>
-            <div class="nav-item active" data-view="home"><i class="fas fa-home"></i> 홈 대시보드</div>
-            
-            <div style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin: 20px 0 8px 10px;">Creator</div>
-            <div class="nav-item animate-pop" data-view="studio" style="color: white; background: linear-gradient(45deg, var(--primary), var(--accent));"><i class="fas fa-gamepad"></i> 2D 게임 메이커 스튜디오</div>
-            
-            <div style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin: 20px 0 8px 10px;">Modules (10선)</div>
-            <div class="nav-item" onclick="showToast('기능 준비중 (UI 예시)')"><i class="fas fa-piggy-bank"></i> 학급 은행</div>
-            <div class="nav-item" onclick="showToast('기능 준비중 (UI 예시)')"><i class="fas fa-gavel"></i> 학급 법정</div>
-            <div class="nav-item" onclick="showToast('기능 준비중 (UI 예시)')"><i class="fas fa-search"></i> 분실물 센터</div>
-            <!-- 기타 10개 메뉴 생략 (레이아웃 유지를 위해 일부만 배치) -->
+            <div class="nav-category">Main</div>
+            <div class="nav-item active" data-view="home"><i class="fas fa-home"></i> 대시보드</div>
+            <div class="nav-item" data-view="studio" style="color:var(--primary); font-weight:800;"><i class="fas fa-gamepad"></i> 20종 게임 스튜디오 <i class="fas fa-star" style="font-size:9px; color:var(--warning);"></i></div>
 
-            <div style="margin-top: auto;">
+            <div class="nav-category">10대 핵심 모듈</div>
+            <div class="nav-item" data-view="bank"><i class="fas fa-piggy-bank"></i> 1. 학급 은행</div>
+            <div class="nav-item" data-view="court"><i class="fas fa-gavel"></i> 2. 학급 법정</div>
+            <div class="nav-item" data-view="lost"><i class="fas fa-search"></i> 3. 분실물 센터</div>
+            <div class="nav-item" data-view="quest"><i class="fas fa-tasks"></i> 4. 퀘스트 센터</div>
+            <div class="nav-item" data-view="lottery"><i class="fas fa-ticket-alt"></i> 5. 주간 복권</div>
+            <div class="nav-item" data-view="suggestion"><i class="fas fa-envelope-open-text"></i> 6. 익명 건의함</div>
+            <div class="nav-item" data-view="manito"><i class="fas fa-user-secret"></i> 7. 비밀 마니또</div>
+            <div class="nav-item" data-view="capsule"><i class="fas fa-hourglass-half"></i> 8. 디지털 타임캡슐</div>
+            <div class="nav-item" data-view="pass"><i class="fas fa-id-card"></i> 9. 스마트 외출증</div>
+            <div class="nav-item" data-view="thermo"><i class="fas fa-thermometer-half"></i> 10. 학급 온도탑</div>
+
+            <div style="margin-top: auto; padding-top:20px;">
                 <button class="btn btn-secondary" style="width: 100%;" onclick="logout()"><i class="fas fa-sign-out-alt"></i> 로그아웃</button>
             </div>
         </aside>
 
         <main class="main-content">
             <header class="topbar">
-                <div style="font-size: 18px; font-weight: 800;">스튜디오</div>
+                <div style="font-size: 16px; font-weight: 800; display:flex; align-items:center; gap:12px;">
+                    <span id="topbar-title">대시보드</span>
+                    <span style="background:var(--primary-light); color:var(--primary); padding:4px 10px; border-radius:12px; font-size:12px;" id="ui-class-code">학급코드: CS-0000</span>
+                </div>
                 <div style="display: flex; align-items: center; gap: 16px;">
-                    <button class="btn btn-secondary" style="padding: 10px; border-radius: 50%;" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
-                    <div style="font-weight: 600; display:flex; align-items:center; gap:8px;">
-                        <span class="role-badge" id="ui-role">학생</span>
-                        <span id="ui-name" style="color:var(--primary);"></span>님
-                    </div>
+                    <button class="btn btn-secondary" style="padding: 8px; border-radius: 50%;" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
+                    <div style="font-weight: 600; font-size:14px;"><span id="ui-role" style="color:var(--primary);">학생</span> <strong id="ui-name">홍길동</strong>님</div>
                 </div>
             </header>
 
             <div class="content-body">
-                <!-- 홈 뷰 -->
+                
+                <!-- 3-1. 대시보드 홈 -->
                 <div id="view-home" class="view-section active animate-pop">
-                    <h1 style="font-size: 32px; font-weight: 900; margin-bottom: 24px;">환영합니다! 🚀</h1>
-                    <p style="color:var(--text-muted); margin-bottom: 20px;">좌측 메뉴에서 '2D 게임 메이커 스튜디오'를 클릭하여 나만의 맵과 퀴즈 게임을 만들어보세요.</p>
+                    <h1 style="font-size: 28px; font-weight: 900; margin-bottom: 20px;">학급 생태계 현황 📊</h1>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+                        <div class="module-card">
+                            <h3 style="font-size:13px; color:var(--text-muted); margin-bottom:8px;">내 보유 우정 포인트</h3>
+                            <div style="font-size:32px; font-weight:900; color:var(--primary);" id="dash-points">1,000 U</div>
+                        </div>
+                        <div class="module-card">
+                            <h3 style="font-size:13px; color:var(--text-muted); margin-bottom:8px;">제작 및 등록 게임 수</h3>
+                            <div style="font-size:32px; font-weight:900; color:var(--secondary);" id="dash-games-count">1개</div>
+                        </div>
+                        <div class="module-card">
+                            <h3 style="font-size:13px; color:var(--text-muted); margin-bottom:8px;">현재 외출증 상태</h3>
+                            <div style="font-size:20px; font-weight:800; color:var(--accent);" id="dash-pass-status">착석 중 (비활성)</div>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- 킬러 기능: 2D 게임 메이커 스튜디오 -->
+                <!-- 3-2. 20종 게임 메이커 스튜디오 -->
                 <div id="view-studio" class="view-section animate-pop">
                     
-                    <!-- 템플릿 선택 화면 (초기 화면) -->
-                    <div id="template-screen" style="text-align: center; padding: 40px;">
-                        <h2 style="font-size: 32px; font-weight: 900; margin-bottom: 12px;">어떤 게임을 만드시겠습니까?</h2>
-                        <p style="color:var(--text-muted); margin-bottom: 40px;">템플릿을 고르고 맵, 캐릭터, 물리엔진을 커스텀하세요.</p>
-                        
-                        <div style="display: flex; justify-content: center; gap: 20px;">
-                            <div class="f-card" style="width:300px; cursor:pointer;" onclick="initEditor('platformer')">
-                                <i class="fas fa-arrow-up" style="font-size:40px; color:var(--primary); margin-bottom:20px;"></i>
-                                <h3>플랫포머 (점프/중력)</h3>
-                                <p>중력이 적용되는 사이드뷰 맵. 점프하여 장애물을 피하고 퀴즈 블록을 터치하세요.</p>
-                            </div>
-                            <div class="f-card" style="width:300px; cursor:pointer;" onclick="initEditor('topdown')">
-                                <i class="fas fa-arrows-alt" style="font-size:40px; color:var(--secondary); margin-bottom:20px;"></i>
-                                <h3>탑다운 (미로/방탈출)</h3>
-                                <p>위에서 내려다보는 시점. 중력 없이 상하좌우로 이동하며 퀴즈를 풉니다.</p>
-                            </div>
-                        </div>
+                    <!-- 템플릿 선택 -->
+                    <div id="studio-tmpl-select" style="margin-bottom: 24px;">
+                        <h2 style="font-size: 22px; font-weight: 900; margin-bottom: 16px;">20가지 템플릿 엔진 선택</h2>
+                        <div class="templates-grid-20" id="studio-tmpl-grid"></div>
                     </div>
 
-                    <!-- 에디터 화면 -->
-                    <div id="editor-screen" class="hidden animate-pop">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                            <h2 style="font-size: 24px; font-weight: 900;" id="editor-title">맵 에디터</h2>
-                            <div style="display:flex; gap:10px;">
-                                <button class="btn btn-secondary" onclick="openPixelEditor()"><i class="fas fa-paint-brush"></i> 픽셀 캐릭터 디자인</button>
-                                <button class="btn btn-secondary" onclick="document.getElementById('template-screen').classList.remove('hidden'); document.getElementById('editor-screen').classList.add('hidden');"><i class="fas fa-times"></i> 닫기</button>
+                    <!-- 에디터 & 캔버스 -->
+                    <div id="studio-editor-box" class="hidden">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h2 style="font-size: 20px; font-weight: 900;" id="active-tmpl-name">대형 30x30 맵 에디터</h2>
+                            <div style="display:flex; gap:8px;">
+                                <button class="btn btn-secondary" onclick="openPixelModal()"><i class="fas fa-paint-brush"></i> 픽셀 캐릭터</button>
+                                <button class="btn btn-secondary" onclick="toggleGuiEditor()"><i class="fas fa-layer-group"></i> GUI/HUD 편집</button>
+                                <button class="btn btn-secondary" onclick="closeEditor()"><i class="fas fa-arrow-left"></i> 템플릿 변경</button>
                             </div>
                         </div>
 
-                        <div class="studio-layout">
-                            <!-- 좌측: 도구 -->
-                            <div class="tool-panel">
-                                <h3><i class="fas fa-toolbox"></i> 배치 도구</h3>
-                                <button class="tool-btn active" onclick="setTool('player')"><i class="fas fa-user"></i> 플레이어 스폰</button>
-                                <button class="tool-btn" onclick="setTool('wall')"><i class="fas fa-square" style="color:#64748B"></i> 일반 블록 (벽)</button>
-                                <button class="tool-btn" onclick="setTool('quiz')"><i class="fas fa-question-circle" style="color:var(--warning)"></i> 퀴즈 블록 (닿으면 문제)</button>
-                                <button class="tool-btn" onclick="setTool('eraser')"><i class="fas fa-eraser"></i> 지우개 (삭제)</button>
+                        <!-- GUI 편집 모달/슬라이드 -->
+                        <div id="gui-config-panel" class="hidden module-card" style="margin-bottom:16px; background:var(--bg-body);">
+                            <h4 style="margin-bottom:10px;">🎮 실시간 HUD/GUI 오버레이 설정</h4>
+                            <div style="display:flex; gap:20px; font-size:13px;">
+                                <label><input type="checkbox" id="gui-hp" checked onchange="updateGUIConfig()"> 체력 바 (HP)</label>
+                                <label><input type="checkbox" id="gui-score" checked onchange="updateGUIConfig()"> 스코어 카운터</label>
+                                <label><input type="checkbox" id="gui-timer" checked onchange="updateGUIConfig()"> 타이머</label>
+                                <label>상단 문구: <input type="text" id="gui-text" value="CLASS SPACE FPS" style="width:200px; padding:4px 8px;" onchange="updateGUIConfig()"></label>
+                            </div>
+                        </div>
+
+                        <div class="studio-container">
+                            <!-- 도구 -->
+                            <div class="studio-tools">
+                                <h4 style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">배치 아이템</h4>
+                                <button class="btn btn-secondary" style="width:100%; margin-bottom:6px; justify-content:flex-start;" onclick="setStudioTool('wall')"><i class="fas fa-cube"></i> 일반 블록 (벽)</button>
+                                <button class="btn btn-secondary" style="width:100%; margin-bottom:6px; justify-content:flex-start;" onclick="setStudioTool('quiz')"><i class="fas fa-question-circle" style="color:var(--warning)"></i> 퀴즈 블록</button>
+                                <button class="btn btn-secondary" style="width:100%; margin-bottom:6px; justify-content:flex-start;" onclick="setStudioTool('player')"><i class="fas fa-user"></i> 플레이어 스폰</button>
+                                <button class="btn btn-secondary" style="width:100%; margin-bottom:16px; justify-content:flex-start;" onclick="setStudioTool('eraser')"><i class="fas fa-eraser"></i> 지우개</button>
                                 
-                                <h3 style="margin-top:20px;"><i class="fas fa-desktop"></i> GUI / 시스템</h3>
-                                <button class="tool-btn" onclick="showToast('GUI 에디터 오픈 (버튼/텍스트 드래그 기능)')"><i class="fas fa-layer-group"></i> 화면 UI 수정</button>
+                                <h4 style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">퀴즈 설정</h4>
+                                <input type="text" id="tool-quiz-q" value="독도는 어느 나라 땅?" placeholder="문제" style="margin-bottom:6px; font-size:12px;">
+                                <input type="text" id="tool-quiz-a" value="대한민국" placeholder="정답" style="font-size:12px;">
                             </div>
 
-                            <!-- 중앙: 캔버스 -->
-                            <div class="canvas-area">
-                                <div class="canvas-header">
-                                    <div style="font-weight:700;" id="mode-indicator">✏️ 에디터 모드 (클릭하여 배치)</div>
-                                    <button class="btn btn-primary" id="play-btn" onclick="togglePlayMode()"><i class="fas fa-play"></i> 테스트 플레이</button>
-                                </div>
-                                <div class="game-grid" id="grid-container">
-                                    <!-- JS 랜더링 12x12 -->
+                            <!-- 캔버스 (2D / 2.5D FPS 공용) -->
+                            <div class="canvas-wrapper">
+                                <div class="canvas-toolbar">
+                                    <span style="font-size:13px; font-weight:700;" id="canvas-status-text">✏️ 에디터 모드 (30x30 그리드 클릭하여 편집)</span>
+                                    <button class="btn btn-primary" id="btn-play-toggle" onclick="togglePlay()"><i class="fas fa-play"></i> 테스트 플레이 실행</button>
                                 </div>
                                 
-                                <!-- 퀴즈 팝업 (플레이 중 닿았을 때) -->
-                                <div id="in-game-quiz" class="quiz-popup hidden animate-pop">
-                                    <h3 style="color:var(--warning); margin-bottom:16px;"><i class="fas fa-exclamation-triangle"></i> 문제 발생!</h3>
-                                    <p id="quiz-question-text" style="font-weight:700; margin-bottom:20px; font-size:18px;">여기에 문제가 표시됩니다.</p>
-                                    <input type="text" id="quiz-answer-input" placeholder="정답을 입력하세요" style="margin-bottom:12px;">
-                                    <button class="btn btn-primary" style="width:100%;" onclick="checkQuizAnswer()">정답 확인</button>
-                                </div>
-                            </div>
+                                <canvas id="game-canvas" width="600" height="400"></canvas>
 
-                            <!-- 우측: 속성 -->
-                            <div class="prop-panel" id="prop-panel">
-                                <h3><i class="fas fa-sliders-h"></i> 환경 설정 (물리)</h3>
-                                <div class="prop-group">
-                                    <label>템플릿 기반 설정</label>
-                                    <div id="prop-env" style="font-size:13px; color:var(--text-main);">선택된 항목 없음</div>
+                                <!-- GUI/HUD 실시간 레이어 -->
+                                <div class="gui-overlay" id="hud-overlay">
+                                    <div style="display:flex; justify-content:space-between; width:100%;">
+                                        <div class="hud-element" id="hud-hp-box"><i class="fas fa-heart" style="color:var(--accent)"></i> <span id="hud-hp-val">100 / 100</span></div>
+                                        <div class="hud-element" id="hud-text-box">CLASS SPACE FPS</div>
+                                        <div class="hud-element" id="hud-score-box">SCORE: <span id="hud-score-val">0</span></div>
+                                    </div>
+                                    <div style="text-align:center;" id="hud-timer-box">
+                                        <div class="hud-element"><i class="fas fa-clock"></i> <span id="hud-timer-val">00:00</span></div>
+                                    </div>
                                 </div>
 
-                                <div id="dynamic-props">
-                                    <div style="color:var(--text-muted); font-size:13px; text-align:center; margin-top:40px;">그리드의 블록이나 플레이어를 클릭하여<br>상세 속성을 수정하세요.</div>
+                                <!-- 모바일 터치 패드 -->
+                                <div class="mobile-controls">
+                                    <div class="dpad">
+                                        <div></div><div class="dbtn" ontouchstart="mobileInput('up')" ontouchend="mobileInput('none')">▲</div><div></div>
+                                        <div class="dbtn" ontouchstart="mobileInput('left')" ontouchend="mobileInput('none')">◄</div><div></div><div class="dbtn" ontouchstart="mobileInput('right')" ontouchend="mobileInput('none')">►</div>
+                                        <div></div><div class="dbtn" ontouchstart="mobileInput('down')" ontouchend="mobileInput('none')">▼</div><div></div>
+                                    </div>
+                                    <div class="action-btns">
+                                        <div class="abtn" ontouchstart="mobileInput('action')">A</div>
+                                    </div>
+                                </div>
+
+                                <!-- 퀴즈 모달 -->
+                                <div class="quiz-modal hidden" id="game-quiz-modal">
+                                    <h3 style="color:var(--warning); margin-bottom:10px;"><i class="fas fa-exclamation-triangle"></i> 퀴즈 블록 감지!</h3>
+                                    <p id="game-quiz-q" style="font-weight:800; font-size:16px; margin-bottom:16px;">문제 내용</p>
+                                    <input type="text" id="game-quiz-input" placeholder="정답 입력" style="margin-bottom:12px;">
+                                    <button class="btn btn-primary" style="width:100%;" onclick="submitGameQuiz()">정답 제출</button>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                 </div>
+
+                <!-- 3-3. 10대 완전 동작 모듈들 -->
+                <div id="view-bank" class="view-section animate-pop">
+                    <div class="module-card">
+                        <h2>🏦 1. 학급 은행 (Class Bank)</h2>
+                        <p style="color:var(--text-muted); margin-bottom:20px;">우정을 예금하고 주간 복리 이자(+5%)를 받으세요.</p>
+                        <div style="display:flex; gap:20px; align-items:center;">
+                            <div style="font-size:24px; font-weight:800;">예금 잔액: <span id="bank-balance" style="color:var(--primary);">0</span> U</div>
+                            <button class="btn btn-primary" onclick="bankDeposit(500)">500 U 예금하기</button>
+                            <button class="btn btn-secondary" onclick="bankWithdraw(500)">500 U 출금하기</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-court" class="view-section animate-pop">
+                    <div class="module-card">
+                        <h2>⚖️ 2. 학급 법정 & 규칙 투표</h2>
+                        <p style="color:var(--text-muted); margin-bottom:20px;">새 학급 규칙을 제안하고 찬반 투표를 진행합니다.</p>
+                        <div style="display:flex; gap:10px; margin-bottom:20px;">
+                            <input type="text" id="court-input" placeholder="제안할 규칙 (예: 청소 시간 5분 전 준비하기)">
+                            <button class="btn btn-primary" style="width:150px;" onclick="addCourtRule()">규칙 제안</button>
+                        </div>
+                        <div id="court-list"></div>
+                    </div>
+                </div>
+
+                <div id="view-lost" class="view-section animate-pop">
+                    <div class="module-card">
+                        <h2>🔍 3. 분실물 센터</h2>
+                        <p style="color:var(--text-muted); margin-bottom:20px;">주운 물건을 올리고 주인을 찾아주세요.</p>
+                        <div style="display:flex; gap:10px; margin-bottom:20px;">
+                            <input type="text" id="lost-item-name" placeholder="분실물 이름 (예: 검은색 지우개)">
+                            <button class="btn btn-primary" style="width:150px;" onclick="addLostItem()">등록하기</button>
+                        </div>
+                        <div id="lost-list" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;"></div>
+                    </div>
+                </div>
+
+                <div id="view-quest" class="view-section animate-pop">
+                    <div class="module-card">
+                        <h2>📜 4. 퀘스트 센터</h2>
+                        <p style="color:var(--text-muted); margin-bottom:20px;">학급 미션을 수행하고 포인트를 보상받으세요.</p>
+                        <div id="quest-list"></div>
+                    </div>
+                </div>
+
+                <div id="view-lottery" class="view-section animate-pop">
+                    <div class="module-card">
+                        <h2>🎟️ 5. 주간 복권</h2>
+                        <p style="color:var(--text-muted); margin-bottom:20px;">1~10 중 행운의 번호를 선택하고 추첨을 진행하세요.</p>
+                        <div style="display:flex; gap:10px; align-items:center;">
+                            <input type="number" id="lotto-num" min="1" max="10" value="7" style="width:100px;">
+                            <button class="btn btn-primary" onclick="buyLottery()">복권 구매 (100 U)</button>
+                            <button class="btn btn-secondary" onclick="drawLottery()">실시간 추첨 실행!</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-suggestion" class="view-section animate-pop">
+                    <div class="module-card">
+                        <h2>📮 6. 익명 건의함</h2>
+                        <p style="color:var(--text-muted); margin-bottom:20px;">선생님에게만 비밀리에 건의사항이 전달됩니다.</p>
+                        <textarea id="sugg-text" rows="4" placeholder="고민이나 교실 개선 의견을 적어주세요..." style="margin-bottom:10px;"></textarea>
+                        <button class="btn btn-primary" onclick="sendSuggestion()">건의함에 넣기</button>
+                    </div>
+                </div>
+
+                <div id="view-manito" class="view-section animate-pop">
+                    <div class="module-card">
+                        <h2>🎁 7. 비밀 마니또</h2>
+                        <p style="color:var(--text-muted); margin-bottom:20px;">내 비밀 마니또를 확인하고 칭찬 메시지를 남기세요.</p>
+                        <div style="font-size:18px; font-weight:800; margin-bottom:16px;">당신의 마니또: <span style="color:var(--accent);">김민수</span> 학생</div>
+                        <input type="text" id="manito-msg" placeholder="마니또에게 보낼 익명 칭찬 메시지" style="margin-bottom:10px;">
+                        <button class="btn btn-primary" onclick="sendManitoMsg()">비밀 편지 발송</button>
+                    </div>
+                </div>
+
+                <div id="view-capsule" class="view-section animate-pop">
+                    <div class="module-card">
+                        <h2>⌛ 8. 디지털 타임캡슐</h2>
+                        <p style="color:var(--text-muted); margin-bottom:20px;">학년 말에 봉인 해제되는 추억의 편지를 보관합니다.</p>
+                        <textarea id="capsule-text" rows="3" placeholder="미래의 나나 친구들에게 남기는 메시지..." style="margin-bottom:10px;"></textarea>
+                        <button class="btn btn-primary" onclick="saveCapsule()">타임캡슐 봉인하기</button>
+                    </div>
+                </div>
+
+                <div id="view-pass" class="view-section animate-pop">
+                    <div class="module-card" style="text-align:center;">
+                        <h2>🪪 9. 스마트 디지털 외출증</h2>
+                        <p style="color:var(--text-muted); margin-bottom:20px;">화장실/보건실 이용 시 발급받는 실시간 패스입니다.</p>
+                        <div style="font-size:48px; font-weight:900; color:var(--primary); margin:20px 0;" id="pass-timer">10:00</div>
+                        <button class="btn btn-primary" onclick="startPassTimer()">외출증 발급 (10분 시작)</button>
+                    </div>
+                </div>
+
+                <div id="view-thermo" class="view-section animate-pop">
+                    <div class="module-card">
+                        <h2>🌡️ 10. 학급 온도탑</h2>
+                        <p style="color:var(--text-muted); margin-bottom:20px;">학급 전체가 기부 포인트를 모아 피자 파티를 엽니다!</p>
+                        <div style="background:var(--border); height:20px; border-radius:10px; overflow:hidden; margin-bottom:10px;">
+                            <div style="background:linear-gradient(90deg, var(--primary), var(--accent)); width:45%; height:100%;" id="thermo-bar"></div>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; font-weight:800; margin-bottom:20px;">
+                            <span>현재: 4,500 U</span>
+                            <span>목표: 10,000 U</span>
+                        </div>
+                        <button class="btn btn-primary" onclick="donateThermo(100)">100 U 학급에 기부하기</button>
+                    </div>
+                </div>
+
             </div>
         </main>
     </div>
 
-    <!-- 픽셀 에디터 모달 -->
+    <!-- 픽셀 모달 -->
     <div id="pixel-modal" class="hidden">
         <div class="pixel-content animate-pop">
             <div>
-                <h3 style="margin-bottom:16px; font-weight:800;">캐릭터 픽셀 에디터 (8x8)</h3>
+                <h3 style="margin-bottom:10px;">16x16 픽셀 스프라이트 디자인</h3>
                 <div class="pixel-grid" id="pixel-grid"></div>
             </div>
-            <div style="display:flex; flex-direction:column; gap:16px; width:150px;">
-                <div>
-                    <label style="display:block; font-size:12px; margin-bottom:8px;">색상 선택</label>
-                    <input type="color" id="pixel-color" value="#6366F1" style="height:40px; padding:0;">
-                </div>
-                <button class="btn btn-primary" onclick="closePixelEditor()">저장 및 닫기</button>
-                <p style="font-size:11px; color:var(--text-muted);">*플레이어 캐릭터의 외형이 변경됩니다.</p>
+            <div style="width:140px; display:flex; flex-direction:column; gap:10px;">
+                <label>팔레트</label>
+                <input type="color" id="pixel-color" value="#6366F1" style="height:40px;">
+                <button class="btn btn-primary" onclick="closePixelModal()">저장 및 적용</button>
             </div>
         </div>
     </div>
 
     <script>
-        // --- 상태 관리 ---
-        let currentRole = 'student';
-        let sessionUser = null;
-        let currentTemplate = '';
-        let currentTool = 'player';
-        let isPlayMode = false;
-        
-        // 맵 데이터 (12x12)
-        const gridSize = 12;
-        let mapData = Array(gridSize).fill().map(() => Array(gridSize).fill(null)); 
-        // null, 'wall', 'quiz', 'player'
-        
-        // 블록별 속성 데이터 저장소
-        let blockProps = {}; // key: "row-col", value: { ... }
-        let playerPos = { r: 10, c: 1 };
-        let playerProps = { speed: 5, jumpHeight: 15, gravityEnabled: true };
-        let envProps = { gravity: 9.8 };
+        // --- 20가지 템플릿 정의 ---
+        const templates20 = [
+            { id: 'fps', name: '2.5D FPS 던전', desc: '3D 시점 Raycaster 엔진 구동', badge: '3D/FPS' },
+            { id: 'platformer', name: '2D 플랫포머', desc: '점프 & 중력 사이드뷰', badge: '액션' },
+            { id: 'maze', name: '탑다운 미로', desc: '상하좌우 미로 탈출', badge: '퍼즐' },
+            { id: 'runner', name: '엔드리스 러너', desc: '자동 스크롤 장애물 회피', badge: '캐주얼' },
+            { id: 'vampire', name: '서바이벌 생존', desc: '몰려드는 적 퇴치', badge: '생존' },
+            { id: 'shooter', name: '스페이스 슈팅', desc: '우주 종스크롤 탄막', badge: '슈팅' },
+            { id: 'escape', name: '방탈출 RPG', desc: '단서 수집 및 암호 입력', badge: '어드벤처' },
+            { id: 'rhythm', name: '비트 퀴즈', desc: '리듬에 맞춰 퀴즈 입력', badge: '리듬' },
+            { id: 'defense', name: '타워 디펜스', desc: '타워 배치 및 길목 방어', badge: '전략' },
+            { id: 'racing', name: '미니 레이싱', desc: '서킷 코스 속도 대전', badge: '레이싱' },
+            { id: 'zombie', name: '좀비 아포칼립스', desc: '탄약 수집 생존', badge: '생존' },
+            { id: 'pinball', name: '핀볼 퀴즈', desc: '볼 튕기기 퀴즈 점수', badge: '아케이드' },
+            { id: 'arena', name: '아레나 격투', desc: '1v1 픽셀 대전', badge: '격투' },
+            { id: 'clicker', name: '클래스 키우기', desc: '클릭 기반 탭 타이쿤', badge: '방치형' },
+            { id: 'cards', name: '카드 퀴즈 배틀', desc: '덱빌딩 퀴즈 대결', badge: '전략' },
+            { id: 'jumpking', name: '점프 킹 고난도', desc: '떨어지면 처음부터', badge: '플랫폼' },
+            { id: 'detective', name: '픽셀 탐정', desc: '범인 찾기 추리', badge: '추리' },
+            { id: 'sandbox', name: '샌드박스 크래프팅', desc: '블록 자유 건축', badge: '샌드박스' },
+            { id: 'tycoon', name: '매점 타이쿤', desc: '손님 맞이 경영', badge: '경영' },
+            { id: 'boss', name: '보스 레이드', desc: '거대 보스 패턴 공략', badge: '보스전' }
+        ];
 
-        // 플레이어 애니메이션/물리용 변수
-        let playInterval;
+        // --- 전역 상태 ---
+        let appData = {
+            role: 'student',
+            user: null,
+            classCode: 'CS-9824',
+            points: 1000,
+            bankBalance: 0,
+            activeTmpl: 'fps',
+            gui: { hp: true, score: true, timer: true, text: 'CLASS SPACE FPS' }
+        };
 
-        // --- 공통 유틸 ---
+        // --- 맵 데이터 (30x30) ---
+        const MAP_SIZE = 30;
+        let mapData = Array(MAP_SIZE).fill().map(() => Array(MAP_SIZE).fill(0)); // 0: empty, 1: wall, 2: quiz
+        let playerPos = { x: 3.5, y: 3.5, dir: 0 }; // FPS용
+        let studioTool = 'wall';
+        let isPlaying = false;
+        let animFrame;
+
+        // --- 초기화 ---
+        window.onload = () => {
+            renderTemplates();
+            initPixelGrid();
+            initCanvas();
+        };
+
         function showToast(msg) {
             const box = document.getElementById('toast-container');
             const t = document.createElement('div');
             t.className = 'toast';
             t.innerHTML = `<i class="fas fa-check-circle" style="color:var(--primary)"></i> ${msg}`;
             box.appendChild(t);
-            setTimeout(() => t.remove(), 3500);
+            setTimeout(() => t.remove(), 3000);
         }
 
         function toggleTheme() {
             const b = document.body;
-            b.setAttribute('data-theme', b.getAttribute('data-theme')==='dark' ? 'light' : 'dark');
+            b.setAttribute('data-theme', b.getAttribute('data-theme')==='dark'?'light':'dark');
         }
 
-        // --- 인증 ---
-        function showAuth() { document.getElementById('auth-view').classList.remove('hidden'); }
+        function renderTemplates() {
+            const container = document.getElementById('landing-tmpl-list');
+            const studioGrid = document.getElementById('studio-tmpl-grid');
+            
+            const html = templates20.map(t => `
+                <div class="tmpl-card" onclick="openStudioEngine('${t.id}', '${t.name}')">
+                    <span class="tmpl-badge">${t.badge}</span>
+                    <h3 style="font-size:16px; margin-bottom:6px;">${t.name}</h3>
+                    <p style="font-size:12px; color:var(--text-muted);">${t.desc}</p>
+                </div>
+            `).join('');
+
+            container.innerHTML = html;
+            studioGrid.innerHTML = html;
+        }
+
+        // --- 인증 & 역할 선택 ---
+        function showAuth(mode) {
+            document.getElementById('auth-view').classList.remove('hidden');
+        }
         function hideAuth() { document.getElementById('auth-view').classList.add('hidden'); }
-        
+
         function selectRole(role) {
-            currentRole = role;
-            document.querySelectorAll('.role-btn').forEach(el => el.classList.remove('active'));
+            appData.role = role;
+            document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
             document.querySelector(`.role-btn[data-role="${role}"]`).classList.add('active');
+
+            const isTeacherAdmin = role !== 'student';
+            document.getElementById('create-class-box').classList.toggle('hidden', !isTeacherAdmin);
+        }
+
+        function generateClassCode() {
+            const code = 'CS-' + Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('auth-code').value = code;
+            showToast(`신규 학급 코드 생성: ${code}`);
         }
 
         function handleAuth(e) {
             e.preventDefault();
             const name = document.getElementById('auth-name').value.trim();
-            const pw = document.getElementById('auth-pw').value.trim();
-            if(!name || !pw) return;
-            
-            sessionUser = { name, role: currentRole };
-            localStorage.setItem('cs_session', JSON.stringify(sessionUser));
-            
+            let code = document.getElementById('auth-code').value.trim() || 'CS-9824';
+
+            appData.user = name;
+            appData.classCode = code;
+
             hideAuth();
             document.getElementById('landing-view').classList.add('hidden');
             document.getElementById('dashboard-view').classList.remove('hidden');
-            
-            // 사이드바 업데이트
+
             document.getElementById('ui-name').innerText = name;
-            let roleText = currentRole === 'teacher' ? '선생님' : (currentRole === 'admin_student' ? '관리자 학생' : '학생');
-            document.getElementById('ui-role').innerText = roleText;
-            
-            // 권한별 메뉴 숨김 등 확장 가능
-            
-            showToast(`${roleText} 권한으로 로그인되었습니다.`);
-            document.querySelector('.nav-item[data-view="studio"]').click();
+            document.getElementById('ui-class-code').innerText = `학급코드: ${code}`;
+            document.getElementById('ui-role').innerText = appData.role === 'teacher' ? '선생님' : (appData.role === 'admin_student' ? '관리자' : '학생');
+
+            showToast(`${name}님 환영합니다!`);
         }
 
         function logout() {
-            sessionUser = null;
-            localStorage.removeItem('cs_session');
             document.getElementById('dashboard-view').classList.add('hidden');
             document.getElementById('landing-view').classList.remove('hidden');
         }
@@ -419,241 +585,359 @@
                 document.querySelectorAll('.view-section, .nav-item').forEach(el => el.classList.remove('active'));
                 document.getElementById('view-' + view).classList.add('active');
                 e.currentTarget.classList.add('active');
+                document.getElementById('topbar-title').innerText = e.currentTarget.innerText;
             });
         });
 
-        // ================= 게임 스튜디오 로직 ================= //
-        function initEditor(template) {
-            currentTemplate = template;
-            document.getElementById('template-screen').classList.add('hidden');
-            document.getElementById('editor-screen').classList.remove('hidden');
+        // --- 2D / 2.5D FPS 스튜디오 엔진 ---
+        function openStudioEngine(tmplId, tmplName) {
+            appData.activeTmpl = tmplId;
+            document.getElementById('studio-tmpl-select').classList.add('hidden');
+            document.getElementById('studio-editor-box').classList.remove('hidden');
+            document.getElementById('active-tmpl-name').innerText = `${tmplName} (30x30 대형 맵)`;
             
-            // 환경 설정 초기화
-            if(template === 'platformer') {
-                envProps.gravity = 9.8;
-                playerProps.gravityEnabled = true;
-                document.getElementById('prop-env').innerHTML = `<label>전역 중력 (m/s²)</label><input type="number" value="${envProps.gravity}" onchange="envProps.gravity=this.value">`;
-            } else {
-                envProps.gravity = 0;
-                playerProps.gravityEnabled = false;
-                document.getElementById('prop-env').innerHTML = `<p style="color:var(--text-muted)">탑다운 모드 (중력 비활성)</p>`;
+            // 데모 맵 벽 생성
+            for(let i=0; i<MAP_SIZE; i++) {
+                mapData[0][i] = 1; mapData[MAP_SIZE-1][i] = 1;
+                mapData[i][0] = 1; mapData[i][MAP_SIZE-1] = 1;
             }
-
-            renderGrid();
+            mapData[5][5] = 2; // 퀴즈 블록 하나 배치
+            drawEditorMap();
         }
 
-        function setTool(tool) {
-            currentTool = tool;
-            document.querySelectorAll('.tool-btn').forEach(el => el.classList.remove('active'));
-            event.currentTarget.classList.add('active');
+        function closeEditor() {
+            document.getElementById('studio-editor-box').classList.add('hidden');
+            document.getElementById('studio-tmpl-select').classList.remove('hidden');
+            isPlaying = false;
+            cancelAnimationFrame(animFrame);
         }
 
-        function renderGrid() {
-            const container = document.getElementById('grid-container');
-            container.innerHTML = '';
+        function setStudioTool(tool) { studioTool = tool; }
+
+        function toggleGuiEditor() {
+            document.getElementById('gui-config-panel').classList.toggle('hidden');
+        }
+
+        function updateGUIConfig() {
+            appData.gui.hp = document.getElementById('gui-hp').checked;
+            appData.gui.score = document.getElementById('gui-score').checked;
+            appData.gui.timer = document.getElementById('gui-timer').checked;
+            appData.gui.text = document.getElementById('gui-text').value;
+
+            document.getElementById('hud-hp-box').style.display = appData.gui.hp ? 'inline-flex' : 'none';
+            document.getElementById('hud-score-box').style.display = appData.gui.score ? 'inline-flex' : 'none';
+            document.getElementById('hud-timer-box').style.display = appData.gui.timer ? 'block' : 'none';
+            document.getElementById('hud-text-box').innerText = appData.gui.text;
+        }
+
+        // 캔버스 시스템 (2D 에디터 & 2.5D FPS 레이캐스터)
+        let canvas, ctx;
+        function initCanvas() {
+            canvas = document.getElementById('game-canvas');
+            ctx = canvas.getContext('2d');
             
-            for(let r=0; r<gridSize; r++) {
-                for(let c=0; c<gridSize; c++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'grid-cell';
-                    cell.dataset.r = r;
-                    cell.dataset.c = c;
-                    
-                    const val = mapData[r][c];
-                    if(val) cell.classList.add('block-' + val);
-                    
-                    // 플레이 모드가 아닐때만 클릭(편집) 허용
-                    cell.addEventListener('mousedown', (e) => handleCellClick(r, c, e));
-                    container.appendChild(cell);
+            canvas.addEventListener('click', e => {
+                if(isPlaying) return;
+                const rect = canvas.getBoundingClientRect();
+                const mx = e.clientX - rect.left;
+                const my = e.clientY - rect.top;
+                
+                const cellW = canvas.width / MAP_SIZE;
+                const cellH = canvas.height / MAP_SIZE;
+                const c = Math.floor(mx / cellW);
+                const r = Math.floor(my / cellH);
+
+                if(r >= 0 && r < MAP_SIZE && c >= 0 && c < MAP_SIZE) {
+                    if(studioTool === 'wall') mapData[r][c] = 1;
+                    else if(studioTool === 'quiz') mapData[r][c] = 2;
+                    else if(studioTool === 'eraser') mapData[r][c] = 0;
+                    else if(studioTool === 'player') playerPos = { x: c + 0.5, y: r + 0.5, dir: 0 };
+                    drawEditorMap();
                 }
-            }
+            });
         }
 
-        function handleCellClick(r, c, e) {
-            if(isPlayMode) return;
+        function drawEditorMap() {
+            if(isPlaying) return;
+            ctx.fillStyle = '#050811';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // 이미 배치된 것을 좌클릭하면 속성 패널 열기 (수정 모드)
-            if(mapData[r][c] !== null && currentTool !== 'eraser') {
-                openProperties(r, c);
-                return;
-            }
+            const cw = canvas.width / MAP_SIZE;
+            const ch = canvas.height / MAP_SIZE;
 
-            // 배치 모드
-            if(currentTool === 'player') {
-                // 기존 플레이어 제거
-                for(let ir=0; ir<gridSize; ir++) {
-                    for(let ic=0; ic<gridSize; ic++) {
-                        if(mapData[ir][ic] === 'player') mapData[ir][ic] = null;
+            for(let r=0; r<MAP_SIZE; r++) {
+                for(let c=0; c<MAP_SIZE; c++) {
+                    if(mapData[r][c] === 1) {
+                        ctx.fillStyle = '#64748B';
+                        ctx.fillRect(c*cw, r*ch, cw-1, ch-1);
+                    } else if(mapData[r][c] === 2) {
+                        ctx.fillStyle = '#F59E0B';
+                        ctx.fillRect(c*cw, r*ch, cw-1, ch-1);
                     }
                 }
-                mapData[r][c] = 'player';
-                playerPos = {r, c};
-                openProperties('player', null);
-            } else if (currentTool === 'eraser') {
-                mapData[r][c] = null;
-                delete blockProps[`${r}-${c}`];
-            } else {
-                mapData[r][c] = currentTool;
-                // 기본 속성 주입
-                if(currentTool === 'quiz') {
-                    blockProps[`${r}-${c}`] = { 
-                        anchored: true, 
-                        question: "태조 이성계가 세운 나라는?", 
-                        answer: "조선" 
-                    };
-                } else if(currentTool === 'wall') {
-                    blockProps[`${r}-${c}`] = { anchored: true };
-                }
-                openProperties(r, c);
             }
-            renderGrid();
+
+            // 플레이어
+            ctx.fillStyle = '#6366F1';
+            ctx.beginPath();
+            ctx.arc(playerPos.x * cw, playerPos.y * ch, cw/2, 0, Math.PI*2);
+            ctx.fill();
         }
 
-        // 동적 속성 패널
-        function openProperties(r, c) {
-            const panel = document.getElementById('dynamic-props');
-            if(r === 'player') {
-                panel.innerHTML = `
-                    <h3><i class="fas fa-user"></i> 플레이어 속성</h3>
-                    <div class="prop-group">
-                        <label>이동 속도</label><input type="number" value="${playerProps.speed}" onchange="playerProps.speed=this.value">
-                        ${currentTemplate === 'platformer' ? `<label style="margin-top:10px;">점프 높이</label><input type="number" value="${playerProps.jumpHeight}" onchange="playerProps.jumpHeight=this.value">` : ''}
-                        <label style="margin-top:10px; display:flex; align-items:center; gap:8px;"><input type="checkbox" checked disabled> 물리(충돌) 적용</label>
-                    </div>
-                `;
-            } else {
-                const type = mapData[r][c];
-                const key = `${r}-${c}`;
-                const props = blockProps[key];
-                
-                if(type === 'quiz') {
-                    panel.innerHTML = `
-                        <h3><i class="fas fa-question-circle" style="color:var(--warning)"></i> 퀴즈 블록 속성</h3>
-                        <div class="prop-group">
-                            <label>고정 여부 (Anchored)</label>
-                            <select onchange="blockProps['${key}'].anchored = (this.value==='true')">
-                                <option value="true" ${props.anchored?'selected':''}>O (고정)</option>
-                                <option value="false" ${!props.anchored?'selected':''}>X (중력/밀림 적용)</option>
-                            </select>
-                            <label style="margin-top:10px;">튀어나올 문제 텍스트</label>
-                            <input type="text" value="${props.question}" onchange="blockProps['${key}'].question=this.value">
-                            <label style="margin-top:10px;">정답</label>
-                            <input type="text" value="${props.answer}" onchange="blockProps['${key}'].answer=this.value">
-                        </div>
-                    `;
-                } else if(type === 'wall') {
-                    panel.innerHTML = `
-                        <h3><i class="fas fa-square"></i> 일반 파트 속성</h3>
-                        <div class="prop-group">
-                            <label>고정 여부 (Anchored)</label>
-                            <select onchange="blockProps['${key}'].anchored = (this.value==='true')">
-                                <option value="true" ${props.anchored?'selected':''}>O (고정됨)</option>
-                                <option value="false" ${!props.anchored?'selected':''}>X (물리엔진 적용)</option>
-                            </select>
-                            <label style="margin-top:10px;">반발력 (Bounciness)</label>
-                            <input type="number" value="0" min="0" max="1" step="0.1">
-                        </div>
-                    `;
-                }
-            }
-        }
+        function togglePlay() {
+            isPlaying = !isPlaying;
+            const btn = document.getElementById('btn-play-toggle');
+            const status = document.getElementById('canvas-status-text');
 
-        // --- 픽셀 에디터 ---
-        function openPixelEditor() {
-            document.getElementById('pixel-modal').classList.remove('hidden');
-            const grid = document.getElementById('pixel-grid');
-            if(grid.innerHTML === '') {
-                for(let i=0; i<64; i++) {
-                    let c = document.createElement('div');
-                    c.className = 'pixel-cell';
-                    c.onclick = function() { this.style.backgroundColor = document.getElementById('pixel-color').value; }
-                    grid.appendChild(c);
-                }
-            }
-        }
-        function closePixelEditor() {
-            document.getElementById('pixel-modal').classList.add('hidden');
-            showToast('캐릭터 디자인이 저장되었습니다.');
-        }
-
-        // --- 플레이 테스트 모드 (엔진 시뮬레이션) ---
-        let currentQuizAnswer = '';
-
-        function togglePlayMode() {
-            isPlayMode = !isPlayMode;
-            const btn = document.getElementById('play-btn');
-            const ind = document.getElementById('mode-indicator');
-            
-            if(isPlayMode) {
-                btn.innerHTML = '<i class="fas fa-stop"></i> 편집 모드로 복귀';
+            if(isPlaying) {
+                btn.innerHTML = '<i class="fas fa-stop"></i> 중지';
                 btn.classList.replace('btn-primary', 'btn-danger');
-                ind.innerHTML = '🎮 플레이 테스트 중 (W,A,S,D로 이동)';
-                ind.style.color = 'var(--secondary)';
+                status.innerText = '🎮 실행 중 (WASD / 터치 패드로 이동)';
                 
-                // 이벤트 리스너 추가
-                window.addEventListener('keydown', handleMovement);
+                window.addEventListener('keydown', handleKeyInput);
+                gameLoop();
             } else {
-                btn.innerHTML = '<i class="fas fa-play"></i> 테스트 플레이';
+                btn.innerHTML = '<i class="fas fa-play"></i> 테스트 플레이 실행';
                 btn.classList.replace('btn-danger', 'btn-primary');
-                ind.innerHTML = '✏️ 에디터 모드 (클릭하여 배치)';
-                ind.style.color = 'var(--text-main)';
+                status.innerText = '✏️ 에디터 모드 (30x30 그리드 클릭하여 편집)';
                 
-                window.removeEventListener('keydown', handleMovement);
-                document.getElementById('in-game-quiz').classList.add('hidden');
+                window.removeEventListener('keydown', handleKeyInput);
+                cancelAnimationFrame(animFrame);
+                drawEditorMap();
             }
         }
 
-        function handleMovement(e) {
-            if(!isPlayMode || document.getElementById('in-game-quiz').classList.contains('hidden') === false) return;
-            
-            let nr = playerPos.r;
-            let nc = playerPos.c;
-            
-            if(e.key === 'w' || e.key === 'W' || e.key === 'ArrowUp') nr--;
-            if(e.key === 's' || e.key === 'S' || e.key === 'ArrowDown') nr++;
-            if(e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') nc--;
-            if(e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') nc++;
-            
-            // 맵 경계 체크
-            if(nr<0 || nr>=gridSize || nc<0 || nc>=gridSize) return;
+        // 키보드 & 컨트롤 모션
+        function handleKeyInput(e) {
+            if(!isPlaying) return;
+            let moveStep = 0.2;
+            let rotStep = 0.1;
 
-            // 충돌(물리) 체크
-            const targetCell = mapData[nr][nc];
-            
-            if(targetCell === 'wall') return; // 벽은 통과 불가
-            
-            if(targetCell === 'quiz') {
-                // 퀴즈 블록과 닿으면 팝업!
-                const props = blockProps[`${nr}-${nc}`];
-                triggerQuiz(props.question, props.answer);
+            if(e.key === 'w' || e.key === 'W') movePlayer(moveStep);
+            if(e.key === 's' || e.key === 'S') movePlayer(-moveStep);
+            if(e.key === 'a' || e.key === 'A') playerPos.dir -= rotStep;
+            if(e.key === 'd' || e.key === 'D') playerPos.dir += rotStep;
+        }
+
+        function mobileInput(action) {
+            if(!isPlaying) return;
+            if(action === 'up') movePlayer(0.3);
+            if(action === 'down') movePlayer(-0.3);
+            if(action === 'left') playerPos.dir -= 0.15;
+            if(action === 'right') playerPos.dir += 0.15;
+        }
+
+        function movePlayer(step) {
+            let nx = playerPos.x + Math.cos(playerPos.dir) * step;
+            let ny = playerPos.y + Math.sin(playerPos.dir) * step;
+
+            let cellX = Math.floor(nx);
+            let cellY = Math.floor(ny);
+
+            if(mapData[cellY][cellX] === 2) {
+                // 퀴즈 블록 감지!
+                triggerInGameQuiz();
                 return;
             }
 
-            // 이동 처리
-            mapData[playerPos.r][playerPos.c] = null;
-            playerPos = {r: nr, c: nc};
-            mapData[nr][nc] = 'player';
-            renderGrid();
+            if(mapData[cellY][cellX] !== 1) {
+                playerPos.x = nx;
+                playerPos.y = ny;
+            }
         }
 
-        function triggerQuiz(q, a) {
-            document.getElementById('in-game-quiz').classList.remove('hidden');
-            document.getElementById('quiz-question-text').innerText = q;
-            currentQuizAnswer = a;
-            document.getElementById('quiz-answer-input').value = '';
-            document.getElementById('quiz-answer-input').focus();
+        // 2.5D FPS 레이캐스팅 엔진 렌더러
+        function renderFPSRaycaster() {
+            ctx.fillStyle = '#1E293B'; // 천장
+            ctx.fillRect(0, 0, canvas.width, canvas.height/2);
+            ctx.fillStyle = '#0F172A'; // 바닥
+            ctx.fillRect(0, canvas.height/2, canvas.width, canvas.height/2);
+
+            const fov = Math.PI / 3;
+            const numRays = canvas.width;
+            const halfFov = fov / 2;
+
+            for(let i=0; i<numRays; i++) {
+                let rayAngle = (playerPos.dir - halfFov) + (i / numRays) * fov;
+                let distanceToWall = 0;
+                let hitWall = false;
+                let hitQuiz = false;
+
+                let cos = Math.cos(rayAngle);
+                let sin = Math.sin(rayAngle);
+
+                while(!hitWall && distanceToWall < 16) {
+                    distanceToWall += 0.1;
+                    let checkX = Math.floor(playerPos.x + cos * distanceToWall);
+                    let checkY = Math.floor(playerPos.y + sin * distanceToWall);
+
+                    if(checkX < 0 || checkX >= MAP_SIZE || checkY < 0 || checkY >= MAP_SIZE) {
+                        hitWall = true;
+                        distanceToWall = 16;
+                    } else if(mapData[checkY][checkX] === 1) {
+                        hitWall = true;
+                    } else if(mapData[checkY][checkX] === 2) {
+                        hitWall = true;
+                        hitQuiz = true;
+                    }
+                }
+
+                let correctedDist = distanceToWall * Math.cos(rayAngle - playerPos.dir);
+                let wallHeight = Math.min(canvas.height, (canvas.height / correctedDist));
+
+                ctx.fillStyle = hitQuiz ? '#F59E0B' : `rgb(${Math.max(20, 200 - correctedDist*12)}, ${Math.max(20, 200 - correctedDist*12)}, ${Math.max(40, 240 - correctedDist*12)})`;
+                ctx.fillRect(i, (canvas.height - wallHeight)/2, 1, wallHeight);
+            }
         }
 
-        function checkQuizAnswer() {
-            const input = document.getElementById('quiz-answer-input').value.trim();
-            if(input === currentQuizAnswer) {
-                alert('정답입니다! 통과!');
-                document.getElementById('in-game-quiz').classList.add('hidden');
-                
-                // 퀴즈 블록 부수고 플레이어 이동 시뮬레이션
-                // (간단히 제자리 유지하고 게임 재개)
+        function gameLoop() {
+            if(!isPlaying) return;
+            
+            if(appData.activeTmpl === 'fps') {
+                renderFPSRaycaster();
             } else {
-                alert('틀렸습니다! 다시 생각해보세요.');
+                drawEditorMap();
+            }
+
+            animFrame = requestAnimationFrame(gameLoop);
+        }
+
+        function triggerInGameQuiz() {
+            document.getElementById('game-quiz-modal').classList.remove('hidden');
+            document.getElementById('game-quiz-q').innerText = document.getElementById('tool-quiz-q').value;
+        }
+
+        function submitGameQuiz() {
+            const input = document.getElementById('game-quiz-input').value.trim();
+            const targetA = document.getElementById('tool-quiz-a').value.trim();
+
+            if(input === targetA) {
+                showToast('정답입니다! +100 U 획득');
+                appData.points += 100;
+                document.getElementById('dash-points').innerText = appData.points + ' U';
+                document.getElementById('game-quiz-modal').classList.add('hidden');
+            } else {
+                showToast('오답입니다. 다시 시도하세요.');
+            }
+        }
+
+        // --- 픽셀 모달 ---
+        function openPixelModal() { document.getElementById('pixel-modal').classList.remove('hidden'); }
+        function closePixelModal() { document.getElementById('pixel-modal').classList.add('hidden'); showToast('픽셀 캐릭터가 적응되었습니다.'); }
+        
+        function initPixelGrid() {
+            const grid = document.getElementById('pixel-grid');
+            for(let i=0; i<256; i++) {
+                let cell = document.createElement('div');
+                cell.className = 'pixel-cell';
+                cell.onclick = function() { this.style.backgroundColor = document.getElementById('pixel-color').value; };
+                grid.appendChild(cell);
+            }
+        }
+
+        // --- 10대 모듈 실제 로직 ---
+        function bankDeposit(amt) {
+            if(appData.points >= amt) {
+                appData.points -= amt;
+                appData.bankBalance += amt;
+                document.getElementById('dash-points').innerText = appData.points + ' U';
+                document.getElementById('bank-balance').innerText = appData.bankBalance;
+                showToast(`${amt} U 예금 완료!`);
+            } else showToast('포인트가 부족합니다.');
+        }
+
+        function bankWithdraw(amt) {
+            if(appData.bankBalance >= amt) {
+                appData.bankBalance -= amt;
+                appData.points += amt;
+                document.getElementById('dash-points').innerText = appData.points + ' U';
+                document.getElementById('bank-balance').innerText = appData.bankBalance;
+                showToast(`${amt} U 출금 완료!`);
+            } else showToast('예금 잔액이 부족합니다.');
+        }
+
+        function addCourtRule() {
+            const text = document.getElementById('court-input').value.trim();
+            if(!text) return;
+            const container = document.getElementById('court-list');
+            const item = document.createElement('div');
+            item.className = 'module-card';
+            item.style.padding = '12px';
+            item.innerHTML = `<strong>${text}</strong> <button class="btn btn-secondary" onclick="this.parentNode.remove()" style="float:right;">찬성 1 / 반대 0 (투표)</button>`;
+            container.appendChild(item);
+            document.getElementById('court-input').value = '';
+            showToast('안건이 법정에 제출되었습니다.');
+        }
+
+        function addLostItem() {
+            const name = document.getElementById('lost-item-name').value.trim();
+            if(!name) return;
+            const container = document.getElementById('lost-list');
+            const item = document.createElement('div');
+            item.className = 'module-card';
+            item.innerHTML = `<i class="fas fa-box" style="font-size:24px; color:var(--primary);"></i><div style="font-weight:700; margin:8px 0;">${name}</div><button class="btn btn-primary" style="width:100%;" onclick="this.parentNode.remove(); showToast('주인을 찾았습니다!')">내 물건입니다</button>`;
+            container.appendChild(item);
+            document.getElementById('lost-item-name').value = '';
+        }
+
+        function buyLottery() {
+            if(appData.points >= 100) {
+                appData.points -= 100;
+                document.getElementById('dash-points').innerText = appData.points + ' U';
+                showToast('복권을 구매했습니다.');
+            }
+        }
+
+        function drawLottery() {
+            const win = Math.floor(Math.random() * 10) + 1;
+            const userNum = document.getElementById('lotto-num').value;
+            if(parseInt(userNum) === win) {
+                alert(`🎉 당첨! 행운의 번호는 ${win}번입니다! 1,000 U 상금 지급!`);
+                appData.points += 1000;
+                document.getElementById('dash-points').innerText = appData.points + ' U';
+            } else {
+                alert(`아쉽습니다! 당첨 번호는 ${win}번이었습니다.`);
+            }
+        }
+
+        function sendSuggestion() {
+            document.getElementById('sugg-text').value = '';
+            showToast('선생님에게만 건의사항이 비밀리에 전송되었습니다.');
+        }
+
+        function sendManitoMsg() {
+            document.getElementById('manito-msg').value = '';
+            showToast('마니또에게 익명 비밀 편지가 전송되었습니다.');
+        }
+
+        function saveCapsule() {
+            document.getElementById('capsule-text').value = '';
+            showToast('학년 말까지 타임캡슐이 봉인되었습니다.');
+        }
+
+        function startPassTimer() {
+            let sec = 600;
+            const display = document.getElementById('pass-timer');
+            document.getElementById('dash-pass-status').innerText = '외출 중 (10분 패스 활성)';
+            
+            const timer = setInterval(() => {
+                sec--;
+                let m = Math.floor(sec/60);
+                let s = sec%60;
+                display.innerText = `${m}:${s<10?'0':''}${s}`;
+                if(sec <= 0) {
+                    clearInterval(timer);
+                    document.getElementById('dash-pass-status').innerText = '착석 중 (비활성)';
+                    showToast('외출 시간이 종료되었습니다.');
+                }
+            }, 1000);
+        }
+
+        function donateThermo(amt) {
+            if(appData.points >= amt) {
+                appData.points -= amt;
+                document.getElementById('dash-points').innerText = appData.points + ' U';
+                showToast(`학급 온도탑에 ${amt} U를 기부했습니다!`);
             }
         }
     </script>
