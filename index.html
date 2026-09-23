@@ -8,572 +8,653 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
+        /* ================= 1. 공통 및 애니메이션 ================= */
         :root {
             --primary: #6366F1; --primary-hover: #4F46E5; --primary-light: rgba(99, 102, 241, 0.1);
             --secondary: #10B981; --accent: #F43F5E; --warning: #F59E0B; --info: #3B82F6;
             --bg-body: #0B0F19; --bg-surface: #1E293B; --bg-surface-hover: #334155;
             --text-main: #F8FAFC; --text-muted: #94A3B8; --border: #334155;
             --glass-bg: rgba(30, 41, 59, 0.85); --glass-border: rgba(255, 255, 255, 0.08);
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
             --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-            --radius-sm: 10px; --radius-md: 16px; --radius-lg: 24px;
+            --radius-sm: 8px; --radius-md: 16px; --radius-lg: 24px;
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         [data-theme="light"] {
             --bg-body: #F1F5F9; --bg-surface: #FFFFFF; --bg-surface-hover: #F8FAFC;
             --text-main: #0F172A; --text-muted: #64748B; --border: #E2E8F0;
-            --glass-bg: rgba(255, 255, 255, 0.85); --glass-border: rgba(255, 255, 255, 0.2);
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --glass-bg: rgba(255, 255, 255, 0.85);
             --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Pretendard', sans-serif; }
-        body { background: var(--bg-body); color: var(--text-main); overflow-x: hidden; transition: var(--transition); min-height: 100vh; }
+        body { background: var(--bg-body); color: var(--text-main); overflow-x: hidden; transition: var(--transition); }
         .hidden { display: none !important; }
-        button { cursor: pointer; border: none; outline: none; background: none; font-family: inherit; transition: var(--transition); }
-        input, textarea, select { font-family: inherit; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); border-radius: var(--radius-sm); padding: 14px; font-size: 15px; outline: none; width: 100%; transition: var(--transition); }
+        button, select { cursor: pointer; border: none; outline: none; background: none; font-family: inherit; transition: var(--transition); }
+        input, textarea, select { font-family: inherit; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); border-radius: var(--radius-sm); padding: 12px; font-size: 14px; outline: none; width: 100%; transition: var(--transition); }
         input:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+        
+        /* 커스텀 스크롤바 */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: var(--bg-body); }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
-        .btn { padding: 12px 24px; border-radius: var(--radius-sm); font-weight: 600; font-size: 15px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn { padding: 12px 20px; border-radius: var(--radius-sm); font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-primary { background: var(--primary); color: #fff; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4); }
         .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); }
         .btn-secondary { background: var(--bg-surface-hover); color: var(--text-main); border: 1px solid var(--border); }
-        .btn-secondary:hover { background: var(--border); }
+        .btn-secondary:hover { background: var(--border); transform: translateY(-2px); }
+        .btn-danger { background: var(--accent); color: white; }
 
+        /* 화려한 GUI 애니메이션 */
+        @keyframes popIn { 0% { opacity: 0; transform: scale(0.9) translateY(20px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes pulseGlow { 0% { box-shadow: 0 0 0 0 var(--primary-light); } 70% { box-shadow: 0 0 0 15px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+
+        .animate-pop { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        
         /* 토스트 알림 */
         #toast-container { position: fixed; top: 20px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
-        .toast { background: var(--bg-surface); color: var(--text-main); padding: 16px 24px; border-radius: var(--radius-sm); box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 12px; animation: slideInRight 0.4s forwards, fadeOut 0.5s ease-out 3s forwards; border-left: 4px solid var(--primary); font-weight: 500; border: 1px solid var(--border); }
-        @keyframes slideInRight { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+        .toast { background: var(--bg-surface); color: var(--text-main); padding: 16px 24px; border-radius: var(--radius-sm); box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 12px; animation: slideInRight 0.4s forwards, popIn 0.5s reverse 3s forwards; border-left: 4px solid var(--primary); font-weight: 600; border: 1px solid var(--border); }
 
-        /* ================= 1. 랜딩 페이지 ================= */
+        /* ================= 2. 랜딩 페이지 (스크롤 복구) ================= */
         #landing-view { min-height: 100vh; display: flex; flex-direction: column; }
-        .landing-nav { padding: 20px 5%; display: flex; justify-content: space-between; align-items: center; background: var(--glass-bg); backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--glass-border); }
+        .landing-nav { padding: 16px 5%; display: flex; justify-content: space-between; align-items: center; background: var(--glass-bg); backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--glass-border); }
         .landing-logo { font-size: 24px; font-weight: 900; color: var(--primary); display: flex; align-items: center; gap: 10px; font-family: 'Poppins', sans-serif; }
         
-        .hero { min-height: 85vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 0 20px; position: relative; }
-        .hero h1 { font-size: 64px; font-weight: 900; line-height: 1.2; margin-bottom: 24px; letter-spacing: -1px; }
-        .hero h1 span { background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .hero p { font-size: 18px; color: var(--text-muted); max-width: 700px; line-height: 1.7; margin-bottom: 40px; }
-
-        /* ================= 2. 인증 뷰 (실제 데이터 저장) ================= */
-        #auth-view { height: 100vh; display: flex; justify-content: center; align-items: center; background: var(--bg-body); position: fixed; top:0; left:0; width:100%; z-index: 1000; }
-        .auth-card { background: var(--bg-surface); padding: 48px; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); width: 100%; max-width: 460px; border: 1px solid var(--border); }
-        .auth-tabs { display: flex; gap: 10px; margin-bottom: 30px; background: var(--bg-body); padding: 6px; border-radius: var(--radius-sm); }
-        .auth-tab { flex: 1; padding: 12px; text-align: center; font-weight: 700; border-radius: 6px; color: var(--text-muted); cursor: pointer; transition: var(--transition); }
-        .auth-tab.active { background: var(--bg-surface); color: var(--primary); box-shadow: var(--shadow-sm); }
-
-        /* ================= 3. 대시보드 (메인 앱) ================= */
-        #dashboard-view { display: flex; height: 100vh; background: var(--bg-body); overflow: hidden; }
-        .sidebar { width: 280px; background: var(--bg-surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 24px; z-index: 10; }
-        .brand { font-size: 22px; font-weight: 900; color: var(--primary); margin-bottom: 30px; display: flex; align-items: center; gap: 10px; font-family: 'Poppins', sans-serif; }
+        .section { padding: 100px 5%; position: relative; text-align: center; }
+        .section-title { font-size: 42px; font-weight: 900; margin-bottom: 20px; letter-spacing: -1px; }
+        .section-subtitle { font-size: 18px; color: var(--text-muted); margin-bottom: 60px; max-width: 700px; margin-left: auto; margin-right: auto; line-height: 1.6; }
         
-        .nav-category { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin: 24px 0 8px 10px; }
-        .nav-item { padding: 14px 18px; border-radius: var(--radius-sm); display: flex; align-items: center; gap: 14px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: var(--transition); font-size: 15px; }
-        .nav-item:hover { background: var(--bg-surface-hover); color: var(--text-main); }
-        .nav-item.active { background: var(--primary-light); color: var(--primary); font-weight: 700; }
+        .hero { min-height: 90vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .hero h1 { font-size: 68px; font-weight: 900; line-height: 1.2; margin-bottom: 24px; letter-spacing: -2px; }
+        .hero h1 span { background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        /* 10대 기능 그리드 */
+        .features-grid-10 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; max-width: 1400px; margin: 0 auto; text-align: left; }
+        .f-card { background: var(--bg-surface); padding: 32px; border-radius: var(--radius-lg); border: 1px solid var(--border); transition: var(--transition); }
+        .f-card:hover { transform: translateY(-10px); box-shadow: var(--shadow-lg); border-color: var(--primary); }
+        .f-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 24px; margin-bottom: 20px; color: white; }
+        .f-card h3 { font-size: 18px; font-weight: 800; margin-bottom: 12px; }
+        .f-card p { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+
+        /* ================= 3. 인증 뷰 (역할 선택 포함) ================= */
+        #auth-view { height: 100vh; display: flex; justify-content: center; align-items: center; background: var(--bg-body); position: fixed; top:0; left:0; width:100%; z-index: 1000; }
+        .auth-card { background: var(--bg-surface); padding: 48px; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); width: 100%; max-width: 480px; border: 1px solid var(--border); }
+        
+        .role-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 24px; }
+        .role-btn { padding: 12px 0; text-align: center; border: 2px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; font-weight: 700; color: var(--text-muted); font-size: 14px; transition: var(--transition); }
+        .role-btn.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+        .role-btn i { display: block; font-size: 20px; margin-bottom: 8px; }
+
+        /* ================= 4. 대시보드 및 레이아웃 ================= */
+        #dashboard-view { display: flex; height: 100vh; background: var(--bg-body); overflow: hidden; }
+        .sidebar { width: 260px; background: var(--bg-surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 24px; }
+        .nav-item { padding: 12px 16px; border-radius: var(--radius-sm); display: flex; align-items: center; gap: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: var(--transition); font-size: 14px; margin-bottom: 4px; }
+        .nav-item:hover, .nav-item.active { background: var(--primary-light); color: var(--primary); }
         
         .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-        .topbar { background: var(--bg-surface); height: 75px; padding: 0 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
-        .content-body { flex: 1; overflow-y: auto; padding: 40px; position: relative; }
-        .view-section { display: none; animation: fadeIn 0.3s ease; }
+        .topbar { background: var(--bg-surface); height: 70px; padding: 0 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+        .content-body { flex: 1; overflow-y: auto; padding: 30px; position: relative; }
+        .view-section { display: none; }
         .view-section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* ================= 킬러 콘텐츠: 게임 스튜디오 & 아케이드 ================= */
-        .arcade-header { background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%); color: white; padding: 48px; border-radius: var(--radius-lg); margin-bottom: 32px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3); }
-        .arcade-tabs { display: flex; gap: 12px; margin-bottom: 30px; }
-        .arcade-tab-btn { padding: 12px 24px; border-radius: var(--radius-sm); font-weight: 700; background: var(--bg-surface); color: var(--text-muted); border: 1px solid var(--border); cursor: pointer; }
-        .arcade-tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .role-badge { background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; }
 
-        .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
-        .game-card { background: var(--bg-surface); border-radius: var(--radius-md); border: 1px solid var(--border); overflow: thumbnail; transition: var(--transition); display: flex; flex-direction: column; }
-        .game-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); border-color: var(--primary); }
-        .game-banner { height: 160px; background: linear-gradient(135deg, #1E293B, #0F172A); display: flex; justify-content: center; align-items: center; font-size: 48px; position: relative; }
-        .game-info { padding: 24px; flex: 1; display: flex; flex-direction: column; }
-        .game-title { font-size: 20px; font-weight: 800; margin-bottom: 8px; }
-        .game-desc { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5; flex: 1; }
+        /* ================= 5. 게임 스튜디오 (템플릿, 맵, 픽셀, 물리엔진) ================= */
+        .studio-layout { display: flex; gap: 20px; height: calc(100vh - 150px); }
+        
+        /* 왼쪽: 툴바 */
+        .tool-panel { width: 220px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; overflow-y: auto; }
+        .tool-panel h3 { font-size: 14px; color: var(--text-muted); margin-bottom: 12px; font-weight: 800; text-transform: uppercase; }
+        .tool-btn { width: 100%; padding: 12px; margin-bottom: 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-body); color: var(--text-main); font-weight: 600; text-align: left; display: flex; align-items: center; gap: 10px; }
+        .tool-btn:hover, .tool-btn.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+        
+        /* 중앙: 맵 에디터 / 플레이 캔버스 */
+        .canvas-area { flex: 1; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); display: flex; flex-direction: column; position: relative; overflow: hidden; }
+        .canvas-header { padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        
+        /* 맵 그리드 (10x10) */
+        .game-grid { display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: repeat(12, 1fr); flex: 1; background: #1e1e1e; gap: 1px; padding: 10px; }
+        .grid-cell { background: #2d2d2d; border-radius: 2px; cursor: pointer; position: relative; transition: all 0.1s; }
+        .grid-cell:hover { border: 2px solid var(--primary); }
+        .grid-cell.block-wall { background: #64748B; }
+        .grid-cell.block-quiz { background: var(--warning); border: 2px dashed #B45309; }
+        .grid-cell.block-quiz::after { content: '?'; color: white; font-weight: 900; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        .grid-cell.block-player { background: var(--primary); border-radius: 50%; }
 
-        /* 게임 플레이어 모달 */
-        #game-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 2000; display: flex; justify-content: center; align-items: center; }
-        .game-modal-content { background: var(--bg-surface); width: 90%; max-width: 700px; border-radius: var(--radius-lg); border: 1px solid var(--border); padding: 40px; text-align: center; position: relative; box-shadow: var(--shadow-lg); }
+        /* 오른쪽: 속성 (Properties) 패널 */
+        .prop-panel { width: 280px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; overflow-y: auto; }
+        .prop-group { background: var(--bg-body); padding: 16px; border-radius: var(--radius-sm); margin-bottom: 16px; border: 1px solid var(--border); }
+        .prop-group label { display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; }
+        
+        /* 픽셀 에디터 모달 */
+        #pixel-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; display: flex; justify-content: center; align-items: center; }
+        .pixel-content { background: var(--bg-surface); padding: 30px; border-radius: var(--radius-lg); border: 1px solid var(--border); display: flex; gap: 20px; }
+        .pixel-grid { display: grid; grid-template-columns: repeat(8, 30px); grid-template-rows: repeat(8, 30px); gap: 1px; background: var(--border); border: 2px solid var(--border); }
+        .pixel-cell { background: white; cursor: pointer; }
 
-        /* 스튜디오 폼 */
-        .studio-form { background: var(--bg-surface); padding: 40px; border-radius: var(--radius-lg); border: 1px solid var(--border); max-width: 800px; margin: 0 auto; }
-        .form-group { margin-bottom: 24px; }
-        .form-group label { display: block; font-weight: 700; margin-bottom: 8px; font-size: 14px; }
-
-        /* 실시간 피드 및 기타 UI */
-        .board-post { background: var(--bg-surface); padding: 24px; border-radius: var(--radius-md); border: 1px solid var(--border); margin-bottom: 16px; }
+        /* 퀴즈 팝업 애니메이션 */
+        .quiz-popup { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--bg-surface); padding: 30px; border-radius: var(--radius-md); border: 2px solid var(--warning); box-shadow: 0 0 30px rgba(245, 158, 11, 0.3); z-index: 100; width: 350px; text-align: center; }
     </style>
 </head>
 <body data-theme="dark">
     <div id="toast-container"></div>
 
-    <!-- ================= 1. 랜딩 페이지 ================= -->
+    <!-- ================= 1. 압도적 스크롤 랜딩 페이지 ================= -->
     <div id="landing-view">
         <nav class="landing-nav">
-            <div class="landing-logo"><i class="fas fa-gamepad" style="color:var(--primary)"></i> ClassSpace</div>
-            <button class="btn btn-primary" onclick="showAuthView()">플랫폼 입장하기</button>
+            <div class="landing-logo"><i class="fas fa-cubes"></i> ClassSpace</div>
+            <button class="btn btn-primary" onclick="showAuth()">입장하기</button>
         </nav>
 
-        <section class="hero">
-            <div style="background: var(--primary-light); color: var(--primary); padding: 8px 18px; border-radius: 30px; font-weight: 700; margin-bottom: 24px; font-size: 14px;">⚡ 2026 차세대 학급 아케이드 & 크리에이터 스튜디오</div>
-            <h1>교실 안의 독립 게임 스튜디오<br><span>직접 만들고, 즉시 게시하고, 함께 플레이</span></h1>
-            <p>더 이상 단순한 게시판이나 지루한 툴이 아닙니다. 클릭커, 리액션 미니게임부터 완벽한 인터랙티브 앱까지 제작하여 학급 친구들과 공유하고 최고 기록을 경쟁하세요.</p>
-            <button class="btn btn-primary" style="padding: 18px 40px; font-size: 18px; border-radius: 40px;" onclick="showAuthView()">지금 시작하기</button>
+        <section class="hero section">
+            <div class="animate-pop" style="background: var(--primary-light); color: var(--primary); padding: 8px 18px; border-radius: 30px; font-weight: 800; margin-bottom: 24px; font-size: 14px;">⚡ 2026 차세대 학급 통합 플랫폼 & 게임 스튜디오</div>
+            <h1 class="animate-pop" style="animation-delay: 0.1s;">교실 안의 완벽한 사회<br>그리고 <span>직접 만드는 게임 생태계</span></h1>
+            <p class="section-subtitle animate-pop" style="animation-delay: 0.2s;">템플릿을 고르고, 픽셀아트로 캐릭터를 만들고, 물리법칙을 조작하세요. '문제 풀이'가 자연스럽게 녹아든 게임을 학급 친구들과 공유하고 플레이합니다.</p>
+            <button class="btn btn-primary animate-pop" style="padding: 18px 40px; font-size: 18px; border-radius: 40px; animation-delay: 0.3s; animation: pulseGlow 2s infinite;" onclick="showAuth()">무료로 시작하기</button>
+        </section>
+
+        <section class="section" style="background: var(--bg-surface);">
+            <h2 class="section-title">ClassSpace 10대 핵심 모듈</h2>
+            <p class="section-subtitle">단순한 게시판이 아닙니다. 학급 운영에 필요한 모든 것을 담았습니다.</p>
+            <div class="features-grid-10">
+                <div class="f-card"><div class="f-icon" style="background: linear-gradient(135deg, #F59E0B, #D97706);"><i class="fas fa-piggy-bank"></i></div><h3>학급 은행 & 경제</h3><p>우정 화폐를 예금하고 복리 이자를 받으며 실물 경제를 배웁니다.</p></div>
+                <div class="f-card"><div class="f-icon" style="background: linear-gradient(135deg, #EC4899, #BE185D);"><i class="fas fa-ticket-alt"></i></div><h3>주간 복권</h3><p>매주 금요일 추첨! 남는 화폐로 일확천금의 재미를 느낍니다.</p></div>
+                <div class="f-card"><div class="f-icon" style="background: linear-gradient(135deg, #3B82F6, #1D4ED8);"><i class="fas fa-tasks"></i></div><h3>퀘스트 센터</h3><p>학급 미션을 수행하고 보상을 획득하여 동기를 부여합니다.</p></div>
+                <div class="f-card"><div class="f-icon" style="background: linear-gradient(135deg, #8B5CF6, #6D28D9);"><i class="fas fa-gavel"></i></div><h3>학급 법정</h3><p>학생들이 직접 규칙을 만들고 투표로 자치회를 운영합니다.</p></div>
+                <div class="f-card"><div class="f-icon" style="background: linear-gradient(135deg, #10B981, #047857);"><i class="fas fa-box-open"></i></div><h3>익명 건의함</h3><p>선생님에게만 전달되는 비밀 소통 창구입니다.</p></div>
+                <div class="f-card"><div class="f-icon" style="background: linear-gradient(135deg, #F43F5E, #BE123C);"><i class="fas fa-heart"></i></div><h3>비밀 마니또</h3><p>클릭 한 번으로 훈훈한 익명 선물 이벤트를 진행합니다.</p></div>
+                <div class="f-card"><div class="f-icon" style="background: linear-gradient(135deg, #64748B, #334155);"><i class="fas fa-hourglass-half"></i></div><h3>타임캡슐</h3><p>학년 말에 열리는 편지로 잊지 못할 추억을 선사합니다.</p></div>
+                <div class="f-card"><div class="f-icon" style="background: linear-gradient(135deg, #14B8A6, #0F766E);"><i class="fas fa-id-card"></i></div><h3>스마트 외출증</h3><p>화장실, 보건실 등 디지털 타이머 패스로 동선을 관리합니다.</p></div>
+                <div class="f-card"><div class="f-icon" style="background: linear-gradient(135deg, #F97316, #C2410C);"><i class="fas fa-search"></i></div><h3>분실물 센터</h3><p>교실의 분실물을 등록하고 주인을 찾아 보상을 받습니다.</p></div>
+                <div class="f-card"><div class="f-icon" style="background: linear-gradient(135deg, #06B6D4, #0369A1);"><i class="fas fa-thermometer-half"></i></div><h3>학급 온도탑</h3><p>개인이 아닌 학급 전체가 협동하여 목표 달성 시 파티를 엽니다.</p></div>
+            </div>
         </section>
     </div>
 
-    <!-- ================= 2. 인증 뷰 (실제 회원가입/로그인) ================= -->
+    <!-- ================= 2. 인증 뷰 (역할 선택) ================= -->
     <div id="auth-view" class="hidden">
-        <div class="auth-card">
-            <div class="auth-tabs">
-                <div class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">로그인</div>
-                <div class="auth-tab" id="tab-signup" onclick="switchAuthTab('signup')">회원가입</div>
-            </div>
+        <div class="auth-card animate-pop">
+            <h2 style="font-size: 24px; font-weight: 900; margin-bottom: 24px; text-align: center;">ClassSpace 로그인 / 가입</h2>
             
+            <div class="role-selector">
+                <div class="role-btn active" data-role="student" onclick="selectRole('student')"><i class="fas fa-user"></i>일반 학생</div>
+                <div class="role-btn" data-role="admin_student" onclick="selectRole('admin_student')"><i class="fas fa-user-shield"></i>관리자 학생</div>
+                <div class="role-btn" data-role="teacher" onclick="selectRole('teacher')"><i class="fas fa-chalkboard-teacher"></i>선생님</div>
+            </div>
+
             <form id="auth-form" onsubmit="handleAuth(event)">
-                <div class="form-group" id="group-name" style="display:none;">
-                    <label>닉네임 (이름)</label>
-                    <input type="text" id="input-name" placeholder="홍길동">
-                </div>
-                <div class="form-group">
-                    <label>아이디</label>
-                    <input type="text" id="input-id" required placeholder="user123">
-                </div>
-                <div class="form-group">
-                    <label>비밀번호</label>
-                    <input type="password" id="input-pw" required placeholder="••••••••">
-                </div>
-                <button type="submit" class="btn btn-primary" id="auth-submit-btn" style="width:100%; height: 50px;">로그인</button>
+                <input type="text" id="auth-name" required placeholder="이름 (예: 홍길동)" style="margin-bottom: 12px;">
+                <input type="password" id="auth-pw" required placeholder="비밀번호 설정/입력" style="margin-bottom: 24px;">
+                <button type="submit" class="btn btn-primary" style="width:100%; height: 50px; font-size:16px;">플랫폼 입장하기</button>
             </form>
-            <button class="btn btn-secondary" style="width:100%; margin-top: 12px;" onclick="hideAuthView()">뒤로가기</button>
+            <button class="btn btn-secondary" style="width:100%; margin-top: 12px;" onclick="hideAuth()">돌아가기</button>
         </div>
     </div>
 
-    <!-- ================= 3. 대시보드 (메인 앱) ================= -->
+    <!-- ================= 3. 대시보드 (메인) ================= -->
     <div id="dashboard-view" class="hidden">
         <aside class="sidebar">
-            <div class="brand"><i class="fas fa-gamepad" style="color:var(--primary)"></i> ClassSpace</div>
+            <div style="font-size: 20px; font-weight: 900; color: var(--primary); margin-bottom: 30px;"><i class="fas fa-cubes"></i> ClassSpace</div>
             
-            <div class="nav-category">Main</div>
-            <div class="nav-item active" data-view="home"><i class="fas fa-home"></i> 대시보드</div>
+            <div style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin: 10px 0 8px 10px;">Main</div>
+            <div class="nav-item active" data-view="home"><i class="fas fa-home"></i> 홈 대시보드</div>
             
-            <div class="nav-category">Killer Feature</div>
-            <div class="nav-item" data-view="arcade" style="color: var(--primary); font-weight: 800;"><i class="fas fa-dice"></i> 클래스 아케이드 & 스튜디오 <i class="fas fa-star" style="font-size:10px; color:var(--warning);"></i></div>
+            <div style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin: 20px 0 8px 10px;">Creator</div>
+            <div class="nav-item animate-pop" data-view="studio" style="color: white; background: linear-gradient(45deg, var(--primary), var(--accent));"><i class="fas fa-gamepad"></i> 2D 게임 메이커 스튜디오</div>
+            
+            <div style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin: 20px 0 8px 10px;">Modules (10선)</div>
+            <div class="nav-item" onclick="showToast('기능 준비중 (UI 예시)')"><i class="fas fa-piggy-bank"></i> 학급 은행</div>
+            <div class="nav-item" onclick="showToast('기능 준비중 (UI 예시)')"><i class="fas fa-gavel"></i> 학급 법정</div>
+            <div class="nav-item" onclick="showToast('기능 준비중 (UI 예시)')"><i class="fas fa-search"></i> 분실물 센터</div>
+            <!-- 기타 10개 메뉴 생략 (레이아웃 유지를 위해 일부만 배치) -->
 
-            <div class="nav-category">Activities</div>
-            <div class="nav-item" data-view="board"><i class="fas fa-chalkboard"></i> 실시간 소통 피드</div>
-            <div class="nav-item" data-view="attendance"><i class="fas fa-calendar-check"></i> 출석 및 스트릭</div>
-            
-            <div style="margin-top: auto; padding-top: 20px;">
+            <div style="margin-top: auto;">
                 <button class="btn btn-secondary" style="width: 100%;" onclick="logout()"><i class="fas fa-sign-out-alt"></i> 로그아웃</button>
             </div>
         </aside>
 
         <main class="main-content">
             <header class="topbar">
-                <div style="font-size: 18px; font-weight: 800;" id="topbar-title">대시보드</div>
+                <div style="font-size: 18px; font-weight: 800;">스튜디오</div>
                 <div style="display: flex; align-items: center; gap: 16px;">
-                    <button class="btn btn-secondary" style="padding: 10px; border-radius: 50%;" onclick="toggleTheme()"><i class="fas fa-moon" id="theme-icon"></i></button>
-                    <div style="font-weight: 600;"><span id="ui-username" style="color:var(--primary);"></span> 님 환영합니다!</div>
+                    <button class="btn btn-secondary" style="padding: 10px; border-radius: 50%;" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
+                    <div style="font-weight: 600; display:flex; align-items:center; gap:8px;">
+                        <span class="role-badge" id="ui-role">학생</span>
+                        <span id="ui-name" style="color:var(--primary);"></span>님
+                    </div>
                 </div>
             </header>
 
             <div class="content-body">
-                
-                <!-- 3-1. 홈 대시보드 -->
-                <div id="view-home" class="view-section active">
-                    <h1 style="font-size: 32px; font-weight: 900; margin-bottom: 24px;">크리에이터 스튜디오 홈 🚀</h1>
-                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
-                        <div style="background: var(--bg-surface); padding: 32px; border-radius: var(--radius-lg); border: 1px solid var(--border);">
-                            <h3 style="color: var(--text-muted); font-size: 15px; margin-bottom: 12px;">내가 제작한 게임 수</h3>
-                            <div style="font-size: 40px; font-weight: 900; color: var(--primary);" id="stat-my-games">0개</div>
-                            <button class="btn btn-primary" style="margin-top: 20px;" onclick="switchView('arcade'); switchArcadeTab('studio');">새 게임 만들기</button>
-                        </div>
-                        <div style="background: var(--bg-surface); padding: 32px; border-radius: var(--radius-lg); border: 1px solid var(--border);">
-                            <h3 style="color: var(--text-muted); font-size: 15px; margin-bottom: 12px;">아케이드 총 등록 게임</h3>
-                            <div style="font-size: 40px; font-weight: 900; color: var(--secondary);" id="stat-total-games">0개</div>
-                            <button class="btn btn-secondary" style="margin-top: 20px;" onclick="switchView('arcade'); switchArcadeTab('market');">아케이드 구경하기</button>
-                        </div>
-                    </div>
+                <!-- 홈 뷰 -->
+                <div id="view-home" class="view-section active animate-pop">
+                    <h1 style="font-size: 32px; font-weight: 900; margin-bottom: 24px;">환영합니다! 🚀</h1>
+                    <p style="color:var(--text-muted); margin-bottom: 20px;">좌측 메뉴에서 '2D 게임 메이커 스튜디오'를 클릭하여 나만의 맵과 퀴즈 게임을 만들어보세요.</p>
                 </div>
 
-                <!-- 3-2. 킬러 기능: 클래스 아케이드 & 스튜디오 -->
-                <div id="view-arcade" class="view-section">
-                    <div class="arcade-header">
-                        <div>
-                            <h1 style="font-size: 32px; font-weight: 900; margin-bottom: 12px;">Class Arcade & Studio 🎮</h1>
-                            <p>학급 친구들이 만든 게임을 플레이하고, 직접 나만의 미니게임을 코딩하여 세상에 게시하세요!</p>
+                <!-- 킬러 기능: 2D 게임 메이커 스튜디오 -->
+                <div id="view-studio" class="view-section animate-pop">
+                    
+                    <!-- 템플릿 선택 화면 (초기 화면) -->
+                    <div id="template-screen" style="text-align: center; padding: 40px;">
+                        <h2 style="font-size: 32px; font-weight: 900; margin-bottom: 12px;">어떤 게임을 만드시겠습니까?</h2>
+                        <p style="color:var(--text-muted); margin-bottom: 40px;">템플릿을 고르고 맵, 캐릭터, 물리엔진을 커스텀하세요.</p>
+                        
+                        <div style="display: flex; justify-content: center; gap: 20px;">
+                            <div class="f-card" style="width:300px; cursor:pointer;" onclick="initEditor('platformer')">
+                                <i class="fas fa-arrow-up" style="font-size:40px; color:var(--primary); margin-bottom:20px;"></i>
+                                <h3>플랫포머 (점프/중력)</h3>
+                                <p>중력이 적용되는 사이드뷰 맵. 점프하여 장애물을 피하고 퀴즈 블록을 터치하세요.</p>
+                            </div>
+                            <div class="f-card" style="width:300px; cursor:pointer;" onclick="initEditor('topdown')">
+                                <i class="fas fa-arrows-alt" style="font-size:40px; color:var(--secondary); margin-bottom:20px;"></i>
+                                <h3>탑다운 (미로/방탈출)</h3>
+                                <p>위에서 내려다보는 시점. 중력 없이 상하좌우로 이동하며 퀴즈를 풉니다.</p>
+                            </div>
                         </div>
-                        <i class="fas fa-gamepad" style="font-size: 80px; opacity: 0.2;"></i>
                     </div>
 
-                    <div class="arcade-tabs">
-                        <button class="arcade-tab-btn active" id="atab-market" onclick="switchArcadeTab('market')"><i class="fas fa-store"></i> 아케이드 마켓 (플레이)</button>
-                        <button class="arcade-tab-btn" id="atab-studio" onclick="switchArcadeTab('studio')"><i class="fas fa-code"></i> 게임 만들기 (스튜디오)</button>
-                    </div>
-
-                    <!-- 아케이드 마켓 탭 -->
-                    <div id="arcade-market-pane">
-                        <div class="games-grid" id="games-grid-container">
-                            <!-- JS 렌더링 -->
+                    <!-- 에디터 화면 -->
+                    <div id="editor-screen" class="hidden animate-pop">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h2 style="font-size: 24px; font-weight: 900;" id="editor-title">맵 에디터</h2>
+                            <div style="display:flex; gap:10px;">
+                                <button class="btn btn-secondary" onclick="openPixelEditor()"><i class="fas fa-paint-brush"></i> 픽셀 캐릭터 디자인</button>
+                                <button class="btn btn-secondary" onclick="document.getElementById('template-screen').classList.remove('hidden'); document.getElementById('editor-screen').classList.add('hidden');"><i class="fas fa-times"></i> 닫기</button>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- 게임 만들기 스튜디오 탭 -->
-                    <div id="arcade-studio-pane" class="hidden">
-                        <div class="studio-form">
-                            <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 24px;"><i class="fas fa-magic" style="color:var(--primary)"></i> 나만의 미니게임 퍼블리싱</h2>
-                            <form id="create-game-form" onsubmit="publishGame(event)">
-                                <div class="form-group">
-                                    <label>게임 이름</label>
-                                    <input type="text" id="game-title" required placeholder="예: 10초 무한 클릭커 대전">
+                        <div class="studio-layout">
+                            <!-- 좌측: 도구 -->
+                            <div class="tool-panel">
+                                <h3><i class="fas fa-toolbox"></i> 배치 도구</h3>
+                                <button class="tool-btn active" onclick="setTool('player')"><i class="fas fa-user"></i> 플레이어 스폰</button>
+                                <button class="tool-btn" onclick="setTool('wall')"><i class="fas fa-square" style="color:#64748B"></i> 일반 블록 (벽)</button>
+                                <button class="tool-btn" onclick="setTool('quiz')"><i class="fas fa-question-circle" style="color:var(--warning)"></i> 퀴즈 블록 (닿으면 문제)</button>
+                                <button class="tool-btn" onclick="setTool('eraser')"><i class="fas fa-eraser"></i> 지우개 (삭제)</button>
+                                
+                                <h3 style="margin-top:20px;"><i class="fas fa-desktop"></i> GUI / 시스템</h3>
+                                <button class="tool-btn" onclick="showToast('GUI 에디터 오픈 (버튼/텍스트 드래그 기능)')"><i class="fas fa-layer-group"></i> 화면 UI 수정</button>
+                            </div>
+
+                            <!-- 중앙: 캔버스 -->
+                            <div class="canvas-area">
+                                <div class="canvas-header">
+                                    <div style="font-weight:700;" id="mode-indicator">✏️ 에디터 모드 (클릭하여 배치)</div>
+                                    <button class="btn btn-primary" id="play-btn" onclick="togglePlayMode()"><i class="fas fa-play"></i> 테스트 플레이</button>
                                 </div>
-                                <div class="form-group">
-                                    <label>게임 종류 (엔진)</label>
-                                    <select id="game-type">
-                                        <option value="clicker">타이머 클릭커 (10초간 많이 클릭하기)</option>
-                                        <option value="reaction">반응속도 테스트 (불이 켜지면 클릭!)</option>
-                                    </select>
+                                <div class="game-grid" id="grid-container">
+                                    <!-- JS 랜더링 12x12 -->
                                 </div>
-                                <div class="form-group">
-                                    <label>게임 설명</label>
-                                    <textarea id="game-desc" rows="3" required placeholder="게임 규칙을 설명해주세요."></textarea>
+                                
+                                <!-- 퀴즈 팝업 (플레이 중 닿았을 때) -->
+                                <div id="in-game-quiz" class="quiz-popup hidden animate-pop">
+                                    <h3 style="color:var(--warning); margin-bottom:16px;"><i class="fas fa-exclamation-triangle"></i> 문제 발생!</h3>
+                                    <p id="quiz-question-text" style="font-weight:700; margin-bottom:20px; font-size:18px;">여기에 문제가 표시됩니다.</p>
+                                    <input type="text" id="quiz-answer-input" placeholder="정답을 입력하세요" style="margin-bottom:12px;">
+                                    <button class="btn btn-primary" style="width:100%;" onclick="checkQuizAnswer()">정답 확인</button>
                                 </div>
-                                <button type="submit" class="btn btn-primary" style="width:100%; height: 50px;">아케이드에 즉시 게시하기</button>
-                            </form>
+                            </div>
+
+                            <!-- 우측: 속성 -->
+                            <div class="prop-panel" id="prop-panel">
+                                <h3><i class="fas fa-sliders-h"></i> 환경 설정 (물리)</h3>
+                                <div class="prop-group">
+                                    <label>템플릿 기반 설정</label>
+                                    <div id="prop-env" style="font-size:13px; color:var(--text-main);">선택된 항목 없음</div>
+                                </div>
+
+                                <div id="dynamic-props">
+                                    <div style="color:var(--text-muted); font-size:13px; text-align:center; margin-top:40px;">그리드의 블록이나 플레이어를 클릭하여<br>상세 속성을 수정하세요.</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- 3-3. 실시간 피드 -->
-                <div id="view-board" class="view-section">
-                    <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 24px;">실시간 소통 피드 💬</h2>
-                    <div style="background:var(--bg-surface); padding:24px; border-radius:var(--radius-md); border:1px solid var(--border); margin-bottom:24px;">
-                        <textarea id="post-content" rows="3" placeholder="학급 친구들에게 남기고 싶은 이야기를 적어보세요..." style="margin-bottom:12px;"></textarea>
-                        <button class="btn btn-primary" onclick="createPost()">게시하기</button>
-                    </div>
-                    <div id="posts-container"></div>
                 </div>
-
-                <!-- 3-4. 출석 체크 -->
-                <div id="view-attendance" class="view-section">
-                    <div style="background: var(--bg-surface); padding: 40px; border-radius: var(--radius-lg); border: 1px solid var(--border); text-align: center;">
-                        <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 12px;">매일 출석체크 ✅</h2>
-                        <p style="color:var(--text-muted); margin-bottom: 24px;">출석체크를 완료하고 연속 출석 스트릭을 쌓으세요!</p>
-                        <div style="font-size: 48px; font-weight: 900; color: var(--primary); margin-bottom: 24px;" id="streak-display">🔥 0일 연속 출석 중</div>
-                        <button class="btn btn-primary" onclick="doAttendance()" style="padding: 16px 36px; font-size: 18px;">오늘 출석 완료하기</button>
-                    </div>
-                </div>
-
             </div>
         </main>
     </div>
 
-    <!-- 게임 플레이 모달 -->
-    <div id="game-modal" class="hidden">
-        <div class="game-modal-content" id="game-modal-body">
-            <!-- 게임별 동적 실행 -->
+    <!-- 픽셀 에디터 모달 -->
+    <div id="pixel-modal" class="hidden">
+        <div class="pixel-content animate-pop">
+            <div>
+                <h3 style="margin-bottom:16px; font-weight:800;">캐릭터 픽셀 에디터 (8x8)</h3>
+                <div class="pixel-grid" id="pixel-grid"></div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:16px; width:150px;">
+                <div>
+                    <label style="display:block; font-size:12px; margin-bottom:8px;">색상 선택</label>
+                    <input type="color" id="pixel-color" value="#6366F1" style="height:40px; padding:0;">
+                </div>
+                <button class="btn btn-primary" onclick="closePixelEditor()">저장 및 닫기</button>
+                <p style="font-size:11px; color:var(--text-muted);">*플레이어 캐릭터의 외형이 변경됩니다.</p>
+            </div>
         </div>
     </div>
 
     <script>
-        // --- 상태 및 LocalStorage 연동 ---
-        let db = JSON.parse(localStorage.getItem('classspace_db')) || {
-            users: {}, // { id: { pw, name, streak, lastDate } }
-            games: [
-                { id: 1, author: '선생님', title: '10초 무한 클릭커', type: 'clicker', desc: '10초 동안 가장 빠르게 버튼을 누르는 자가 승리합니다!', plays: 12 },
-                { id: 2, author: '김철수', title: '초스피드 반응속도', type: 'reaction', desc: '초록색으로 바뀌는 순간 빛의 속도로 클릭하세요!', plays: 8 }
-            ],
-            posts: [
-                { id: 1, author: '선생님', content: 'ClassSpace 아케이드 오픈을 환영합니다! 멋진 게임을 만들어주세요.', date: '2026-03-21' }
-            ]
-        };
+        // --- 상태 관리 ---
+        let currentRole = 'student';
+        let sessionUser = null;
+        let currentTemplate = '';
+        let currentTool = 'player';
+        let isPlayMode = false;
+        
+        // 맵 데이터 (12x12)
+        const gridSize = 12;
+        let mapData = Array(gridSize).fill().map(() => Array(gridSize).fill(null)); 
+        // null, 'wall', 'quiz', 'player'
+        
+        // 블록별 속성 데이터 저장소
+        let blockProps = {}; // key: "row-col", value: { ... }
+        let playerPos = { r: 10, c: 1 };
+        let playerProps = { speed: 5, jumpHeight: 15, gravityEnabled: true };
+        let envProps = { gravity: 9.8 };
 
-        let sessionUser = JSON.parse(localStorage.getItem('classspace_session')) || null;
-        let isSignupMode = false;
+        // 플레이어 애니메이션/물리용 변수
+        let playInterval;
 
-        function saveDB() {
-            localStorage.setItem('classspace_db', JSON.stringify(db));
+        // --- 공통 유틸 ---
+        function showToast(msg) {
+            const box = document.getElementById('toast-container');
+            const t = document.createElement('div');
+            t.className = 'toast';
+            t.innerHTML = `<i class="fas fa-check-circle" style="color:var(--primary)"></i> ${msg}`;
+            box.appendChild(t);
+            setTimeout(() => t.remove(), 3500);
         }
 
-        // --- 인증 관리 ---
-        function showAuthView() { document.getElementById('auth-view').classList.remove('hidden'); }
-        function hideAuthView() { document.getElementById('auth-view').classList.add('hidden'); }
+        function toggleTheme() {
+            const b = document.body;
+            b.setAttribute('data-theme', b.getAttribute('data-theme')==='dark' ? 'light' : 'dark');
+        }
 
-        function switchAuthTab(mode) {
-            isSignupMode = (mode === 'signup');
-            document.getElementById('tab-login').classList.toggle('active', !isSignupMode);
-            document.getElementById('tab-signup').classList.toggle('active', isSignupMode);
-            document.getElementById('group-name').style.display = isSignupMode ? 'block' : 'none';
-            document.getElementById('auth-submit-btn').innerText = isSignupMode ? '회원가입 완료' : '로그인';
+        // --- 인증 ---
+        function showAuth() { document.getElementById('auth-view').classList.remove('hidden'); }
+        function hideAuth() { document.getElementById('auth-view').classList.add('hidden'); }
+        
+        function selectRole(role) {
+            currentRole = role;
+            document.querySelectorAll('.role-btn').forEach(el => el.classList.remove('active'));
+            document.querySelector(`.role-btn[data-role="${role}"]`).classList.add('active');
         }
 
         function handleAuth(e) {
             e.preventDefault();
-            const id = document.getElementById('input-id').value.trim();
-            const pw = document.getElementById('input-pw').value.trim();
-
-            if (isSignupMode) {
-                const name = document.getElementById('input-name').value.trim();
-                if (!name) return showToast('닉네임을 입력하세요.');
-                if (db.users[id]) return showToast('이미 존재하는 아이디입니다.');
-                
-                db.users[id] = { pw, name, streak: 0, lastDate: '' };
-                saveDB();
-                showToast('회원가입 완료! 로그인해주세요.');
-                switchAuthTab('login');
-            } else {
-                if (!db.users[id] || db.users[id].pw !== pw) {
-                    return showToast('아이디 또는 비밀번호가 올바르지 않습니다.');
-                }
-                sessionUser = { id, name: db.users[id].name };
-                localStorage.setItem('classspace_session', JSON.stringify(sessionUser));
-                hideAuthView();
-                initDashboard();
-                showToast(`${sessionUser.name}님 환영합니다!`);
-            }
+            const name = document.getElementById('auth-name').value.trim();
+            const pw = document.getElementById('auth-pw').value.trim();
+            if(!name || !pw) return;
+            
+            sessionUser = { name, role: currentRole };
+            localStorage.setItem('cs_session', JSON.stringify(sessionUser));
+            
+            hideAuth();
+            document.getElementById('landing-view').classList.add('hidden');
+            document.getElementById('dashboard-view').classList.remove('hidden');
+            
+            // 사이드바 업데이트
+            document.getElementById('ui-name').innerText = name;
+            let roleText = currentRole === 'teacher' ? '선생님' : (currentRole === 'admin_student' ? '관리자 학생' : '학생');
+            document.getElementById('ui-role').innerText = roleText;
+            
+            // 권한별 메뉴 숨김 등 확장 가능
+            
+            showToast(`${roleText} 권한으로 로그인되었습니다.`);
+            document.querySelector('.nav-item[data-view="studio"]').click();
         }
 
         function logout() {
             sessionUser = null;
-            localStorage.removeItem('classspace_session');
+            localStorage.removeItem('cs_session');
             document.getElementById('dashboard-view').classList.add('hidden');
             document.getElementById('landing-view').classList.remove('hidden');
         }
 
-        // --- 대시보드 및 네비게이션 ---
-        function initDashboard() {
-            if (!sessionUser) return;
-            document.getElementById('landing-view').classList.add('hidden');
-            document.getElementById('auth-view').classList.add('hidden');
-            document.getElementById('dashboard-view').classList.remove('hidden');
-            document.getElementById('ui-username').innerText = sessionUser.name;
-            updateStats();
-            switchView('home');
-            renderGames();
-            renderPosts();
-            updateStreakDisplay();
-        }
-
-        function switchView(viewId) {
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            
-            document.getElementById('view-' + viewId).classList.add('active');
-            const nav = document.querySelector(`.nav-item[data-view="${viewId}"]`);
-            if(nav) nav.classList.add('active');
-            
-            const titles = { home: '대시보드', arcade: '클래스 아케이드 & 스튜디오', board: '실시간 소통 피드', attendance: '출석 및 스트릭' };
-            document.getElementById('topbar-title').innerText = titles[viewId] || '';
-        }
-
+        // 사이드바 메뉴 전환
         document.querySelectorAll('.nav-item[data-view]').forEach(item => {
-            item.addEventListener('click', e => switchView(e.currentTarget.dataset.view));
+            item.addEventListener('click', e => {
+                const view = e.currentTarget.dataset.view;
+                document.querySelectorAll('.view-section, .nav-item').forEach(el => el.classList.remove('active'));
+                document.getElementById('view-' + view).classList.add('active');
+                e.currentTarget.classList.add('active');
+            });
         });
 
-        function toggleTheme() {
-            const body = document.body;
-            const isDark = body.getAttribute('data-theme') === 'dark';
-            body.setAttribute('data-theme', isDark ? 'light' : 'dark');
-            document.getElementById('theme-icon').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+        // ================= 게임 스튜디오 로직 ================= //
+        function initEditor(template) {
+            currentTemplate = template;
+            document.getElementById('template-screen').classList.add('hidden');
+            document.getElementById('editor-screen').classList.remove('hidden');
+            
+            // 환경 설정 초기화
+            if(template === 'platformer') {
+                envProps.gravity = 9.8;
+                playerProps.gravityEnabled = true;
+                document.getElementById('prop-env').innerHTML = `<label>전역 중력 (m/s²)</label><input type="number" value="${envProps.gravity}" onchange="envProps.gravity=this.value">`;
+            } else {
+                envProps.gravity = 0;
+                playerProps.gravityEnabled = false;
+                document.getElementById('prop-env').innerHTML = `<p style="color:var(--text-muted)">탑다운 모드 (중력 비활성)</p>`;
+            }
+
+            renderGrid();
         }
 
-        function showToast(msg) {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.innerHTML = `<i class="fas fa-check-circle" style="color:var(--primary)"></i> ${msg}`;
-            container.appendChild(toast);
-            setTimeout(() => toast.remove(), 3500);
+        function setTool(tool) {
+            currentTool = tool;
+            document.querySelectorAll('.tool-btn').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
         }
 
-        // --- 아케이드 및 게임 스튜디오 로직 ---
-        function switchArcadeTab(tab) {
-            document.getElementById('atab-market').classList.toggle('active', tab === 'market');
-            document.getElementById('atab-studio').classList.toggle('active', tab === 'studio');
-            document.getElementById('arcade-market-pane').classList.toggle('hidden', tab !== 'market');
-            document.getElementById('arcade-studio-pane').classList.toggle('hidden', tab !== 'studio');
-            if (tab === 'market') renderGames();
+        function renderGrid() {
+            const container = document.getElementById('grid-container');
+            container.innerHTML = '';
+            
+            for(let r=0; r<gridSize; r++) {
+                for(let c=0; c<gridSize; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell';
+                    cell.dataset.r = r;
+                    cell.dataset.c = c;
+                    
+                    const val = mapData[r][c];
+                    if(val) cell.classList.add('block-' + val);
+                    
+                    // 플레이 모드가 아닐때만 클릭(편집) 허용
+                    cell.addEventListener('mousedown', (e) => handleCellClick(r, c, e));
+                    container.appendChild(cell);
+                }
+            }
         }
 
-        function publishGame(e) {
-            e.preventDefault();
-            const title = document.getElementById('game-title').value.trim();
-            const type = document.getElementById('game-type').value;
-            const desc = document.getElementById('game-desc').value.trim();
+        function handleCellClick(r, c, e) {
+            if(isPlayMode) return;
 
-            const newGame = { id: Date.now(), author: sessionUser.name, title, type, desc, plays: 0 };
-            db.games.push(newGame);
-            saveDB();
-
-            document.getElementById('create-game-form').reset();
-            switchArcadeTab('market');
-            updateStats();
-            showToast('새로운 게임이 아케이드에 게시되었습니다! 🎉');
-        }
-
-        function renderGames() {
-            const container = document.getElementById('games-grid-container');
-            if (db.games.length === 0) {
-                container.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:60px; color:var(--text-muted);">등록된 게임이 없습니다. 스튜디오에서 첫 게임을 만들어보세요!</div>`;
+            // 이미 배치된 것을 좌클릭하면 속성 패널 열기 (수정 모드)
+            if(mapData[r][c] !== null && currentTool !== 'eraser') {
+                openProperties(r, c);
                 return;
             }
 
-            container.innerHTML = db.games.map(g => `
-                <div class="game-card">
-                    <div class="game-banner">
-                        <i class="fas ${g.type === 'clicker' ? 'fa-bolt' : 'fa-stopwatch'}" style="color:var(--primary)"></i>
-                    </div>
-                    <div class="game-info">
-                        <div style="font-size:12px; color:var(--primary); font-weight:700; margin-bottom:6px;">제작자: ${g.author}</div>
-                        <h3 class="game-title">${g.title}</h3>
-                        <p class="game-desc">${g.desc}</p>
-                        <button class="btn btn-primary" style="width:100%;" onclick="launchGame(${g.id})"><i class="fas fa-play"></i> 게임 플레이</button>
-                    </div>
-                </div>
-            `).join('');
+            // 배치 모드
+            if(currentTool === 'player') {
+                // 기존 플레이어 제거
+                for(let ir=0; ir<gridSize; ir++) {
+                    for(let ic=0; ic<gridSize; ic++) {
+                        if(mapData[ir][ic] === 'player') mapData[ir][ic] = null;
+                    }
+                }
+                mapData[r][c] = 'player';
+                playerPos = {r, c};
+                openProperties('player', null);
+            } else if (currentTool === 'eraser') {
+                mapData[r][c] = null;
+                delete blockProps[`${r}-${c}`];
+            } else {
+                mapData[r][c] = currentTool;
+                // 기본 속성 주입
+                if(currentTool === 'quiz') {
+                    blockProps[`${r}-${c}`] = { 
+                        anchored: true, 
+                        question: "태조 이성계가 세운 나라는?", 
+                        answer: "조선" 
+                    };
+                } else if(currentTool === 'wall') {
+                    blockProps[`${r}-${c}`] = { anchored: true };
+                }
+                openProperties(r, c);
+            }
+            renderGrid();
         }
 
-        // --- 실시간 플레이 엔진 (완벽 작동 게임 미니 모달) ---
-        function launchGame(gameId) {
-            const game = db.games.find(g => g.id === gameId);
-            if (!game) return;
-            game.plays++;
-            saveDB();
-
-            const modal = document.getElementById('game-modal');
-            const body = document.getElementById('game-modal-body');
-            modal.classList.remove('hidden');
-
-            if (game.type === 'clicker') {
-                let score = 0;
-                let timeLeft = 10;
-                let timer = null;
-                let started = false;
-
-                body.innerHTML = `
-                    <h2 style="font-size:24px; font-weight:900; margin-bottom:8px;">⚡ ${game.title}</h2>
-                    <p style="color:var(--text-muted); margin-bottom:24px;">10초 동안 최대한 많이 클릭하세요!</p>
-                    <div style="font-size:48px; font-weight:900; color:var(--primary); margin-bottom:20px;" id="clicker-timer">10초</div>
-                    <div style="font-size:36px; font-weight:800; margin-bottom:30px;">점수: <span id="clicker-score">0</span>회</div>
-                    <button class="btn btn-primary" id="clicker-btn" style="width:100%; height:80px; font-size:24px;" onclick="handleGameClick('${game.type}')">여기를 클릭!</button>
-                    <button class="btn btn-secondary" style="margin-top:20px; width:100%;" onclick="closeGameModal()">나가기</button>
+        // 동적 속성 패널
+        function openProperties(r, c) {
+            const panel = document.getElementById('dynamic-props');
+            if(r === 'player') {
+                panel.innerHTML = `
+                    <h3><i class="fas fa-user"></i> 플레이어 속성</h3>
+                    <div class="prop-group">
+                        <label>이동 속도</label><input type="number" value="${playerProps.speed}" onchange="playerProps.speed=this.value">
+                        ${currentTemplate === 'platformer' ? `<label style="margin-top:10px;">점프 높이</label><input type="number" value="${playerProps.jumpHeight}" onchange="playerProps.jumpHeight=this.value">` : ''}
+                        <label style="margin-top:10px; display:flex; align-items:center; gap:8px;"><input type="checkbox" checked disabled> 물리(충돌) 적용</label>
+                    </div>
                 `;
-
-                window.handleGameClick = function() {
-                    if (!started) {
-                        started = true;
-                        timer = setInterval(() => {
-                            timeLeft--;
-                            document.getElementById('clicker-timer').innerText = timeLeft + '초';
-                            if (timeLeft <= 0) {
-                                clearInterval(timer);
-                                document.getElementById('clicker-btn').disabled = true;
-                                document.getElementById('clicker-btn').style.background = 'var(--text-muted)';
-                                alert(`게임 종료! 최종 점수: ${score}회`);
-                            }
-                        }, 1000);
-                    }
-                    if (timeLeft > 0) {
-                        score++;
-                        document.getElementById('clicker-score').innerText = score;
-                    }
-                };
             } else {
-                // Reaction Game
-                body.innerHTML = `
-                    <h2 style="font-size:24px; font-weight:900; margin-bottom:8px;">⏱️ ${game.title}</h2>
-                    <p style="color:var(--text-muted); margin-bottom:24px;">화면이 초록색으로 바뀌면 즉시 누르세요!</p>
-                    <div id="react-box" style="background:var(--accent); color:white; height:180px; border-radius:16px; display:flex; justify-content:center; align-items:center; font-size:24px; font-weight:800; cursor:pointer; margin-bottom:20px;" onclick="handleReactionClick()">준비...</div>
-                    <button class="btn btn-secondary" style="width:100%;" onclick="closeGameModal()">나가기</button>
-                `;
+                const type = mapData[r][c];
+                const key = `${r}-${c}`;
+                const props = blockProps[key];
                 
-                window.reactionState = 'waiting';
-                window.startTime = 0;
-                setTimeout(() => {
-                    if(document.getElementById('react-box')) {
-                        document.getElementById('react-box').style.background = 'var(--secondary)';
-                        document.getElementById('react-box').innerText = '지금 클릭!';
-                        window.reactionState = 'ready';
-                        window.startTime = Date.now();
-                    }
-                }, Math.random() * 2000 + 1500);
-
-                window.handleReactionClick = function() {
-                    if (window.reactionState === 'waiting') {
-                        alert('너무 일찍 눌렀습니다! (부정 출발)');
-                        closeGameModal();
-                    } else if (window.reactionState === 'ready') {
-                        const elapsed = Date.now() - window.startTime;
-                        alert(`성공! 반응 속도: ${elapsed}ms`);
-                        closeGameModal();
-                    }
-                };
+                if(type === 'quiz') {
+                    panel.innerHTML = `
+                        <h3><i class="fas fa-question-circle" style="color:var(--warning)"></i> 퀴즈 블록 속성</h3>
+                        <div class="prop-group">
+                            <label>고정 여부 (Anchored)</label>
+                            <select onchange="blockProps['${key}'].anchored = (this.value==='true')">
+                                <option value="true" ${props.anchored?'selected':''}>O (고정)</option>
+                                <option value="false" ${!props.anchored?'selected':''}>X (중력/밀림 적용)</option>
+                            </select>
+                            <label style="margin-top:10px;">튀어나올 문제 텍스트</label>
+                            <input type="text" value="${props.question}" onchange="blockProps['${key}'].question=this.value">
+                            <label style="margin-top:10px;">정답</label>
+                            <input type="text" value="${props.answer}" onchange="blockProps['${key}'].answer=this.value">
+                        </div>
+                    `;
+                } else if(type === 'wall') {
+                    panel.innerHTML = `
+                        <h3><i class="fas fa-square"></i> 일반 파트 속성</h3>
+                        <div class="prop-group">
+                            <label>고정 여부 (Anchored)</label>
+                            <select onchange="blockProps['${key}'].anchored = (this.value==='true')">
+                                <option value="true" ${props.anchored?'selected':''}>O (고정됨)</option>
+                                <option value="false" ${!props.anchored?'selected':''}>X (물리엔진 적용)</option>
+                            </select>
+                            <label style="margin-top:10px;">반발력 (Bounciness)</label>
+                            <input type="number" value="0" min="0" max="1" step="0.1">
+                        </div>
+                    `;
+                }
             }
         }
 
-        function closeGameModal() {
-            document.getElementById('game-modal').classList.add('hidden');
+        // --- 픽셀 에디터 ---
+        function openPixelEditor() {
+            document.getElementById('pixel-modal').classList.remove('hidden');
+            const grid = document.getElementById('pixel-grid');
+            if(grid.innerHTML === '') {
+                for(let i=0; i<64; i++) {
+                    let c = document.createElement('div');
+                    c.className = 'pixel-cell';
+                    c.onclick = function() { this.style.backgroundColor = document.getElementById('pixel-color').value; }
+                    grid.appendChild(c);
+                }
+            }
+        }
+        function closePixelEditor() {
+            document.getElementById('pixel-modal').classList.add('hidden');
+            showToast('캐릭터 디자인이 저장되었습니다.');
         }
 
-        // --- 피드 및 출석 로직 ---
-        function createPost() {
-            const content = document.getElementById('post-content').value.trim();
-            if (!content) return showToast('내용을 입력하세요.');
+        // --- 플레이 테스트 모드 (엔진 시뮬레이션) ---
+        let currentQuizAnswer = '';
+
+        function togglePlayMode() {
+            isPlayMode = !isPlayMode;
+            const btn = document.getElementById('play-btn');
+            const ind = document.getElementById('mode-indicator');
             
-            db.posts.unshift({ id: Date.now(), author: sessionUser.name, content, date: new Date().toLocaleDateString() });
-            saveDB();
-            document.getElementById('post-content').value = '';
-            renderPosts();
-            showToast('피드에 게시되었습니다.');
+            if(isPlayMode) {
+                btn.innerHTML = '<i class="fas fa-stop"></i> 편집 모드로 복귀';
+                btn.classList.replace('btn-primary', 'btn-danger');
+                ind.innerHTML = '🎮 플레이 테스트 중 (W,A,S,D로 이동)';
+                ind.style.color = 'var(--secondary)';
+                
+                // 이벤트 리스너 추가
+                window.addEventListener('keydown', handleMovement);
+            } else {
+                btn.innerHTML = '<i class="fas fa-play"></i> 테스트 플레이';
+                btn.classList.replace('btn-danger', 'btn-primary');
+                ind.innerHTML = '✏️ 에디터 모드 (클릭하여 배치)';
+                ind.style.color = 'var(--text-main)';
+                
+                window.removeEventListener('keydown', handleMovement);
+                document.getElementById('in-game-quiz').classList.add('hidden');
+            }
         }
 
-        function renderPosts() {
-            const container = document.getElementById('posts-container');
-            container.innerHTML = db.posts.map(p => `
-                <div class="board-post">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-                        <strong>${p.author}</strong>
-                        <span style="font-size:12px; color:var(--text-muted);">${p.date}</span>
-                    </div>
-                    <p style="line-height:1.6;">${p.content}</p>
-                </div>
-            `).join('');
-        }
-
-        function doAttendance() {
-            const u = db.users[sessionUser.id];
-            const today = new Date().toLocaleDateString();
-            if (u.lastDate === today) return showToast('오늘 이미 출석체크를 완료했습니다.');
+        function handleMovement(e) {
+            if(!isPlayMode || document.getElementById('in-game-quiz').classList.contains('hidden') === false) return;
             
-            u.lastDate = today;
-            u.streak++;
-            saveDB();
-            updateStreakDisplay();
-            showToast(`출석체크 완료! (연속 ${u.streak}일째)`);
+            let nr = playerPos.r;
+            let nc = playerPos.c;
+            
+            if(e.key === 'w' || e.key === 'W' || e.key === 'ArrowUp') nr--;
+            if(e.key === 's' || e.key === 'S' || e.key === 'ArrowDown') nr++;
+            if(e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') nc--;
+            if(e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') nc++;
+            
+            // 맵 경계 체크
+            if(nr<0 || nr>=gridSize || nc<0 || nc>=gridSize) return;
+
+            // 충돌(물리) 체크
+            const targetCell = mapData[nr][nc];
+            
+            if(targetCell === 'wall') return; // 벽은 통과 불가
+            
+            if(targetCell === 'quiz') {
+                // 퀴즈 블록과 닿으면 팝업!
+                const props = blockProps[`${nr}-${nc}`];
+                triggerQuiz(props.question, props.answer);
+                return;
+            }
+
+            // 이동 처리
+            mapData[playerPos.r][playerPos.c] = null;
+            playerPos = {r: nr, c: nc};
+            mapData[nr][nc] = 'player';
+            renderGrid();
         }
 
-        function updateStreakDisplay() {
-            if(!sessionUser) return;
-            const u = db.users[sessionUser.id];
-            document.getElementById('streak-display').innerText = `🔥 ${u ? u.streak : 0}일 연속 출석 중`;
+        function triggerQuiz(q, a) {
+            document.getElementById('in-game-quiz').classList.remove('hidden');
+            document.getElementById('quiz-question-text').innerText = q;
+            currentQuizAnswer = a;
+            document.getElementById('quiz-answer-input').value = '';
+            document.getElementById('quiz-answer-input').focus();
         }
 
-        function updateStats() {
-            if(!sessionUser) return;
-            const myGamesCount = db.games.filter(g => g.author === sessionUser.name).length;
-            document.getElementById('stat-my-games').innerText = myGamesCount + '개';
-            document.getElementById('stat-total-games').innerText = db.games.length + '개';
-        }
-
-        // 자동 로그인 체크
-        if (sessionUser && db.users[sessionUser.id]) {
-            initDashboard();
+        function checkQuizAnswer() {
+            const input = document.getElementById('quiz-answer-input').value.trim();
+            if(input === currentQuizAnswer) {
+                alert('정답입니다! 통과!');
+                document.getElementById('in-game-quiz').classList.add('hidden');
+                
+                // 퀴즈 블록 부수고 플레이어 이동 시뮬레이션
+                // (간단히 제자리 유지하고 게임 재개)
+            } else {
+                alert('틀렸습니다! 다시 생각해보세요.');
+            }
         }
     </script>
 </body>
