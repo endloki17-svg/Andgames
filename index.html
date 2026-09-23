@@ -3,603 +3,270 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ClassSpace | 차원이 다른 학급 플랫폼</title>
-    <!-- 구글 폰트 및 폰트어썸 -->
+    <title>ClassSpace | 차원이 다른 학급 크리에이터 플랫폼</title>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* ================= 초고퀄리티 CSS 및 다크모드 변수 ================= */
         :root {
-            --primary: #4F46E5;
-            --primary-hover: #4338CA;
-            --primary-light: rgba(79, 70, 229, 0.1);
-            --secondary: #10B981;
-            --accent: #F43F5E;
-            --warning: #F59E0B;
-            
-            /* Light Theme (Default) */
-            --bg-body: #F1F5F9;
-            --bg-surface: #FFFFFF;
-            --bg-surface-hover: #F8FAFC;
-            --text-main: #0F172A;
-            --text-muted: #64748B;
-            --border: #E2E8F0;
-            --glass-bg: rgba(255, 255, 255, 0.85);
-            --glass-border: rgba(255, 255, 255, 0.2);
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 24px;
+            --primary: #6366F1; --primary-hover: #4F46E5; --primary-light: rgba(99, 102, 241, 0.1);
+            --secondary: #10B981; --accent: #F43F5E; --warning: #F59E0B; --info: #3B82F6;
+            --bg-body: #0B0F19; --bg-surface: #1E293B; --bg-surface-hover: #334155;
+            --text-main: #F8FAFC; --text-muted: #94A3B8; --border: #334155;
+            --glass-bg: rgba(30, 41, 59, 0.85); --glass-border: rgba(255, 255, 255, 0.08);
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            --radius-sm: 10px; --radius-md: 16px; --radius-lg: 24px;
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
-        /* Dark Theme */
-        [data-theme="dark"] {
-            --bg-body: #0F172A;
-            --bg-surface: #1E293B;
-            --bg-surface-hover: #334155;
-            --text-main: #F8FAFC;
-            --text-muted: #94A3B8;
-            --border: #334155;
-            --glass-bg: rgba(30, 41, 59, 0.85);
-            --glass-border: rgba(255, 255, 255, 0.05);
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+        [data-theme="light"] {
+            --bg-body: #F1F5F9; --bg-surface: #FFFFFF; --bg-surface-hover: #F8FAFC;
+            --text-main: #0F172A; --text-muted: #64748B; --border: #E2E8F0;
+            --glass-bg: rgba(255, 255, 255, 0.85); --glass-border: rgba(255, 255, 255, 0.2);
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Pretendard', 'Poppins', sans-serif; }
-        body { background: var(--bg-body); color: var(--text-main); overflow-x: hidden; transition: background-color 0.3s, color 0.3s; }
-        a { text-decoration: none; color: inherit; }
-        ul { list-style: none; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Pretendard', sans-serif; }
+        body { background: var(--bg-body); color: var(--text-main); overflow-x: hidden; transition: var(--transition); min-height: 100vh; }
+        .hidden { display: none !important; }
         button { cursor: pointer; border: none; outline: none; background: none; font-family: inherit; transition: var(--transition); }
-        input, select, textarea { font-family: inherit; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); border-radius: var(--radius-sm); padding: 14px; font-size: 15px; outline: none; transition: var(--transition); width: 100%; }
-        input:focus, textarea:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
-        
-        /* 커스텀 스크롤바 */
+        input, textarea, select { font-family: inherit; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); border-radius: var(--radius-sm); padding: 14px; font-size: 15px; outline: none; width: 100%; transition: var(--transition); }
+        input:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: var(--bg-body); }
-        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
-        [data-theme="dark"] ::-webkit-scrollbar-thumb { background: #475569; }
-        ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
-        .hidden { display: none !important; }
-        
-        /* 버튼 스타일 */
         .btn { padding: 12px 24px; border-radius: var(--radius-sm); font-weight: 600; font-size: 15px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-primary { background: var(--primary); color: #fff; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
-        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4); }
+        .btn-primary { background: var(--primary); color: #fff; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4); }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); }
         .btn-secondary { background: var(--bg-surface-hover); color: var(--text-main); border: 1px solid var(--border); }
         .btn-secondary:hover { background: var(--border); }
-        .btn-danger { background: var(--accent); color: #fff; }
 
         /* 토스트 알림 */
         #toast-container { position: fixed; top: 20px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
-        .toast { background: var(--bg-surface); color: var(--text-main); padding: 16px 24px; border-radius: var(--radius-sm); box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 12px; animation: slideInRight 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, fadeOut 0.5s ease-out 3s forwards; border-left: 4px solid var(--primary); pointer-events: auto; font-weight: 500; }
+        .toast { background: var(--bg-surface); color: var(--text-main); padding: 16px 24px; border-radius: var(--radius-sm); box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 12px; animation: slideInRight 0.4s forwards, fadeOut 0.5s ease-out 3s forwards; border-left: 4px solid var(--primary); font-weight: 500; border: 1px solid var(--border); }
         @keyframes slideInRight { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
 
-        /* ================= 1. 랜딩 페이지 (실제 사이트 감성) ================= */
-        #landing-view { min-height: 100vh; width: 100vw; background: var(--bg-body); position: relative; z-index: 1; display: flex; flex-direction: column; }
+        /* ================= 1. 랜딩 페이지 ================= */
+        #landing-view { min-height: 100vh; display: flex; flex-direction: column; }
+        .landing-nav { padding: 20px 5%; display: flex; justify-content: space-between; align-items: center; background: var(--glass-bg); backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--glass-border); }
+        .landing-logo { font-size: 24px; font-weight: 900; color: var(--primary); display: flex; align-items: center; gap: 10px; font-family: 'Poppins', sans-serif; }
         
-        .landing-nav { padding: 20px 5%; display: flex; justify-content: space-between; align-items: center; background: var(--glass-bg); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--glass-border); }
-        .landing-logo { font-size: 24px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 10px; }
-        
-        .hero-section { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 100px 20px; position: relative; overflow: hidden; }
-        
-        /* 멋진 배경 그라데이션 및 애니메이션 */
-        .hero-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; }
-        .hero-blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.5; animation: float 10s infinite ease-in-out alternate; }
-        .blob-1 { width: 500px; height: 500px; background: rgba(79, 70, 229, 0.4); top: -100px; left: -100px; }
-        .blob-2 { width: 600px; height: 600px; background: rgba(244, 63, 94, 0.3); bottom: -200px; right: -100px; animation-delay: -5s; }
-        @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(50px, 50px) scale(1.1); } }
+        .hero { min-height: 85vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 0 20px; position: relative; }
+        .hero h1 { font-size: 64px; font-weight: 900; line-height: 1.2; margin-bottom: 24px; letter-spacing: -1px; }
+        .hero h1 span { background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero p { font-size: 18px; color: var(--text-muted); max-width: 700px; line-height: 1.7; margin-bottom: 40px; }
 
-        .hero-badge { background: var(--primary-light); color: var(--primary); padding: 8px 16px; border-radius: 30px; font-weight: 600; font-size: 14px; margin-bottom: 24px; display: inline-block; border: 1px solid rgba(79,70,229,0.2); }
-        .hero-title { font-size: 56px; font-weight: 900; line-height: 1.2; margin-bottom: 24px; color: var(--text-main); letter-spacing: -1px; }
-        .hero-title span { background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .hero-subtitle { font-size: 20px; color: var(--text-muted); max-width: 600px; margin: 0 auto 40px auto; line-height: 1.6; }
-        
-        .hero-buttons { display: flex; gap: 16px; justify-content: center; }
-        .hero-buttons .btn { padding: 16px 32px; font-size: 18px; border-radius: 30px; }
-
-        .features-section { padding: 100px 5%; background: var(--bg-surface); }
-        .section-title { text-align: center; font-size: 32px; font-weight: 800; margin-bottom: 60px; }
-        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto; }
-        .feature-card { background: var(--bg-body); padding: 40px 30px; border-radius: var(--radius-lg); text-align: center; transition: var(--transition); border: 1px solid var(--border); }
-        .feature-card:hover { transform: translateY(-10px); box-shadow: var(--shadow-lg); border-color: var(--primary-light); }
-        .feature-icon { width: 70px; height: 70px; background: var(--bg-surface); border-radius: 20px; display: flex; justify-content: center; align-items: center; font-size: 30px; color: var(--primary); margin: 0 auto 20px auto; box-shadow: var(--shadow-sm); }
-        .feature-card h3 { font-size: 20px; margin-bottom: 12px; font-weight: 700; }
-        .feature-card p { color: var(--text-muted); line-height: 1.6; }
-
-        /* ================= 2. 로비 (로그인/회원가입) ================= */
-        #lobby-view { height: 100vh; width: 100vw; display: flex; justify-content: center; align-items: center; background: url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover; position: relative; }
-        #lobby-view::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(10px); }
-        
-        .auth-card { background: var(--bg-surface); padding: 48px; border-radius: var(--radius-lg); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); width: 100%; max-width: 450px; z-index: 10; animation: scaleUp 0.5s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid var(--border); }
-        @keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        
-        .auth-header { text-align: center; margin-bottom: 32px; }
-        .auth-header h1 { font-size: 28px; font-weight: 800; color: var(--primary); margin-bottom: 8px; }
-        .auth-header p { color: var(--text-muted); font-size: 15px; }
-        
-        .auth-tabs { display: flex; margin-bottom: 32px; background: var(--bg-body); border-radius: var(--radius-sm); padding: 4px; }
-        .auth-tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; font-weight: 600; color: var(--text-muted); border-radius: 6px; transition: var(--transition); }
+        /* ================= 2. 인증 뷰 (실제 데이터 저장) ================= */
+        #auth-view { height: 100vh; display: flex; justify-content: center; align-items: center; background: var(--bg-body); position: fixed; top:0; left:0; width:100%; z-index: 1000; }
+        .auth-card { background: var(--bg-surface); padding: 48px; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); width: 100%; max-width: 460px; border: 1px solid var(--border); }
+        .auth-tabs { display: flex; gap: 10px; margin-bottom: 30px; background: var(--bg-body); padding: 6px; border-radius: var(--radius-sm); }
+        .auth-tab { flex: 1; padding: 12px; text-align: center; font-weight: 700; border-radius: 6px; color: var(--text-muted); cursor: pointer; transition: var(--transition); }
         .auth-tab.active { background: var(--bg-surface); color: var(--primary); box-shadow: var(--shadow-sm); }
-        
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--text-main); }
-        
-        .role-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .role-option input[type="radio"] { display: none; }
-        .role-option label { display: block; padding: 12px 0; text-align: center; background: var(--bg-body); border-radius: var(--radius-sm); cursor: pointer; border: 2px solid transparent; font-size: 13px; font-weight: 600; transition: var(--transition); color: var(--text-muted); }
-        .role-option input[type="radio"]:checked + label { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
-        
-        .btn-auth { width: 100%; height: 50px; font-size: 16px; margin-top: 10px; }
-        
-        .back-to-home { position: absolute; top: 30px; left: 40px; color: white; font-size: 16px; font-weight: 600; cursor: pointer; z-index: 20; display: flex; align-items: center; gap: 8px; transition: var(--transition); }
-        .back-to-home:hover { opacity: 0.8; transform: translateX(-5px); }
 
         /* ================= 3. 대시보드 (메인 앱) ================= */
-        #dashboard-view { display: flex; height: 100vh; width: 100vw; background: var(--bg-body); }
+        #dashboard-view { display: flex; height: 100vh; background: var(--bg-body); overflow: hidden; }
+        .sidebar { width: 280px; background: var(--bg-surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 24px; z-index: 10; }
+        .brand { font-size: 22px; font-weight: 900; color: var(--primary); margin-bottom: 30px; display: flex; align-items: center; gap: 10px; font-family: 'Poppins', sans-serif; }
         
-        /* 사이드바 */
-        .sidebar { width: 280px; background: var(--bg-surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 24px; z-index: 10; transition: var(--transition); }
-        .brand { display: flex; align-items: center; gap: 12px; font-size: 24px; font-weight: 800; color: var(--primary); margin-bottom: 40px; padding: 0 10px; }
-        
-        .nav-menu { flex: 1; display: flex; flex-direction: column; gap: 6px; }
-        .nav-label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin: 16px 0 8px 10px; }
-        .nav-item { padding: 14px 16px; border-radius: var(--radius-sm); display: flex; align-items: center; gap: 14px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: var(--transition); }
+        .nav-category { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin: 24px 0 8px 10px; }
+        .nav-item { padding: 14px 18px; border-radius: var(--radius-sm); display: flex; align-items: center; gap: 14px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: var(--transition); font-size: 15px; }
         .nav-item:hover { background: var(--bg-surface-hover); color: var(--text-main); }
         .nav-item.active { background: var(--primary-light); color: var(--primary); font-weight: 700; }
-        .nav-item i { font-size: 18px; width: 24px; text-align: center; }
         
-        .user-profile-card { background: var(--bg-surface-hover); padding: 16px; border-radius: var(--radius-md); display: flex; align-items: center; gap: 12px; margin-top: auto; border: 1px solid var(--border); }
-        .avatar { width: 44px; height: 44px; background: linear-gradient(135deg, var(--primary), #9F7AEA); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; font-weight: bold; font-size: 18px; flex-shrink: 0; }
-        .user-info { flex: 1; overflow: hidden; }
-        .user-info .name { font-weight: 700; color: var(--text-main); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .user-info .role { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-        .btn-icon-only { width: 32px; height: 32px; border-radius: 8px; display: flex; justify-content: center; align-items: center; color: var(--text-muted); cursor: pointer; transition: var(--transition); }
-        .btn-icon-only:hover { background: var(--border); color: var(--accent); }
-
-        /* 메인 컨텐츠 영역 */
-        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
-        
-        /* 탑바 */
-        .topbar { background: var(--bg-surface); height: 70px; padding: 0 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); z-index: 5; }
-        .topbar-left h2 { font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
-        
-        .topbar-right { display: flex; align-items: center; gap: 16px; }
-        .theme-toggle { font-size: 20px; color: var(--text-muted); cursor: pointer; padding: 8px; border-radius: 50%; transition: var(--transition); }
-        .theme-toggle:hover { background: var(--bg-surface-hover); color: var(--primary); }
-        
-        .class-badge { background: var(--bg-surface-hover); border: 1px solid var(--border); color: var(--text-main); padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 14px; }
-        .woojung-display { background: var(--text-main); color: var(--bg-surface); padding: 8px 20px; border-radius: 20px; font-weight: 800; display: flex; align-items: center; gap: 8px; box-shadow: var(--shadow-md); font-size: 15px; }
-        
-        /* 컨텐츠 본문 */
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .topbar { background: var(--bg-surface); height: 75px; padding: 0 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
         .content-body { flex: 1; overflow-y: auto; padding: 40px; position: relative; }
-        .view-section { display: none; animation: fadeIn 0.4s ease; }
+        .view-section { display: none; animation: fadeIn 0.3s ease; }
         .view-section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* ================= 뷰 전용 스타일 ================= */
-        
-        /* 3-1. 홈 대시보드 */
-        .welcome-banner { background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%); color: white; padding: 40px; border-radius: var(--radius-lg); margin-bottom: 32px; box-shadow: var(--shadow-md); position: relative; overflow: hidden; display: flex; justify-content: space-between; align-items: center; }
-        .welcome-text h1 { font-size: 32px; font-weight: 800; margin-bottom: 12px; }
-        .welcome-text p { font-size: 16px; opacity: 0.9; max-width: 500px; line-height: 1.5; }
-        .attendance-btn { background: rgba(255,255,255,0.2); backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 14px 28px; border-radius: 30px; font-weight: 700; font-size: 16px; cursor: pointer; transition: var(--transition); display: flex; align-items: center; gap: 10px; }
-        .attendance-btn:hover { background: white; color: var(--primary); transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-        .attendance-btn.done { background: rgba(0,0,0,0.1); border: none; cursor: not-allowed; color: rgba(255,255,255,0.5); }
-        .attendance-btn.done:hover { transform: none; box-shadow: none; }
+        /* ================= 킬러 콘텐츠: 게임 스튜디오 & 아케이드 ================= */
+        .arcade-header { background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%); color: white; padding: 48px; border-radius: var(--radius-lg); margin-bottom: 32px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3); }
+        .arcade-tabs { display: flex; gap: 12px; margin-bottom: 30px; }
+        .arcade-tab-btn { padding: 12px 24px; border-radius: var(--radius-sm); font-weight: 700; background: var(--bg-surface); color: var(--text-muted); border: 1px solid var(--border); cursor: pointer; }
+        .arcade-tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        .dashboard-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 32px; }
-        @media(max-width: 1200px) { .dashboard-grid { grid-template-columns: 1fr; } }
-        
-        .panel { background: var(--bg-surface); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
-        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
-        .panel-title { font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
+        .game-card { background: var(--bg-surface); border-radius: var(--radius-md); border: 1px solid var(--border); overflow: thumbnail; transition: var(--transition); display: flex; flex-direction: column; }
+        .game-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); border-color: var(--primary); }
+        .game-banner { height: 160px; background: linear-gradient(135deg, #1E293B, #0F172A); display: flex; justify-content: center; align-items: center; font-size: 48px; position: relative; }
+        .game-info { padding: 24px; flex: 1; display: flex; flex-direction: column; }
+        .game-title { font-size: 20px; font-weight: 800; margin-bottom: 8px; }
+        .game-desc { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5; flex: 1; }
 
-        /* 공지사항 리스트 */
-        .notice-list { display: flex; flex-direction: column; gap: 12px; }
-        .notice-item { padding: 16px; background: var(--bg-body); border-radius: var(--radius-sm); border-left: 4px solid var(--accent); }
-        .notice-title { font-weight: 700; margin-bottom: 4px; font-size: 15px; }
-        .notice-meta { font-size: 12px; color: var(--text-muted); display: flex; gap: 10px; }
+        /* 게임 플레이어 모달 */
+        #game-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 2000; display: flex; justify-content: center; align-items: center; }
+        .game-modal-content { background: var(--bg-surface); width: 90%; max-width: 700px; border-radius: var(--radius-lg); border: 1px solid var(--border); padding: 40px; text-align: center; position: relative; box-shadow: var(--shadow-lg); }
 
-        /* 바로가기 그리드 */
-        .quick-links { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
-        .quick-card { background: var(--bg-body); padding: 24px; border-radius: var(--radius-md); text-align: center; cursor: pointer; transition: var(--transition); border: 1px solid transparent; }
-        .quick-card:hover { background: var(--bg-surface-hover); border-color: var(--primary); transform: translateY(-5px); box-shadow: var(--shadow-md); }
-        .quick-card i { font-size: 32px; margin-bottom: 12px; }
+        /* 스튜디오 폼 */
+        .studio-form { background: var(--bg-surface); padding: 40px; border-radius: var(--radius-lg); border: 1px solid var(--border); max-width: 800px; margin: 0 auto; }
+        .form-group { margin-bottom: 24px; }
+        .form-group label { display: block; font-weight: 700; margin-bottom: 8px; font-size: 14px; }
 
-        /* 3-2. 상점 */
-        .section-header-flex { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px; }
-        .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
-        .shop-item { background: var(--bg-surface); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); transition: var(--transition); border: 1px solid var(--border); display: flex; flex-direction: column; position: relative; }
-        .shop-item:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); border-color: var(--primary-light); }
-        .shop-img { width: 100%; height: 200px; object-fit: cover; background: var(--bg-body); }
-        .shop-info { padding: 24px; display: flex; flex-direction: column; flex: 1; }
-        .shop-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; color: var(--text-main); }
-        .shop-price { color: var(--warning); font-weight: 800; font-size: 20px; display: flex; align-items: center; gap: 8px; margin-bottom: 24px; }
-        .shop-action { margin-top: auto; width: 100%; font-size: 16px; padding: 14px; border-radius: var(--radius-sm); }
-        
-        .empty-state { text-align: center; padding: 80px 20px; color: var(--text-muted); background: var(--bg-surface); border-radius: var(--radius-lg); border: 1px dashed var(--border); grid-column: 1/-1; }
-        .empty-state i { font-size: 64px; color: var(--border); margin-bottom: 20px; }
-
-        /* 3-3. 랭킹 (명예의 전당) */
-        .ranking-list { background: var(--bg-surface); border-radius: var(--radius-lg); border: 1px solid var(--border); overflow: hidden; }
-        .rank-item { display: flex; align-items: center; padding: 20px 30px; border-bottom: 1px solid var(--border); transition: var(--transition); }
-        .rank-item:last-child { border-bottom: none; }
-        .rank-item:hover { background: var(--bg-surface-hover); }
-        .rank-num { font-size: 24px; font-weight: 900; color: var(--text-muted); width: 50px; }
-        .rank-item:nth-child(1) .rank-num { color: #F59E0B; font-size: 32px; } /* 1등 금색 */
-        .rank-item:nth-child(2) .rank-num { color: #94A3B8; font-size: 28px; } /* 2등 은색 */
-        .rank-item:nth-child(3) .rank-num { color: #B45309; font-size: 26px; } /* 3등 동색 */
-        .rank-user { flex: 1; display: flex; align-items: center; gap: 16px; font-size: 18px; font-weight: 700; }
-        .rank-score { font-size: 20px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 8px; }
-
-        /* 3-4. 게시판 (Masonry Grid) */
-        .masonry-grid { column-count: 3; column-gap: 24px; }
-        @media (max-width: 1400px) { .masonry-grid { column-count: 2; } }
-        @media (max-width: 900px) { .masonry-grid { column-count: 1; } }
-        
-        .post-card { background: var(--bg-surface); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 24px; break-inside: avoid; box-shadow: var(--shadow-sm); transition: var(--transition); border: 1px solid var(--border); }
-        .post-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); }
-        .post-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-        .post-author { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 15px; }
-        .mini-avatar { width: 36px; height: 36px; background: var(--primary); border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; }
-        .post-content { font-size: 15px; line-height: 1.6; margin-bottom: 16px; word-break: break-word; color: var(--text-main); }
-        .post-image { width: 100%; border-radius: 8px; margin-bottom: 16px; max-height: 300px; object-fit: cover; }
-        .post-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 16px; margin-top: 16px; }
-        .btn-like { background: var(--bg-body); color: var(--text-muted); font-size: 14px; font-weight: 600; padding: 8px 16px; border-radius: 20px; display: flex; align-items: center; gap: 8px; border: 1px solid var(--border); }
-        .btn-like:hover { background: rgba(244, 63, 94, 0.1); color: var(--accent); border-color: var(--accent); }
-        .btn-like.liked { background: var(--accent); color: white; border-color: var(--accent); }
-
-        /* 포스트 색상 */
-        [data-theme="light"] .post-color-yellow { background-color: #FEF3C7; border-color: #FDE68A; }
-        [data-theme="light"] .post-color-green { background-color: #D1FAE5; border-color: #A7F3D0; }
-        [data-theme="light"] .post-color-blue { background-color: #DBEAFE; border-color: #BFDBFE; }
-        [data-theme="light"] .post-color-pink { background-color: #FCE7F3; border-color: #FBCFE8; }
-        /* 다크모드 포스트 색상 보정 */
-        [data-theme="dark"] .post-color-yellow { background-color: rgba(253, 230, 138, 0.1); border-color: rgba(253, 230, 138, 0.3); }
-        [data-theme="dark"] .post-color-green { background-color: rgba(167, 243, 208, 0.1); border-color: rgba(167, 243, 208, 0.3); }
-        [data-theme="dark"] .post-color-blue { background-color: rgba(191, 219, 254, 0.1); border-color: rgba(191, 219, 254, 0.3); }
-        [data-theme="dark"] .post-color-pink { background-color: rgba(251, 207, 232, 0.1); border-color: rgba(251, 207, 232, 0.3); }
-
-        /* ================= 4. 모달 팝업 ================= */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); z-index: 9999; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: var(--transition); }
-        .modal-overlay.active { opacity: 1; visibility: visible; }
-        .modal-content { background: var(--bg-surface); width: 100%; max-width: 500px; border-radius: var(--radius-lg); padding: 32px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); transform: scale(0.95) translateY(20px); transition: var(--transition); max-height: 90vh; overflow-y: auto; border: 1px solid var(--border); }
-        .modal-overlay.active .modal-content { transform: scale(1) translateY(0); }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-        .modal-header h3 { font-size: 20px; font-weight: 800; }
-        .close-modal { font-size: 24px; color: var(--text-muted); cursor: pointer; }
-        .close-modal:hover { color: var(--accent); }
-        
-        /* 파일 업로드 커스텀 */
-        .file-upload-box { position: relative; width: 100%; height: 160px; border: 2px dashed var(--border); border-radius: var(--radius-md); display: flex; flex-direction: column; justify-content: center; align-items: center; background: var(--bg-body); cursor: pointer; transition: var(--transition); overflow: hidden; margin-bottom: 20px; }
-        .file-upload-box:hover { border-color: var(--primary); background: var(--primary-light); }
-        .file-upload-box input[type="file"] { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10; }
-        .preview-img { position: absolute; width: 100%; height: 100%; object-fit: cover; z-index: 5; display: none; }
-
-        /* 색상 팔레트 */
-        .color-picker { display: flex; gap: 12px; margin-top: 10px; }
-        .color-circle { width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: var(--transition); }
-        .color-circle.active { transform: scale(1.15); border-color: var(--text-main); }
-        
-        /* 커스텀 구매 모달 (앤드맨 팝업) */
-        #modal-purchase .modal-content { max-width: 400px; text-align: center; }
-        .endman-icon { font-size: 64px; color: var(--primary); margin-bottom: 20px; }
-        .purchase-msg { font-size: 22px; font-weight: 800; line-height: 1.4; margin-bottom: 30px; word-break: keep-all; }
-        .purchase-msg span { color: var(--accent); }
-
+        /* 실시간 피드 및 기타 UI */
+        .board-post { background: var(--bg-surface); padding: 24px; border-radius: var(--radius-md); border: 1px solid var(--border); margin-bottom: 16px; }
     </style>
 </head>
-<body data-theme="light">
-
-    <!-- 토스트 알림 컨테이너 -->
+<body data-theme="dark">
     <div id="toast-container"></div>
 
     <!-- ================= 1. 랜딩 페이지 ================= -->
     <div id="landing-view">
-        <div class="hero-bg">
-            <div class="hero-blob blob-1"></div>
-            <div class="hero-blob blob-2"></div>
-        </div>
-        
         <nav class="landing-nav">
-            <div class="landing-logo"><i class="fas fa-graduation-cap"></i> ClassSpace</div>
-            <button class="btn btn-primary" onclick="showLobby()">로그인 / 시작하기</button>
+            <div class="landing-logo"><i class="fas fa-gamepad" style="color:var(--primary)"></i> ClassSpace</div>
+            <button class="btn btn-primary" onclick="showAuthView()">플랫폼 입장하기</button>
         </nav>
 
-        <section class="hero-section">
-            <div class="hero-badge">✨ 2026년형 완전히 새로운 플랫폼</div>
-            <h1 class="hero-title">교실의 모든 것을<br><span>하나의 공간</span>에서.</h1>
-            <p class="hero-subtitle">출석부터 상점, 게시판, 주식 거래까지. 초고퀄리티 학급 관리 시스템으로 우리 반만의 특별한 생태계를 구축하세요.</p>
-            <div class="hero-buttons">
-                <button class="btn btn-primary" onclick="showLobby()">무료로 시작하기 <i class="fas fa-arrow-right"></i></button>
-            </div>
-        </section>
-
-        <section class="features-section">
-            <h2 class="section-title">압도적인 기능들을 경험하세요</h2>
-            <div class="feature-grid">
-                <div class="feature-card">
-                    <div class="feature-icon"><i class="fas fa-store"></i></div>
-                    <h3>경제 시스템 (우정 상점)</h3>
-                    <p>우리 반 화폐 '우정'으로 경제 활동을 체험합니다. 관리자가 등록한 상품을 둘러보고 거래하세요.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon"><i class="fas fa-chalkboard"></i></div>
-                    <h3>소통형 핀보드 (패들렛)</h3>
-                    <p>자유롭게 글과 사진을 남기고 친구들과 소통할 수 있는 아름다운 디자인의 게시판을 제공합니다.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
-                    <h3>실전 주식 거래</h3>
-                    <p>외부 주식 플랫폼과 다이렉트로 연동되어 생생한 투자 시뮬레이션 환경을 지원합니다.</p>
-                </div>
-            </div>
+        <section class="hero">
+            <div style="background: var(--primary-light); color: var(--primary); padding: 8px 18px; border-radius: 30px; font-weight: 700; margin-bottom: 24px; font-size: 14px;">⚡ 2026 차세대 학급 아케이드 & 크리에이터 스튜디오</div>
+            <h1>교실 안의 독립 게임 스튜디오<br><span>직접 만들고, 즉시 게시하고, 함께 플레이</span></h1>
+            <p>더 이상 단순한 게시판이나 지루한 툴이 아닙니다. 클릭커, 리액션 미니게임부터 완벽한 인터랙티브 앱까지 제작하여 학급 친구들과 공유하고 최고 기록을 경쟁하세요.</p>
+            <button class="btn btn-primary" style="padding: 18px 40px; font-size: 18px; border-radius: 40px;" onclick="showAuthView()">지금 시작하기</button>
         </section>
     </div>
 
-    <!-- ================= 2. 로비 (로그인/회원가입) ================= -->
-    <div id="lobby-view" class="hidden">
-        <div class="back-to-home" onclick="showLanding()"><i class="fas fa-chevron-left"></i> 돌아가기</div>
-        
+    <!-- ================= 2. 인증 뷰 (실제 회원가입/로그인) ================= -->
+    <div id="auth-view" class="hidden">
         <div class="auth-card">
-            <div class="auth-header">
-                <h1>ClassSpace</h1>
-                <p>학급 공간에 입장하세요</p>
+            <div class="auth-tabs">
+                <div class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">로그인</div>
+                <div class="auth-tab" id="tab-signup" onclick="switchAuthTab('signup')">회원가입</div>
             </div>
             
-            <div class="auth-tabs">
-                <div class="auth-tab active" data-target="login-form">로그인</div>
-                <div class="auth-tab" data-target="signup-form">회원가입</div>
-            </div>
-
-            <!-- 로그인 -->
-            <form id="login-form">
+            <form id="auth-form" onsubmit="handleAuth(event)">
+                <div class="form-group" id="group-name" style="display:none;">
+                    <label>닉네임 (이름)</label>
+                    <input type="text" id="input-name" placeholder="홍길동">
+                </div>
                 <div class="form-group">
-                    <label>이름</label>
-                    <input type="text" id="login-name" placeholder="실명 입력" required>
+                    <label>아이디</label>
+                    <input type="text" id="input-id" required placeholder="user123">
                 </div>
                 <div class="form-group">
                     <label>비밀번호</label>
-                    <input type="password" id="login-pwd" placeholder="비밀번호 입력" required>
+                    <input type="password" id="input-pw" required placeholder="••••••••">
                 </div>
-                <div class="form-group">
-                    <label>학급 비밀번호 (입장 코드)</label>
-                    <input type="password" id="login-class-pwd" placeholder="선생님이 부여한 코드" required>
-                </div>
-                <button type="submit" class="btn btn-primary btn-auth">입장하기</button>
+                <button type="submit" class="btn btn-primary" id="auth-submit-btn" style="width:100%; height: 50px;">로그인</button>
             </form>
-
-            <!-- 회원가입 -->
-            <form id="signup-form" class="hidden">
-                <div class="form-group">
-                    <label>이름</label>
-                    <input type="text" id="signup-name" placeholder="실명을 정확히 입력하세요" required>
-                </div>
-                <div class="form-group">
-                    <label>비밀번호</label>
-                    <input type="password" id="signup-pwd" placeholder="사용할 비밀번호" required>
-                </div>
-                <div class="form-group">
-                    <label>역할 선택</label>
-                    <div class="role-selector">
-                        <div class="role-option">
-                            <input type="radio" name="role" id="role-student" value="student" checked>
-                            <label for="role-student">학생</label>
-                        </div>
-                        <div class="role-option">
-                            <input type="radio" name="role" id="role-admin" value="admin_student">
-                            <label for="role-admin">관리자학생</label>
-                        </div>
-                        <div class="role-option">
-                            <input type="radio" name="role" id="role-teacher" value="teacher">
-                            <label for="role-teacher">선생님</label>
-                        </div>
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary btn-auth" style="background: var(--secondary);">회원가입 완료</button>
-            </form>
-
-            <!-- 학급 생성 -->
-            <form id="create-class-form" class="hidden">
-                <div style="background: rgba(245, 158, 11, 0.1); color: var(--warning); padding: 16px; border-radius: var(--radius-sm); margin-bottom: 24px; font-size: 14px; font-weight: 600; border: 1px solid rgba(245, 158, 11, 0.3);">
-                    ⚠️ 일치하는 학급이 없습니다.<br>새로운 학급을 개설합니다. (선생님/관리자 권장)
-                </div>
-                <div class="form-group">
-                    <label>개설할 학급 이름</label>
-                    <input type="text" id="create-class-name" placeholder="예: 3학년 2반" required>
-                </div>
-                <div class="form-group">
-                    <label>학급 코드</label>
-                    <input type="text" id="create-class-pwd" readonly style="background: var(--bg-body); cursor: not-allowed;">
-                </div>
-                <div style="display: flex; gap: 12px; margin-top: 24px;">
-                    <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="backToLogin()">취소</button>
-                    <button type="submit" class="btn btn-primary" style="flex: 2;">학급 개설하기</button>
-                </div>
-            </form>
+            <button class="btn btn-secondary" style="width:100%; margin-top: 12px;" onclick="hideAuthView()">뒤로가기</button>
         </div>
     </div>
 
-    <!-- ================= 3. 대시보드 (메인) ================= -->
+    <!-- ================= 3. 대시보드 (메인 앱) ================= -->
     <div id="dashboard-view" class="hidden">
-        <!-- 사이드바 -->
         <aside class="sidebar">
-            <div class="brand"><i class="fas fa-graduation-cap"></i> ClassSpace</div>
+            <div class="brand"><i class="fas fa-gamepad" style="color:var(--primary)"></i> ClassSpace</div>
             
-            <div class="nav-menu">
-                <div class="nav-label">Main Menu</div>
-                <div class="nav-item active" data-view="home"><i class="fas fa-home"></i> 대시보드</div>
-                <div class="nav-item" data-view="board"><i class="fas fa-chalkboard"></i> 게시판</div>
-                <div class="nav-item" data-view="shop"><i class="fas fa-store"></i> 우정 상점</div>
-                <div class="nav-item" data-view="ranking"><i class="fas fa-trophy"></i> 랭킹 (명예의 전당)</div>
-                <div class="nav-item" onclick="window.open('https://soopeh.com/classroom', '_blank')">
-                    <i class="fas fa-chart-line"></i> 주식 거래 <i class="fas fa-external-link-alt" style="font-size: 12px; margin-left: auto;"></i>
-                </div>
-                
-                <div class="admin-only hidden">
-                    <div class="nav-label" style="margin-top: 24px;">Admin Menu</div>
-                    <div class="nav-item" data-view="admin"><i class="fas fa-cog"></i> 학급 설정</div>
-                </div>
-            </div>
+            <div class="nav-category">Main</div>
+            <div class="nav-item active" data-view="home"><i class="fas fa-home"></i> 대시보드</div>
             
-            <div class="user-profile-card">
-                <div class="avatar" id="ui-avatar"></div>
-                <div class="user-info">
-                    <div class="name" id="ui-name">이름</div>
-                    <div class="role" id="ui-role">학생</div>
-                </div>
-                <button class="btn-icon-only" onclick="logout()" title="로그아웃"><i class="fas fa-sign-out-alt"></i></button>
+            <div class="nav-category">Killer Feature</div>
+            <div class="nav-item" data-view="arcade" style="color: var(--primary); font-weight: 800;"><i class="fas fa-dice"></i> 클래스 아케이드 & 스튜디오 <i class="fas fa-star" style="font-size:10px; color:var(--warning);"></i></div>
+
+            <div class="nav-category">Activities</div>
+            <div class="nav-item" data-view="board"><i class="fas fa-chalkboard"></i> 실시간 소통 피드</div>
+            <div class="nav-item" data-view="attendance"><i class="fas fa-calendar-check"></i> 출석 및 스트릭</div>
+            
+            <div style="margin-top: auto; padding-top: 20px;">
+                <button class="btn btn-secondary" style="width: 100%;" onclick="logout()"><i class="fas fa-sign-out-alt"></i> 로그아웃</button>
             </div>
         </aside>
 
-        <!-- 우측 메인 -->
         <main class="main-content">
-            <!-- 상단 바 -->
             <header class="topbar">
-                <div class="topbar-left">
-                    <h2 id="topbar-title"><i class="fas fa-home"></i> 대시보드</h2>
-                </div>
-                <div class="topbar-right">
-                    <button class="theme-toggle" onclick="toggleTheme()" title="다크모드 전환"><i class="fas fa-moon" id="theme-icon"></i></button>
-                    <div class="class-badge" id="ui-class-name">학급 이름</div>
-                    <div class="woojung-display">
-                        <i class="fas fa-coins" style="color: #FCD34D;"></i> <span id="ui-woojung">0</span> 우정
-                    </div>
+                <div style="font-size: 18px; font-weight: 800;" id="topbar-title">대시보드</div>
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <button class="btn btn-secondary" style="padding: 10px; border-radius: 50%;" onclick="toggleTheme()"><i class="fas fa-moon" id="theme-icon"></i></button>
+                    <div style="font-weight: 600;"><span id="ui-username" style="color:var(--primary);"></span> 님 환영합니다!</div>
                 </div>
             </header>
 
             <div class="content-body">
                 
-                <!-- 3-1. 홈 화면 -->
+                <!-- 3-1. 홈 대시보드 -->
                 <div id="view-home" class="view-section active">
-                    <div class="welcome-banner">
-                        <div class="welcome-text">
-                            <h1>안녕하세요, <span id="welcome-name"></span>님! 👋</h1>
-                            <p>오늘도 활기찬 하루 보내세요. 매일 출석체크를 통해 우정을 모으고 상점을 이용해보세요.</p>
+                    <h1 style="font-size: 32px; font-weight: 900; margin-bottom: 24px;">크리에이터 스튜디오 홈 🚀</h1>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
+                        <div style="background: var(--bg-surface); padding: 32px; border-radius: var(--radius-lg); border: 1px solid var(--border);">
+                            <h3 style="color: var(--text-muted); font-size: 15px; margin-bottom: 12px;">내가 제작한 게임 수</h3>
+                            <div style="font-size: 40px; font-weight: 900; color: var(--primary);" id="stat-my-games">0개</div>
+                            <button class="btn btn-primary" style="margin-top: 20px;" onclick="switchView('arcade'); switchArcadeTab('studio');">새 게임 만들기</button>
                         </div>
-                        <button class="attendance-btn" id="btn-attendance" onclick="checkAttendance()">
-                            <i class="fas fa-calendar-check"></i> 오늘 출석하기 (+10 우정)
-                        </button>
-                    </div>
-
-                    <div class="dashboard-grid">
-                        <!-- 좌측 패널 -->
-                        <div style="display: flex; flex-direction: column; gap: 32px;">
-                            <div class="panel">
-                                <div class="panel-header">
-                                    <div class="panel-title"><i class="fas fa-bullhorn" style="color: var(--primary);"></i> 공지사항</div>
-                                    <button class="btn btn-secondary btn-sm admin-only hidden" onclick="openModal('modal-add-notice')" style="padding: 6px 12px; font-size: 13px;">작성</button>
-                                </div>
-                                <div class="notice-list" id="notice-container">
-                                    <!-- JS 렌더링 -->
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- 우측 패널 (바로가기) -->
-                        <div class="panel">
-                            <div class="panel-header">
-                                <div class="panel-title">빠른 이동</div>
-                            </div>
-                            <div class="quick-links">
-                                <div class="quick-card" onclick="switchView('shop')">
-                                    <i class="fas fa-store" style="color: var(--secondary);"></i>
-                                    <div style="font-weight: 700;">상점 가기</div>
-                                </div>
-                                <div class="quick-card" onclick="switchView('board')">
-                                    <i class="fas fa-chalkboard" style="color: var(--primary);"></i>
-                                    <div style="font-weight: 700;">게시판 가기</div>
-                                </div>
-                                <div class="quick-card" onclick="switchView('ranking')">
-                                    <i class="fas fa-trophy" style="color: #F59E0B;"></i>
-                                    <div style="font-weight: 700;">명예의 전당</div>
-                                </div>
-                                <div class="quick-card" onclick="window.open('https://soopeh.com/classroom')">
-                                    <i class="fas fa-chart-line" style="color: var(--accent);"></i>
-                                    <div style="font-weight: 700;">주식 거래</div>
-                                </div>
-                            </div>
+                        <div style="background: var(--bg-surface); padding: 32px; border-radius: var(--radius-lg); border: 1px solid var(--border);">
+                            <h3 style="color: var(--text-muted); font-size: 15px; margin-bottom: 12px;">아케이드 총 등록 게임</h3>
+                            <div style="font-size: 40px; font-weight: 900; color: var(--secondary);" id="stat-total-games">0개</div>
+                            <button class="btn btn-secondary" style="margin-top: 20px;" onclick="switchView('arcade'); switchArcadeTab('market');">아케이드 구경하기</button>
                         </div>
                     </div>
                 </div>
 
-                <!-- 3-2. 상점 -->
-                <div id="view-shop" class="view-section">
-                    <div class="section-header-flex">
+                <!-- 3-2. 킬러 기능: 클래스 아케이드 & 스튜디오 -->
+                <div id="view-arcade" class="view-section">
+                    <div class="arcade-header">
                         <div>
-                            <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 8px;">우정 상점</h2>
-                            <p style="color: var(--text-muted);">원하는 물품을 선택하고 앤드맨에게 가격을 지불하세요.</p>
+                            <h1 style="font-size: 32px; font-weight: 900; margin-bottom: 12px;">Class Arcade & Studio 🎮</h1>
+                            <p>학급 친구들이 만든 게임을 플레이하고, 직접 나만의 미니게임을 코딩하여 세상에 게시하세요!</p>
                         </div>
-                        <button class="btn btn-primary admin-only hidden" onclick="openModal('modal-add-item')">
-                            <i class="fas fa-plus"></i> 새 상품 등록
-                        </button>
+                        <i class="fas fa-gamepad" style="font-size: 80px; opacity: 0.2;"></i>
                     </div>
-                    <div class="shop-grid" id="shop-container">
-                        <!-- JS 렌더링 -->
+
+                    <div class="arcade-tabs">
+                        <button class="arcade-tab-btn active" id="atab-market" onclick="switchArcadeTab('market')"><i class="fas fa-store"></i> 아케이드 마켓 (플레이)</button>
+                        <button class="arcade-tab-btn" id="atab-studio" onclick="switchArcadeTab('studio')"><i class="fas fa-code"></i> 게임 만들기 (스튜디오)</button>
+                    </div>
+
+                    <!-- 아케이드 마켓 탭 -->
+                    <div id="arcade-market-pane">
+                        <div class="games-grid" id="games-grid-container">
+                            <!-- JS 렌더링 -->
+                        </div>
+                    </div>
+
+                    <!-- 게임 만들기 스튜디오 탭 -->
+                    <div id="arcade-studio-pane" class="hidden">
+                        <div class="studio-form">
+                            <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 24px;"><i class="fas fa-magic" style="color:var(--primary)"></i> 나만의 미니게임 퍼블리싱</h2>
+                            <form id="create-game-form" onsubmit="publishGame(event)">
+                                <div class="form-group">
+                                    <label>게임 이름</label>
+                                    <input type="text" id="game-title" required placeholder="예: 10초 무한 클릭커 대전">
+                                </div>
+                                <div class="form-group">
+                                    <label>게임 종류 (엔진)</label>
+                                    <select id="game-type">
+                                        <option value="clicker">타이머 클릭커 (10초간 많이 클릭하기)</option>
+                                        <option value="reaction">반응속도 테스트 (불이 켜지면 클릭!)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>게임 설명</label>
+                                    <textarea id="game-desc" rows="3" required placeholder="게임 규칙을 설명해주세요."></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="width:100%; height: 50px;">아케이드에 즉시 게시하기</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
 
-                <!-- 3-3. 랭킹 (명예의 전당) -->
-                <div id="view-ranking" class="view-section">
-                    <div class="section-header-flex">
-                        <div>
-                            <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 8px;">명예의 전당 🏆</h2>
-                            <p style="color: var(--text-muted);">우리 반에서 우정을 가장 많이 모은 학생 순위입니다.</p>
-                        </div>
-                    </div>
-                    <div class="ranking-list" id="ranking-container">
-                        <!-- JS 렌더링 -->
-                    </div>
-                </div>
-
-                <!-- 3-4. 게시판 (패들렛) -->
+                <!-- 3-3. 실시간 피드 -->
                 <div id="view-board" class="view-section">
-                    <div class="section-header-flex">
-                        <div>
-                            <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 8px;">소통 게시판</h2>
-                            <p style="color: var(--text-muted);">자유롭게 포스트잇을 붙여 우리 반의 이야기를 완성하세요.</p>
-                        </div>
-                        <button class="btn btn-primary" onclick="openModal('modal-add-post')" style="border-radius: 30px; box-shadow: var(--shadow-lg);">
-                            <i class="fas fa-pen"></i> 핀 꽂기
-                        </button>
+                    <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 24px;">실시간 소통 피드 💬</h2>
+                    <div style="background:var(--bg-surface); padding:24px; border-radius:var(--radius-md); border:1px solid var(--border); margin-bottom:24px;">
+                        <textarea id="post-content" rows="3" placeholder="학급 친구들에게 남기고 싶은 이야기를 적어보세요..." style="margin-bottom:12px;"></textarea>
+                        <button class="btn btn-primary" onclick="createPost()">게시하기</button>
                     </div>
-                    <div class="masonry-grid" id="board-container">
-                        <!-- JS 렌더링 -->
-                    </div>
+                    <div id="posts-container"></div>
                 </div>
 
-                <!-- 3-5. 학급 관리 -->
-                <div id="view-admin" class="view-section admin-only hidden">
-                    <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 24px;">학급 설정 (관리자 전용)</h2>
-                    
-                    <div class="dashboard-grid">
-                        <div class="panel">
-                            <div class="panel-header"><div class="panel-title">기본 정보 수정</div></div>
-                            <div class="form-group">
-                                <label>학급 이름</label>
-                                <div style="display: flex; gap: 10px;">
-                                    <input type="text" id="admin-class-name">
-                                    <button class="btn btn-secondary" onclick="updateClassName()">변경</button>
-                                </div>
-                            </div>
-                            <div class="form-group" style="margin-top: 20px;">
-                                <label>학급 접속 코드 (비밀번호) 변경</label>
-                                <div style="display: flex; gap: 10px;">
-                                    <input type="text" id="admin-class-pwd" placeholder="새 코드 입력">
-                                    <button class="btn btn-danger" onclick="updateClassPwd()">변경</button>
-                                </div>
-                                <p style="font-size: 12px; color: var(--accent); margin-top: 8px;">* 코드를 변경하면 학생들이 다음 접속 시 새 코드를 알아야 합니다.</p>
-                            </div>
-                        </div>
+                <!-- 3-4. 출석 체크 -->
+                <div id="view-attendance" class="view-section">
+                    <div style="background: var(--bg-surface); padding: 40px; border-radius: var(--radius-lg); border: 1px solid var(--border); text-align: center;">
+                        <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 12px;">매일 출석체크 ✅</h2>
+                        <p style="color:var(--text-muted); margin-bottom: 24px;">출석체크를 완료하고 연속 출석 스트릭을 쌓으세요!</p>
+                        <div style="font-size: 48px; font-weight: 900; color: var(--primary); margin-bottom: 24px;" id="streak-display">🔥 0일 연속 출석 중</div>
+                        <button class="btn btn-primary" onclick="doAttendance()" style="padding: 16px 36px; font-size: 18px;">오늘 출석 완료하기</button>
                     </div>
                 </div>
 
@@ -607,508 +274,307 @@
         </main>
     </div>
 
-    <!-- ================= 4. 모달 창들 ================= -->
-    
-    <!-- 아이템 구매 안내 팝업 (우정 차감 없음) -->
-    <div class="modal-overlay" id="modal-purchase">
-        <div class="modal-content">
-            <button class="close-modal" style="float: right;" onclick="closeModal('modal-purchase')">&times;</button>
-            <div style="clear: both;"></div>
-            <i class="fas fa-shopping-bag endman-icon"></i>
-            <div class="purchase-msg">
-                상품 구매를 위해<br>
-                <span>앤드맨에게 <span id="purchase-price-text"></span></span><br>
-                보내세요!
-            </div>
-            <button class="btn btn-primary" style="width: 100%; font-size: 16px; padding: 14px;" onclick="closeModal('modal-purchase')">확인했습니다</button>
+    <!-- 게임 플레이 모달 -->
+    <div id="game-modal" class="hidden">
+        <div class="game-modal-content" id="game-modal-body">
+            <!-- 게임별 동적 실행 -->
         </div>
     </div>
 
-    <!-- 상품 등록 모달 -->
-    <div class="modal-overlay" id="modal-add-item">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>상점 물품 등록</h3>
-                <button class="close-modal" onclick="closeModal('modal-add-item')">&times;</button>
-            </div>
-            <form id="form-add-item">
-                <div class="form-group">
-                    <label>상품 사진</label>
-                    <div class="file-upload-box">
-                        <i class="fas fa-image" style="font-size: 32px; color: var(--text-muted); margin-bottom: 12px;"></i>
-                        <span style="font-size: 14px; font-weight: 600; color: var(--text-muted);">클릭하여 이미지 업로드</span>
-                        <input type="file" id="item-img-upload" accept="image/*" required>
-                        <img id="item-img-preview" class="preview-img">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>상품명</label>
-                    <input type="text" id="item-name" placeholder="예: 간식 교환권" required>
-                </div>
-                <div class="form-group">
-                    <label>가격 (우정)</label>
-                    <input type="number" id="item-price" placeholder="예: 500" required min="0">
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">상점에 등록</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- 게시글 작성 모달 -->
-    <div class="modal-overlay" id="modal-add-post">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>새 포스트잇 작성</h3>
-                <button class="close-modal" onclick="closeModal('modal-add-post')">&times;</button>
-            </div>
-            <form id="form-add-post">
-                <div class="form-group">
-                    <label>내용</label>
-                    <textarea id="post-content" rows="4" placeholder="무슨 생각을 하고 계신가요?" required style="resize: none;"></textarea>
-                </div>
-                <div class="form-group">
-                    <label>사진 첨부 (선택)</label>
-                    <div class="file-upload-box" style="height: 120px;">
-                        <i class="fas fa-camera" style="font-size: 24px; color: var(--text-muted); margin-bottom: 8px;"></i>
-                        <span style="font-size: 13px; color: var(--text-muted);">클릭하여 사진 추가</span>
-                        <input type="file" id="post-img-upload" accept="image/*">
-                        <img id="post-img-preview" class="preview-img">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>배경 색상</label>
-                    <div class="color-picker">
-                        <div class="color-circle active" style="background: var(--bg-surface); border: 2px solid var(--border);" data-color="default"></div>
-                        <div class="color-circle" style="background: #FDE68A;" data-color="yellow"></div>
-                        <div class="color-circle" style="background: #A7F3D0;" data-color="green"></div>
-                        <div class="color-circle" style="background: #BFDBFE;" data-color="blue"></div>
-                        <div class="color-circle" style="background: #FBCFE8;" data-color="pink"></div>
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">게시판에 올리기</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- 공지사항 작성 모달 -->
-    <div class="modal-overlay" id="modal-add-notice">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>새 공지사항 등록</h3>
-                <button class="close-modal" onclick="closeModal('modal-add-notice')">&times;</button>
-            </div>
-            <form id="form-add-notice">
-                <div class="form-group">
-                    <label>공지 내용</label>
-                    <textarea id="notice-content" rows="3" placeholder="중요한 내용을 입력하세요." required></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">공지 등록</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- ================= 5. 자바스크립트 ================= -->
     <script>
-        // --- 1. 데이터베이스 시뮬레이션 ---
-        const DB_KEY = 'ClassSpace_DB_v2';
-        let db = {
-            users: {}, // { name: { pwd, role, woojung, lastAttend: 'YYYY-MM-DD' } }
-            classes: {} // { classPwd: { name, items: [], posts: [], notices: [] } }
+        // --- 상태 및 LocalStorage 연동 ---
+        let db = JSON.parse(localStorage.getItem('classspace_db')) || {
+            users: {}, // { id: { pw, name, streak, lastDate } }
+            games: [
+                { id: 1, author: '선생님', title: '10초 무한 클릭커', type: 'clicker', desc: '10초 동안 가장 빠르게 버튼을 누르는 자가 승리합니다!', plays: 12 },
+                { id: 2, author: '김철수', title: '초스피드 반응속도', type: 'reaction', desc: '초록색으로 바뀌는 순간 빛의 속도로 클릭하세요!', plays: 8 }
+            ],
+            posts: [
+                { id: 1, author: '선생님', content: 'ClassSpace 아케이드 오픈을 환영합니다! 멋진 게임을 만들어주세요.', date: '2026-03-21' }
+            ]
         };
-        let session = { user: null, classPwd: null };
 
-        function loadDB() { const saved = localStorage.getItem(DB_KEY); if(saved) db = JSON.parse(saved); }
-        function saveDB() { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+        let sessionUser = JSON.parse(localStorage.getItem('classspace_session')) || null;
+        let isSignupMode = false;
 
-        // --- 2. 기본 유틸 및 UI 제어 ---
-        const getEl = id => document.getElementById(id);
-        
-        function showToast(msg, type='success') {
-            const box = getEl('toast-container');
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.style.borderLeftColor = type==='error' ? 'var(--accent)' : 'var(--primary)';
-            toast.innerHTML = `<i class="fas fa-${type==='error'?'exclamation-circle':'check-circle'}" style="color:${toast.style.borderLeftColor}"></i> ${msg}`;
-            box.appendChild(toast);
-            setTimeout(() => toast.remove(), 3500);
+        function saveDB() {
+            localStorage.setItem('classspace_db', JSON.stringify(db));
         }
+
+        // --- 인증 관리 ---
+        function showAuthView() { document.getElementById('auth-view').classList.remove('hidden'); }
+        function hideAuthView() { document.getElementById('auth-view').classList.add('hidden'); }
+
+        function switchAuthTab(mode) {
+            isSignupMode = (mode === 'signup');
+            document.getElementById('tab-login').classList.toggle('active', !isSignupMode);
+            document.getElementById('tab-signup').classList.toggle('active', isSignupMode);
+            document.getElementById('group-name').style.display = isSignupMode ? 'block' : 'none';
+            document.getElementById('auth-submit-btn').innerText = isSignupMode ? '회원가입 완료' : '로그인';
+        }
+
+        function handleAuth(e) {
+            e.preventDefault();
+            const id = document.getElementById('input-id').value.trim();
+            const pw = document.getElementById('input-pw').value.trim();
+
+            if (isSignupMode) {
+                const name = document.getElementById('input-name').value.trim();
+                if (!name) return showToast('닉네임을 입력하세요.');
+                if (db.users[id]) return showToast('이미 존재하는 아이디입니다.');
+                
+                db.users[id] = { pw, name, streak: 0, lastDate: '' };
+                saveDB();
+                showToast('회원가입 완료! 로그인해주세요.');
+                switchAuthTab('login');
+            } else {
+                if (!db.users[id] || db.users[id].pw !== pw) {
+                    return showToast('아이디 또는 비밀번호가 올바르지 않습니다.');
+                }
+                sessionUser = { id, name: db.users[id].name };
+                localStorage.setItem('classspace_session', JSON.stringify(sessionUser));
+                hideAuthView();
+                initDashboard();
+                showToast(`${sessionUser.name}님 환영합니다!`);
+            }
+        }
+
+        function logout() {
+            sessionUser = null;
+            localStorage.removeItem('classspace_session');
+            document.getElementById('dashboard-view').classList.add('hidden');
+            document.getElementById('landing-view').classList.remove('hidden');
+        }
+
+        // --- 대시보드 및 네비게이션 ---
+        function initDashboard() {
+            if (!sessionUser) return;
+            document.getElementById('landing-view').classList.add('hidden');
+            document.getElementById('auth-view').classList.add('hidden');
+            document.getElementById('dashboard-view').classList.remove('hidden');
+            document.getElementById('ui-username').innerText = sessionUser.name;
+            updateStats();
+            switchView('home');
+            renderGames();
+            renderPosts();
+            updateStreakDisplay();
+        }
+
+        function switchView(viewId) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById('view-' + viewId).classList.add('active');
+            const nav = document.querySelector(`.nav-item[data-view="${viewId}"]`);
+            if(nav) nav.classList.add('active');
+            
+            const titles = { home: '대시보드', arcade: '클래스 아케이드 & 스튜디오', board: '실시간 소통 피드', attendance: '출석 및 스트릭' };
+            document.getElementById('topbar-title').innerText = titles[viewId] || '';
+        }
+
+        document.querySelectorAll('.nav-item[data-view]').forEach(item => {
+            item.addEventListener('click', e => switchView(e.currentTarget.dataset.view));
+        });
 
         function toggleTheme() {
             const body = document.body;
             const isDark = body.getAttribute('data-theme') === 'dark';
             body.setAttribute('data-theme', isDark ? 'light' : 'dark');
-            getEl('theme-icon').className = isDark ? 'fas fa-moon' : 'fas fa-sun';
+            document.getElementById('theme-icon').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
         }
 
-        // 화면 전환 로직
-        function showLanding() { getEl('landing-view').classList.remove('hidden'); getEl('lobby-view').classList.add('hidden'); }
-        function showLobby() { getEl('landing-view').classList.add('hidden'); getEl('lobby-view').classList.remove('hidden'); }
-        function backToLogin() { getEl('create-class-form').classList.add('hidden'); getEl('login-form').classList.remove('hidden'); }
-
-        function switchView(viewName) {
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-item[data-view]').forEach(el => el.classList.remove('active'));
-            
-            getEl(`view-${viewName}`).classList.add('active');
-            const navItem = document.querySelector(`.nav-item[data-view="${viewName}"]`);
-            if(navItem) navItem.classList.add('active');
-
-            const titles = { 'home': '대시보드', 'board': '소통 게시판', 'shop': '우정 상점', 'ranking': '명예의 전당', 'admin': '학급 설정' };
-            const icons = { 'home': 'home', 'board': 'chalkboard', 'shop': 'store', 'ranking': 'trophy', 'admin': 'cog' };
-            getEl('topbar-title').innerHTML = `<i class="fas fa-${icons[viewName]}"></i> ${titles[viewName]}`;
-
-            // 뷰 렌더링 트리거
-            if(viewName === 'home') renderNotices();
-            if(viewName === 'shop') renderShop();
-            if(viewName === 'board') renderBoard();
-            if(viewName === 'ranking') renderRanking();
+        function showToast(msg) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `<i class="fas fa-check-circle" style="color:var(--primary)"></i> ${msg}`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3500);
         }
 
-        // --- 3. 인증 (회원가입, 로그인, 학급생성) ---
-        // 로그인/회원가입 탭
-        document.querySelectorAll('.auth-tab').forEach(tab => {
-            tab.addEventListener('click', (e) => {
-                document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-                e.target.classList.add('active');
-                getEl('login-form').classList.add('hidden');
-                getEl('signup-form').classList.add('hidden');
-                getEl('create-class-form').classList.add('hidden');
-                getEl(e.target.dataset.target).classList.remove('hidden');
-            });
-        });
+        // --- 아케이드 및 게임 스튜디오 로직 ---
+        function switchArcadeTab(tab) {
+            document.getElementById('atab-market').classList.toggle('active', tab === 'market');
+            document.getElementById('atab-studio').classList.toggle('active', tab === 'studio');
+            document.getElementById('arcade-market-pane').classList.toggle('hidden', tab !== 'market');
+            document.getElementById('arcade-studio-pane').classList.toggle('hidden', tab !== 'studio');
+            if (tab === 'market') renderGames();
+        }
 
-        // 회원가입
-        getEl('signup-form').addEventListener('submit', e => {
+        function publishGame(e) {
             e.preventDefault();
-            const name = getEl('signup-name').value.trim();
-            const pwd = getEl('signup-pwd').value;
-            const role = document.querySelector('input[name="role"]:checked').value;
+            const title = document.getElementById('game-title').value.trim();
+            const type = document.getElementById('game-type').value;
+            const desc = document.getElementById('game-desc').value.trim();
 
-            if(db.users[name]) return showToast('이미 존재하는 이름입니다.', 'error');
-            
-            // 초기 우정 0으로 설정
-            db.users[name] = { pwd, role, woojung: 0, lastAttend: '' }; 
+            const newGame = { id: Date.now(), author: sessionUser.name, title, type, desc, plays: 0 };
+            db.games.push(newGame);
             saveDB();
-            showToast('가입 완료! 로그인해주세요.');
-            document.querySelector('.auth-tab[data-target="login-form"]').click();
-        });
 
-        // 로그인
-        let tempLogin = {};
-        getEl('login-form').addEventListener('submit', e => {
-            e.preventDefault();
-            const name = getEl('login-name').value.trim();
-            const pwd = getEl('login-pwd').value;
-            const classPwd = getEl('login-class-pwd').value;
+            document.getElementById('create-game-form').reset();
+            switchArcadeTab('market');
+            updateStats();
+            showToast('새로운 게임이 아케이드에 게시되었습니다! 🎉');
+        }
 
-            if(!db.users[name] || db.users[name].pwd !== pwd) return showToast('정보가 일치하지 않습니다.', 'error');
+        function renderGames() {
+            const container = document.getElementById('games-grid-container');
+            if (db.games.length === 0) {
+                container.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:60px; color:var(--text-muted);">등록된 게임이 없습니다. 스튜디오에서 첫 게임을 만들어보세요!</div>`;
+                return;
+            }
 
-            if(db.classes[classPwd]) {
-                loginSuccess(name, classPwd);
+            container.innerHTML = db.games.map(g => `
+                <div class="game-card">
+                    <div class="game-banner">
+                        <i class="fas ${g.type === 'clicker' ? 'fa-bolt' : 'fa-stopwatch'}" style="color:var(--primary)"></i>
+                    </div>
+                    <div class="game-info">
+                        <div style="font-size:12px; color:var(--primary); font-weight:700; margin-bottom:6px;">제작자: ${g.author}</div>
+                        <h3 class="game-title">${g.title}</h3>
+                        <p class="game-desc">${g.desc}</p>
+                        <button class="btn btn-primary" style="width:100%;" onclick="launchGame(${g.id})"><i class="fas fa-play"></i> 게임 플레이</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- 실시간 플레이 엔진 (완벽 작동 게임 미니 모달) ---
+        function launchGame(gameId) {
+            const game = db.games.find(g => g.id === gameId);
+            if (!game) return;
+            game.plays++;
+            saveDB();
+
+            const modal = document.getElementById('game-modal');
+            const body = document.getElementById('game-modal-body');
+            modal.classList.remove('hidden');
+
+            if (game.type === 'clicker') {
+                let score = 0;
+                let timeLeft = 10;
+                let timer = null;
+                let started = false;
+
+                body.innerHTML = `
+                    <h2 style="font-size:24px; font-weight:900; margin-bottom:8px;">⚡ ${game.title}</h2>
+                    <p style="color:var(--text-muted); margin-bottom:24px;">10초 동안 최대한 많이 클릭하세요!</p>
+                    <div style="font-size:48px; font-weight:900; color:var(--primary); margin-bottom:20px;" id="clicker-timer">10초</div>
+                    <div style="font-size:36px; font-weight:800; margin-bottom:30px;">점수: <span id="clicker-score">0</span>회</div>
+                    <button class="btn btn-primary" id="clicker-btn" style="width:100%; height:80px; font-size:24px;" onclick="handleGameClick('${game.type}')">여기를 클릭!</button>
+                    <button class="btn btn-secondary" style="margin-top:20px; width:100%;" onclick="closeGameModal()">나가기</button>
+                `;
+
+                window.handleGameClick = function() {
+                    if (!started) {
+                        started = true;
+                        timer = setInterval(() => {
+                            timeLeft--;
+                            document.getElementById('clicker-timer').innerText = timeLeft + '초';
+                            if (timeLeft <= 0) {
+                                clearInterval(timer);
+                                document.getElementById('clicker-btn').disabled = true;
+                                document.getElementById('clicker-btn').style.background = 'var(--text-muted)';
+                                alert(`게임 종료! 최종 점수: ${score}회`);
+                            }
+                        }, 1000);
+                    }
+                    if (timeLeft > 0) {
+                        score++;
+                        document.getElementById('clicker-score').innerText = score;
+                    }
+                };
             } else {
-                tempLogin = { name, classPwd };
-                getEl('login-form').classList.add('hidden');
-                getEl('create-class-form').classList.remove('hidden');
-                getEl('create-class-pwd').value = classPwd;
-            }
-        });
+                // Reaction Game
+                body.innerHTML = `
+                    <h2 style="font-size:24px; font-weight:900; margin-bottom:8px;">⏱️ ${game.title}</h2>
+                    <p style="color:var(--text-muted); margin-bottom:24px;">화면이 초록색으로 바뀌면 즉시 누르세요!</p>
+                    <div id="react-box" style="background:var(--accent); color:white; height:180px; border-radius:16px; display:flex; justify-content:center; align-items:center; font-size:24px; font-weight:800; cursor:pointer; margin-bottom:20px;" onclick="handleReactionClick()">준비...</div>
+                    <button class="btn btn-secondary" style="width:100%;" onclick="closeGameModal()">나가기</button>
+                `;
+                
+                window.reactionState = 'waiting';
+                window.startTime = 0;
+                setTimeout(() => {
+                    if(document.getElementById('react-box')) {
+                        document.getElementById('react-box').style.background = 'var(--secondary)';
+                        document.getElementById('react-box').innerText = '지금 클릭!';
+                        window.reactionState = 'ready';
+                        window.startTime = Date.now();
+                    }
+                }, Math.random() * 2000 + 1500);
 
-        // 학급 생성 (아이템 없음)
-        getEl('create-class-form').addEventListener('submit', e => {
-            e.preventDefault();
-            const user = db.users[tempLogin.name];
-            if(user.role === 'student') return showToast('학생은 학급을 생성할 수 없습니다.', 'error');
-            
-            const name = getEl('create-class-name').value;
-            db.classes[tempLogin.classPwd] = { name, items: [], posts: [], notices: [] }; // 빈 배열 시작
-            saveDB();
-            loginSuccess(tempLogin.name, tempLogin.classPwd);
-        });
-
-        function loginSuccess(name, classPwd) {
-            session = { user: name, classPwd };
-            const u = db.users[name];
-            const c = db.classes[classPwd];
-
-            getEl('ui-name').innerText = name;
-            getEl('ui-avatar').innerText = name.charAt(0);
-            getEl('ui-role').innerText = u.role === 'teacher' ? '선생님' : (u.role === 'admin_student' ? '관리자학생' : '학생');
-            getEl('welcome-name').innerText = name;
-            getEl('ui-class-name').innerText = c.name;
-            getEl('admin-class-name').value = c.name;
-            
-            updateWoojungUI();
-            checkAttendanceUI();
-
-            document.querySelectorAll('.admin-only').forEach(el => {
-                u.role === 'student' ? el.classList.add('hidden') : el.classList.remove('hidden');
-            });
-
-            getEl('lobby-view').classList.add('hidden');
-            getEl('dashboard-view').classList.remove('hidden');
-            
-            // 사이드바 이벤트 설정
-            document.querySelectorAll('.nav-item[data-view]').forEach(item => {
-                // 기존 리스너 방지 후 재등록
-                const newEl = item.cloneNode(true);
-                item.parentNode.replaceChild(newEl, item);
-                newEl.addEventListener('click', (e) => switchView(e.currentTarget.dataset.view));
-            });
-
-            switchView('home');
-            showToast('환영합니다!');
-        }
-
-        function logout() {
-            session = { user: null, classPwd: null };
-            getEl('dashboard-view').classList.add('hidden');
-            showLanding();
-            getEl('login-form').reset();
-        }
-
-        function updateWoojungUI() {
-            getEl('ui-woojung').innerText = db.users[session.user].woojung.toLocaleString();
-        }
-
-        // --- 4. 출석체크 및 공지 (홈 기능) ---
-        function getTodayStr() {
-            const d = new Date();
-            return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
-        }
-
-        function checkAttendanceUI() {
-            const u = db.users[session.user];
-            const btn = getEl('btn-attendance');
-            if(u.lastAttend === getTodayStr()) {
-                btn.innerHTML = '<i class="fas fa-check"></i> 출석 완료';
-                btn.classList.add('done');
-            } else {
-                btn.innerHTML = '<i class="fas fa-calendar-check"></i> 오늘 출석하기 (+10 우정)';
-                btn.classList.remove('done');
+                window.handleReactionClick = function() {
+                    if (window.reactionState === 'waiting') {
+                        alert('너무 일찍 눌렀습니다! (부정 출발)');
+                        closeGameModal();
+                    } else if (window.reactionState === 'ready') {
+                        const elapsed = Date.now() - window.startTime;
+                        alert(`성공! 반응 속도: ${elapsed}ms`);
+                        closeGameModal();
+                    }
+                };
             }
         }
 
-        function checkAttendance() {
-            const u = db.users[session.user];
-            if(u.lastAttend === getTodayStr()) return;
-            
-            u.lastAttend = getTodayStr();
-            u.woojung += 10;
-            saveDB();
-            updateWoojungUI();
-            checkAttendanceUI();
-            showToast('출석 완료! 10 우정을 받았습니다.');
+        function closeGameModal() {
+            document.getElementById('game-modal').classList.add('hidden');
         }
 
-        // 공지사항
-        getEl('form-add-notice').addEventListener('submit', e => {
-            e.preventDefault();
-            const text = getEl('notice-content').value;
-            const cls = db.classes[session.classPwd];
-            const d = new Date();
-            if(!cls.notices) cls.notices = [];
-            cls.notices.unshift({ id: Date.now(), text, date: `${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${d.getMinutes()}` });
+        // --- 피드 및 출석 로직 ---
+        function createPost() {
+            const content = document.getElementById('post-content').value.trim();
+            if (!content) return showToast('내용을 입력하세요.');
+            
+            db.posts.unshift({ id: Date.now(), author: sessionUser.name, content, date: new Date().toLocaleDateString() });
             saveDB();
-            closeModal('modal-add-notice');
-            renderNotices();
-            showToast('공지가 등록되었습니다.');
-        });
+            document.getElementById('post-content').value = '';
+            renderPosts();
+            showToast('피드에 게시되었습니다.');
+        }
 
-        function renderNotices() {
-            const cls = db.classes[session.classPwd];
-            const box = getEl('notice-container');
-            if(!cls.notices || cls.notices.length === 0) {
-                box.innerHTML = '<div style="color:var(--text-muted); font-size:14px; text-align:center; padding:10px;">등록된 공지가 없습니다.</div>';
-                return;
-            }
-            box.innerHTML = cls.notices.slice(0,3).map(n => `
-                <div class="notice-item">
-                    <div class="notice-title">${n.text}</div>
-                    <div class="notice-meta"><i class="far fa-clock"></i> ${n.date}</div>
+        function renderPosts() {
+            const container = document.getElementById('posts-container');
+            container.innerHTML = db.posts.map(p => `
+                <div class="board-post">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                        <strong>${p.author}</strong>
+                        <span style="font-size:12px; color:var(--text-muted);">${p.date}</span>
+                    </div>
+                    <p style="line-height:1.6;">${p.content}</p>
                 </div>
             `).join('');
         }
 
-        // --- 5. 랭킹 (명예의 전당) ---
-        function renderRanking() {
-            // 현재 학급의 학생들을 찾아야 하므로 우정을 기준으로 정렬 (학급별 유저 분리가 안되어있다면 전체유저 랭킹으로 대체)
-            // 상용화 모델에서는 user 객체 안에 소속 class 코드가 있어야하지만, 현재 단일 세션 모델이므로 전체 유저를 랭킹화
-            const usersArr = Object.keys(db.users).map(name => ({ name, ...db.users[name] }));
-            usersArr.sort((a,b) => b.woojung - a.woojung);
-
-            const box = getEl('ranking-container');
-            if(usersArr.length === 0) return;
-
-            box.innerHTML = usersArr.map((u, i) => `
-                <div class="rank-item">
-                    <div class="rank-num">${i+1}</div>
-                    <div class="rank-user">
-                        <div class="mini-avatar" style="width:40px;height:40px;font-size:16px;">${u.name.charAt(0)}</div>
-                        ${u.name} <span style="font-size:12px; color:var(--text-muted); font-weight:normal;">(${u.role==='student'?'학생':'선생님/관리자'})</span>
-                    </div>
-                    <div class="rank-score"><i class="fas fa-coins" style="color:#F59E0B;"></i> ${u.woojung.toLocaleString()}</div>
-                </div>
-            `).join('');
-        }
-
-        // --- 6. 상점 로직 ---
-        let itemImgBase64 = null;
-        setupImageUpload('item-img-upload', 'item-img-preview', b => itemImgBase64 = b);
-
-        getEl('form-add-item').addEventListener('submit', e => {
-            e.preventDefault();
-            if(!itemImgBase64) return showToast('이미지를 등록해주세요.', 'error');
-            const cls = db.classes[session.classPwd];
-            cls.items.push({ id: Date.now(), name: getEl('item-name').value, price: parseInt(getEl('item-price').value), img: itemImgBase64 });
-            saveDB();
-            closeModal('modal-add-item');
-            renderShop();
-            showToast('상품이 추가되었습니다.');
-        });
-
-        function renderShop() {
-            const cls = db.classes[session.classPwd];
-            const box = getEl('shop-container');
-            if(cls.items.length === 0) {
-                box.innerHTML = '<div class="empty-state"><i class="fas fa-box-open"></i><p>등록된 상품이 없습니다.</p></div>';
-                return;
-            }
-            box.innerHTML = cls.items.map(item => `
-                <div class="shop-item">
-                    <img src="${item.img}" class="shop-img">
-                    <div class="shop-info">
-                        <div class="shop-title">${item.name}</div>
-                        <div class="shop-price"><i class="fas fa-coins"></i> ${item.price.toLocaleString()} 우정</div>
-                        <button class="btn btn-secondary shop-action" onclick="buyItem(${item.price})">구매 신청</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // 구매 시 차감 없이 알림만!
-        window.buyItem = function(price) {
-            getEl('purchase-price-text').innerText = `${price.toLocaleString()}우정 만큼`;
-            openModal('modal-purchase');
-        };
-
-        // --- 7. 게시판 로직 ---
-        let postImgBase64 = null;
-        let postColor = 'default';
-        setupImageUpload('post-img-upload', 'post-img-preview', b => postImgBase64 = b);
-
-        document.querySelectorAll('.color-circle').forEach(el => {
-            el.addEventListener('click', e => {
-                document.querySelectorAll('.color-circle').forEach(c => c.classList.remove('active'));
-                e.target.classList.add('active');
-                postColor = e.target.dataset.color;
-            });
-        });
-
-        getEl('form-add-post').addEventListener('submit', e => {
-            e.preventDefault();
-            const cls = db.classes[session.classPwd];
-            const d = new Date();
-            cls.posts.push({
-                id: Date.now(), author: session.user, content: getEl('post-content').value.replace(/\n/g, '<br>'),
-                img: postImgBase64, color: postColor, date: `${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${d.getMinutes()}`,
-                likes: [],
-            });
-            saveDB();
-            closeModal('modal-add-post');
-            renderBoard();
-        });
-
-        function renderBoard() {
-            const cls = db.classes[session.classPwd];
-            const box = getEl('board-container');
-            if(cls.posts.length === 0) {
-                box.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><i class="far fa-clipboard"></i><p>첫 번째 핀을 꽂아보세요!</p></div>';
-                return;
-            }
+        function doAttendance() {
+            const u = db.users[sessionUser.id];
+            const today = new Date().toLocaleDateString();
+            if (u.lastDate === today) return showToast('오늘 이미 출석체크를 완료했습니다.');
             
-            box.innerHTML = [...cls.posts].reverse().map(p => {
-                const liked = p.likes.includes(session.user);
-                const isAuth = p.author === session.user || db.users[session.user].role !== 'student';
-                return `
-                <div class="post-card post-color-${p.color}">
-                    <div class="post-header">
-                        <div class="post-author"><div class="mini-avatar">${p.author.charAt(0)}</div>${p.author}</div>
-                        ${isAuth ? `<button onclick="deletePost(${p.id})" style="color:var(--accent);"><i class="fas fa-trash"></i></button>` : ''}
-                    </div>
-                    ${p.img ? `<img src="${p.img}" class="post-image">` : ''}
-                    <div class="post-content">${p.content}</div>
-                    <div class="post-footer">
-                        <span style="font-size:12px;color:var(--text-muted);">${p.date}</span>
-                        <button class="btn-like ${liked?'liked':''}" onclick="toggleLike(${p.id})">
-                            <i class="${liked?'fas':'far'} fa-heart"></i> ${p.likes.length}
-                        </button>
-                    </div>
-                </div>
-            `}).join('');
-        }
-
-        window.toggleLike = function(id) {
-            const p = db.classes[session.classPwd].posts.find(x => x.id === id);
-            const idx = p.likes.indexOf(session.user);
-            idx > -1 ? p.likes.splice(idx, 1) : p.likes.push(session.user);
-            saveDB(); renderBoard();
-        };
-
-        window.deletePost = function(id) {
-            if(confirm('이 글을 삭제할까요?')) {
-                const cls = db.classes[session.classPwd];
-                cls.posts = cls.posts.filter(x => x.id !== id);
-                saveDB(); renderBoard();
-            }
-        };
-
-        // --- 8. 관리자 로직 ---
-        window.updateClassName = function() {
-            const name = getEl('admin-class-name').value.trim();
-            if(!name) return;
-            db.classes[session.classPwd].name = name;
+            u.lastDate = today;
+            u.streak++;
             saveDB();
-            getEl('ui-class-name').innerText = name;
-            showToast('학급 이름 변경 완료');
-        };
-
-        window.updateClassPwd = function() {
-            const newPwd = getEl('admin-class-pwd').value.trim();
-            if(newPwd.length < 3) return showToast('코드는 3자 이상 입력하세요.', 'error');
-            if(db.classes[newPwd]) return showToast('이미 존재하는 코드입니다.', 'error');
-            
-            db.classes[newPwd] = db.classes[session.classPwd];
-            delete db.classes[session.classPwd];
-            session.classPwd = newPwd;
-            saveDB();
-            getEl('admin-class-pwd').value = '';
-            showToast('학급 코드가 변경되었습니다.');
-        };
-
-        // --- 9. 유틸 헬퍼 ---
-        function openModal(id) { 
-            getEl(id).classList.add('active'); 
-            const form = getEl(id).querySelector('form');
-            if(form) form.reset();
-            const img = getEl(id).querySelector('.preview-img');
-            if(img) { img.src = ''; img.style.display = 'none'; }
-            if(id === 'modal-add-item') itemImgBase64 = null;
-            if(id === 'modal-add-post') { postImgBase64 = null; postColor = 'default'; document.querySelector('.color-circle').click(); }
-        }
-        function closeModal(id) { getEl(id).classList.remove('active'); }
-        
-        function setupImageUpload(inputId, imgId, callback) {
-            getEl(inputId)?.addEventListener('change', function() {
-                if(this.files && this.files[0]) {
-                    const r = new FileReader();
-                    r.onload = e => { callback(e.target.result); const img = getEl(imgId); img.src = e.target.result; img.style.display = 'block'; };
-                    r.readAsDataURL(this.files[0]);
-                }
-            });
+            updateStreakDisplay();
+            showToast(`출석체크 완료! (연속 ${u.streak}일째)`);
         }
 
-        // 초기 실행
-        window.onload = () => { loadDB(); console.log('SaaS Platform Loaded.'); };
+        function updateStreakDisplay() {
+            if(!sessionUser) return;
+            const u = db.users[sessionUser.id];
+            document.getElementById('streak-display').innerText = `🔥 ${u ? u.streak : 0}일 연속 출석 중`;
+        }
+
+        function updateStats() {
+            if(!sessionUser) return;
+            const myGamesCount = db.games.filter(g => g.author === sessionUser.name).length;
+            document.getElementById('stat-my-games').innerText = myGamesCount + '개';
+            document.getElementById('stat-total-games').innerText = db.games.length + '개';
+        }
+
+        // 자동 로그인 체크
+        if (sessionUser && db.users[sessionUser.id]) {
+            initDashboard();
+        }
     </script>
 </body>
 </html>
