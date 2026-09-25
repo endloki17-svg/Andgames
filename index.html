@@ -3,452 +3,371 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ClassSpace | Ultra Game Engine & Classroom SaaS</title>
-    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <title>ClassSpace | Ultimate Studio SaaS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800;900&family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
-            --primary: #6366F1; --primary-hover: #4F46E5; --primary-light: rgba(99, 102, 241, 0.18);
-            --secondary: #10B981; --accent: #F43F5E; --warning: #F59E0B; --info: #3B82F6;
-            --bg-body: #080C14; --bg-surface: #111827; --bg-surface-hover: #1F2937;
-            --text-main: #F9FAFB; --text-muted: #9CA3AF; --border: #1F2937;
-            --glass-bg: rgba(17, 24, 39, 0.85); --glass-border: rgba(255, 255, 255, 0.08);
-            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.7);
-            --radius-sm: 8px; --radius-md: 14px; --radius-lg: 24px;
-            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --primary: #4F46E5; --primary-hover: #4338CA; --primary-light: rgba(79, 70, 229, 0.15);
+            --secondary: #0EA5E9; --accent: #E11D48; --warning: #F59E0B; --success: #10B981;
+            --bg-base: #0B0F19; --bg-surface: #151E2E; --bg-panel: #1E293B; --bg-hover: #27354D;
+            --text-main: #F8FAFC; --text-muted: #94A3B8; --border: #334155;
+            --radius-sm: 8px; --radius-md: 12px; --radius-lg: 20px;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            --font-sans: 'Pretendard', sans-serif; --font-display: 'Montserrat', sans-serif;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        [data-theme="light"] {
-            --bg-body: #F3F4F6; --bg-surface: #FFFFFF; --bg-surface-hover: #F9FAFB;
-            --text-main: #111827; --text-muted: #6B7280; --border: #E5E7EB;
-            --glass-bg: rgba(255, 255, 255, 0.85); --glass-border: rgba(0, 0, 0, 0.08);
-            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Pretendard', sans-serif; user-select: none; }
-        body { background: var(--bg-body); color: var(--text-main); overflow-x: hidden; transition: var(--transition); min-height: 100vh; }
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; font-family: var(--font-sans); outline: none; }
+        body { background: var(--bg-base); color: var(--text-main); overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column; }
         .hidden { display: none !important; }
-        button, select, input, textarea { font-family: inherit; outline: none; transition: var(--transition); }
-        button { cursor: pointer; border: none; background: none; }
-        input, textarea, select { border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 14px; width: 100%; }
-        input:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
         
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: var(--bg-body); }
+        button { cursor: pointer; border: none; background: none; color: inherit; transition: var(--transition); }
+        input, textarea, select { background: var(--bg-base); border: 1px solid var(--border); color: var(--text-main); padding: 12px 16px; border-radius: var(--radius-sm); font-size: 14px; width: 100%; transition: var(--transition); }
+        input:focus, textarea:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-base); }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
-        .btn { padding: 10px 18px; border-radius: var(--radius-sm); font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-primary { background: var(--primary); color: #fff; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4); }
-        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); }
-        .btn-secondary { background: var(--bg-surface-hover); color: var(--text-main); border: 1px solid var(--border); }
-        .btn-secondary:hover { background: var(--border); }
+        .btn { padding: 12px 20px; border-radius: var(--radius-sm); font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; box-shadow: 0 4px 15px rgba(79,70,229,0.4); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.6); }
+        .btn-secondary { background: var(--bg-panel); border: 1px solid var(--border); color: var(--text-main); }
+        .btn-secondary:hover { background: var(--bg-hover); }
         .btn-danger { background: var(--accent); color: white; }
 
-        @keyframes popIn { 0% { opacity: 0; transform: scale(0.96) translateY(10px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
-        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes popIn { 0% { opacity: 0; transform: scale(0.95) translateY(10px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
         .animate-pop { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
 
         /* 토스트 */
-        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
-        .toast { background: var(--bg-surface); color: var(--text-main); padding: 14px 20px; border-radius: var(--radius-sm); box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 10px; animation: slideInRight 0.3s forwards; border-left: 4px solid var(--primary); font-weight: 600; border: 1px solid var(--border); font-size: 13px; }
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .toast { background: var(--bg-surface); padding: 16px 24px; border-radius: var(--radius-sm); border-left: 4px solid var(--primary); box-shadow: var(--shadow); font-weight: 600; display: flex; align-items: center; gap: 12px; font-size: 14px; animation: popIn 0.3s forwards; }
 
-        /* 랜딩 레이아웃 */
-        #landing-view { min-height: 100vh; display: flex; flex-direction: column; }
-        .landing-nav { padding: 16px 5%; display: flex; justify-content: space-between; align-items: center; background: var(--glass-bg); backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--glass-border); }
-        .landing-logo { font-size: 22px; font-weight: 900; color: var(--primary); display: flex; align-items: center; gap: 10px; font-family: 'Poppins', sans-serif; }
+        /* ====== 1. Auth & Lobby Layout ====== */
+        .fullscreen-center { min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; background: radial-gradient(circle at center, var(--bg-surface) 0%, var(--bg-base) 100%); }
+        .auth-card { background: var(--bg-panel); padding: 40px; border-radius: var(--radius-lg); width: 100%; max-width: 400px; box-shadow: var(--shadow); border: 1px solid var(--border); text-align: center; }
         
-        .section { padding: 80px 5%; text-align: center; }
-        .hero { min-height: 80vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-        .hero h1 { font-size: 56px; font-weight: 900; line-height: 1.2; margin-bottom: 20px; }
-        .hero h1 span { background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .lobby-container { width: 100%; max-width: 900px; }
+        .lobby-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        .lobby-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .lobby-card { background: var(--bg-panel); padding: 32px; border-radius: var(--radius-lg); border: 1px solid var(--border); transition: var(--transition); text-align: center; display: flex; flex-direction: column; gap: 16px; }
+        .lobby-card:hover { border-color: var(--primary); transform: translateY(-4px); box-shadow: 0 10px 30px rgba(79,70,229,0.15); }
+        .lobby-icon { font-size: 48px; color: var(--primary); margin-bottom: 10px; }
 
-        .templates-grid-20 { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; max-width: 1400px; margin: 0 auto; text-align: left; }
-        .tmpl-card { background: var(--bg-surface); padding: 18px; border-radius: var(--radius-md); border: 1px solid var(--border); transition: var(--transition); cursor: pointer; }
-        .tmpl-card:hover { transform: translateY(-4px); border-color: var(--primary); box-shadow: var(--shadow-lg); }
-        .tmpl-badge { font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 10px; background: var(--primary-light); color: var(--primary); display: inline-block; margin-bottom: 8px; }
-
-        /* 인증 모달 */
-        #auth-view { height: 100vh; display: flex; justify-content: center; align-items: center; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); position: fixed; top:0; left:0; width:100%; z-index: 1000; }
-        .auth-card { background: var(--bg-surface); padding: 36px; border-radius: var(--radius-lg); width: 100%; max-width: 460px; border: 1px solid var(--border); box-shadow: var(--shadow-lg); }
-        .role-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
-        .role-btn { padding: 10px 0; text-align: center; border: 2px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; font-weight: 700; color: var(--text-muted); font-size: 12px; }
-        .role-btn.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
-
-        /* 대시보드 레이아웃 */
-        #dashboard-view { display: flex; height: 100vh; background: var(--bg-body); overflow: hidden; }
-        .sidebar { width: 250px; background: var(--bg-surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; overflow-y: auto; }
-        .nav-category { font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin: 16px 0 6px 6px; letter-spacing: 1px; }
-        .nav-item { padding: 9px 12px; border-radius: var(--radius-sm); display: flex; align-items: center; gap: 10px; font-weight: 600; color: var(--text-muted); cursor: pointer; font-size: 13px; margin-bottom: 2px; }
-        .nav-item:hover, .nav-item.active { background: var(--primary-light); color: var(--primary); font-weight: 700; }
+        /* ====== 2. Dashboard Layout ====== */
+        #dashboard-view { display: flex; height: 100vh; background: var(--bg-base); overflow: hidden; }
+        .sidebar { width: 260px; background: var(--bg-surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 10; }
+        .brand { font-family: var(--font-display); font-size: 22px; font-weight: 900; color: white; padding: 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+        .nav-list { padding: 16px 12px; overflow-y: auto; flex: 1; }
+        .nav-category { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin: 20px 0 8px 12px; letter-spacing: 1px; }
+        .nav-item { padding: 12px 16px; border-radius: var(--radius-sm); display: flex; align-items: center; gap: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; font-size: 14px; margin-bottom: 4px; transition: var(--transition); }
+        .nav-item:hover, .nav-item.active { background: var(--primary-light); color: var(--primary); }
         
         .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-        .topbar { background: var(--bg-surface); height: 60px; padding: 0 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
-        .content-body { flex: 1; overflow-y: auto; padding: 24px; position: relative; }
+        .topbar { height: 70px; background: var(--bg-surface); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; justify-content: space-between; align-items: center; }
+        .content-body { flex: 1; overflow-y: auto; padding: 32px; }
         .view-section { display: none; }
         .view-section.active { display: block; }
 
-        /* 엔진 스튜디오 메인 */
-        .studio-container { display: flex; gap: 16px; height: calc(100vh - 140px); }
-        .studio-tools { width: 240px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
-        
-        .canvas-wrapper { flex: 1; background: #000000; border: 1px solid var(--border); border-radius: var(--radius-md); display: flex; flex-direction: column; position: relative; overflow: hidden; }
-        .canvas-toolbar { padding: 10px 16px; background: var(--bg-surface); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        
-        /* 캔버스 뷰포트 */
-        #game-canvas { background: #050811; flex: 1; width: 100%; height: 100%; display: block; image-rendering: pixelated; cursor: crosshair; }
+        /* ====== 3. Ultimate Studio Engine Layout ====== */
+        .studio-layout { display: grid; grid-template-columns: 240px 1fr 280px; gap: 20px; height: calc(100vh - 180px); }
+        .panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius-md); display: flex; flex-direction: column; overflow: hidden; }
+        .panel-header { padding: 14px 20px; background: rgba(0,0,0,0.2); border-bottom: 1px solid var(--border); font-weight: 800; font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
+        .panel-body { padding: 16px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 12px; }
 
-        /* 실시간 커스텀 GUI / HUD 오버레이 */
-        .gui-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; padding: 16px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; z-index: 10; }
-        .hud-element { background: rgba(0,0,0,0.65); backdrop-filter: blur(6px); padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); color: white; font-weight: 800; font-size: 12px; display: inline-flex; align-items: center; gap: 8px; }
+        /* Canvas Area */
+        .canvas-container { position: relative; background: #000; flex: 1; display: flex; justify-content: center; align-items: center; overflow: hidden; cursor: crosshair; }
+        #game-canvas { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
         
-        /* 조준선(Crosshair) 스타일 커스텀 */
-        .crosshair-hud { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 11; display: flex; justify-content: center; align-items: center; }
-        .cross-dot { width: 6px; height: 6px; background: #10B981; border-radius: 50%; box-shadow: 0 0 8px #10B981; }
-        .cross-plus::before, .cross-plus::after { content:''; position: absolute; background: #10B981; }
-        .cross-plus::before { width: 16px; height: 2px; }
-        .cross-plus::after { width: 2px; height: 16px; }
-        .cross-circle { width: 24px; height: 24px; border: 2px solid #10B981; border-radius: 50%; }
+        /* GUI Overlay */
+        .gui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; z-index: 10; }
+        .hud-item { background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); padding: 8px 16px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.1); color: white; font-weight: 800; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; }
+        .crosshair { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; }
+        
+        .tool-btn { justify-content: flex-start; background: var(--bg-base); border: 1px solid transparent; }
+        .tool-btn.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
 
-        /* 모바일 터치 가상 패드 */
-        .mobile-controls { position: absolute; bottom: 16px; left: 16px; right: 16px; display: flex; justify-content: space-between; pointer-events: none; z-index: 20; }
-        .dpad { display: grid; grid-template-columns: repeat(3, 42px); grid-template-rows: repeat(3, 42px); gap: 4px; pointer-events: auto; }
-        .dbtn { background: rgba(255,255,255,0.2); backdrop-filter: blur(4px); border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); color: white; display: flex; justify-content: center; align-items: center; font-size: 16px; font-weight: 900; }
-        .dbtn:active { background: var(--primary); }
-        .action-btns { display: flex; gap: 10px; align-items: flex-end; pointer-events: auto; }
-        .abtn { width: 54px; height: 54px; border-radius: 50%; background: rgba(244,63,94,0.5); border: 2px solid var(--accent); color: white; font-weight: 900; font-size: 16px; display: flex; justify-content: center; align-items: center; }
+        /* 템플릿 그리드 */
+        .tmpl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+        .tmpl-card { background: var(--bg-panel); border: 1px solid var(--border); padding: 20px; border-radius: var(--radius-md); cursor: pointer; transition: var(--transition); }
+        .tmpl-card:hover { border-color: var(--primary); transform: translateY(-4px); }
+        .engine-badge { font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 12px; display: inline-block; margin-bottom: 10px; }
+        .badge-fps { background: rgba(225, 29, 72, 0.2); color: #E11D48; }
+        .badge-plat { background: rgba(14, 165, 233, 0.2); color: #0EA5E9; }
+        .badge-top { background: rgba(16, 185, 129, 0.2); color: #10B981; }
+
+        /* ====== 4. High-End Modules ====== */
+        .module-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+        .m-card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px; position: relative; overflow: hidden; }
+        
+        /* 은행 카드 UI */
+        .credit-card { background: linear-gradient(135deg, #1E293B, #0F172A); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 15px 30px rgba(0,0,0,0.3); position: relative; }
+        .credit-card::before { content: ''; position: absolute; top:0; right:0; width:150px; height:150px; background: radial-gradient(circle, var(--primary-light), transparent); border-radius: 50%; transform: translate(30%, -30%); }
+        
+        /* 온도탑 바 */
+        .progress-track { background: var(--bg-base); height: 24px; border-radius: 12px; overflow: hidden; margin: 20px 0; border: 1px solid var(--border); }
+        .progress-fill { background: linear-gradient(90deg, var(--secondary), var(--primary)); height: 100%; width: 45%; transition: width 0.5s; }
 
         /* 퀴즈 모달 */
-        .quiz-modal { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--bg-surface); padding: 24px; border-radius: var(--radius-lg); border: 2px solid var(--warning); box-shadow: 0 0 40px rgba(245, 158, 11, 0.4); z-index: 200; width: 340px; text-align: center; }
-
-        /* 픽셀 모달 */
-        #pixel-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 3000; display: flex; justify-content: center; align-items: center; }
-        .pixel-content { background: var(--bg-surface); padding: 20px; border-radius: var(--radius-lg); border: 1px solid var(--border); display: flex; gap: 16px; }
-        .pixel-grid { display: grid; grid-template-columns: repeat(16, 18px); grid-template-rows: repeat(16, 18px); gap: 1px; background: var(--border); }
-        .pixel-cell { background: #1F2937; cursor: pointer; }
-
-        .module-card { background: var(--bg-surface); border-radius: var(--radius-md); border: 1px solid var(--border); padding: 20px; margin-bottom: 16px; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; justify-content: center; align-items: center; }
+        .modal-box { background: var(--bg-panel); padding: 32px; border-radius: var(--radius-lg); border: 1px solid var(--border); width: 100%; max-width: 400px; text-align: center; box-shadow: var(--shadow); }
     </style>
 </head>
-<body data-theme="dark">
+<body>
     <div id="toast-container"></div>
 
-    <!-- ================= 1. 압도적 스크롤 랜딩 ================= -->
-    <div id="landing-view">
-        <nav class="landing-nav">
-            <div class="landing-logo"><i class="fas fa-cubes"></i> ClassSpace SaaS</div>
-            <button class="btn btn-primary" onclick="showAuth('login')">입장 / 학급 개설</button>
-        </nav>
-
-        <section class="hero section">
-            <div style="background: var(--primary-light); color: var(--primary); padding: 6px 16px; border-radius: 30px; font-weight: 800; margin-bottom: 20px; font-size: 13px;">🚀 2026 차세대 초초초고퀄리티 게임 스튜디오 & 학급 생태계</div>
-            <h1>독립 3D/2D 엔진 커스텀<br><span>실시간 사격, 픽셀 디자이너 & GUI 에디터</span></h1>
-            <p style="color:var(--text-muted); max-width:680px; margin: 0 auto 30px; font-size:15px; line-height:1.6;">정교하게 개선된 Grid 좌표 조작부터 사격 연사, 타격감 Web Audio 합성음, 적 AI, 그리고 20개 전용 템플릿과 10대 동작 모듈을 경험하세요.</p>
-            <button class="btn btn-primary" style="padding: 14px 32px; font-size: 16px; border-radius: 30px;" onclick="showAuth('signup')">지금 시작하기</button>
-        </section>
-
-        <section class="section" style="background: var(--bg-surface);">
-            <h2 style="font-size:32px; font-weight:900; margin-bottom:12px;">독립 장르 템플릿 20선</h2>
-            <p style="color:var(--text-muted); margin-bottom:40px;">각 장르에 맞춰 로직과 뷰포트 물리엔진이 완벽히 전환됩니다.</p>
-            <div class="templates-grid-20" id="landing-tmpl-list"></div>
-        </section>
-    </div>
-
-    <!-- ================= 2. 인증 & 학급 생성 모달 ================= -->
-    <div id="auth-view" class="hidden">
+    <!-- ================= 1. 로그인 뷰 ================= -->
+    <div id="auth-view" class="fullscreen-center">
         <div class="auth-card animate-pop">
-            <h2 style="font-size: 20px; font-weight: 900; margin-bottom: 6px; text-align: center;">ClassSpace 접속</h2>
-            <p style="text-align:center; color:var(--text-muted); font-size:12px; margin-bottom:16px;">역할을 선택하고 생성/입력된 학급 코드로 가입합니다.</p>
-            
-            <div class="role-selector">
-                <div class="role-btn active" data-role="student" onclick="selectRole('student')"><i class="fas fa-user"></i> 일반학생</div>
-                <div class="role-btn" data-role="admin_student" onclick="selectRole('admin_student')"><i class="fas fa-user-shield"></i> 관리자학생</div>
-                <div class="role-btn" data-role="teacher" onclick="selectRole('teacher')"><i class="fas fa-chalkboard-teacher"></i> 선생님</div>
-            </div>
-
-            <form id="auth-form" onsubmit="handleAuth(event)">
-                <input type="text" id="auth-name" required placeholder="이름 (예: 홍길동)" style="margin-bottom: 10px;">
-                <div id="class-code-box" style="margin-bottom: 10px;">
-                    <input type="text" id="auth-code" placeholder="학급 코드 입력 (예: CS-7721)">
-                </div>
-                <div id="create-class-box" class="hidden" style="margin-bottom: 10px;">
-                    <button type="button" class="btn btn-secondary" style="width:100%;" onclick="generateClassCode()"><i class="fas fa-plus-circle"></i> 새 학급 코드 발급하기</button>
-                </div>
-                <button type="submit" class="btn btn-primary" style="width:100%; height: 44px;">입장하기</button>
-            </form>
-            <button class="btn btn-secondary" style="width:100%; margin-top: 8px;" onclick="hideAuth()">닫기</button>
+            <h1 style="font-family: var(--font-display); font-size: 28px; margin-bottom: 8px; color: var(--primary);">ClassSpace</h1>
+            <p style="color: var(--text-muted); margin-bottom: 32px; font-size: 14px;">크리에이터 스튜디오 시스템 로그인</p>
+            <input type="text" id="auth-name" placeholder="이름을 입력하세요" style="margin-bottom: 16px; height: 48px;">
+            <button class="btn btn-primary" style="width: 100%; height: 48px; font-size: 16px;" onclick="doLogin()">로그인 / 시작하기</button>
         </div>
     </div>
 
-    <!-- ================= 3. 대시보드 및 레이아웃 ================= -->
-    <div id="dashboard-view" class="hidden">
-        <aside class="sidebar">
-            <div style="font-size: 18px; font-weight: 900; color: var(--primary); margin-bottom: 16px; display:flex; align-items:center; gap:8px;">
-                <i class="fas fa-cubes"></i> ClassSpace
+    <!-- ================= 2. 메인 로비 (학급 개설/참여) ================= -->
+    <div id="lobby-view" class="fullscreen-center hidden">
+        <div class="lobby-container animate-pop">
+            <div class="lobby-header">
+                <div>
+                    <h2 style="font-size: 32px; font-weight: 900; margin-bottom: 8px;">환영합니다, <span id="lobby-user-name" style="color:var(--primary);">사용자</span>님!</h2>
+                    <p style="color: var(--text-muted);">진입할 학급을 선택하거나 새로 개설하세요.</p>
+                </div>
+                <button class="btn btn-secondary" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> 로그아웃</button>
             </div>
             
-            <div class="nav-category">Main</div>
-            <div class="nav-item active" data-view="home"><i class="fas fa-home"></i> 대시보드</div>
-            <div class="nav-item" data-view="studio" style="color:var(--primary); font-weight:800;"><i class="fas fa-gamepad"></i> 20종 엔진 스튜디오 <i class="fas fa-star" style="font-size:9px; color:var(--warning);"></i></div>
+            <div class="lobby-grid">
+                <!-- 학급 참여 -->
+                <div class="lobby-card">
+                    <div class="lobby-icon"><i class="fas fa-door-open"></i></div>
+                    <h3 style="font-size: 20px;">기존 학급 입장하기</h3>
+                    <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 16px;">선생님이 공유한 코드를 입력하세요.</p>
+                    <input type="text" id="join-code" placeholder="학급 코드 (예: CS-1234)" style="text-align: center; letter-spacing: 2px; font-weight: 700;">
+                    <button class="btn btn-primary" style="width: 100%;" onclick="joinClass()">입장하기</button>
+                </div>
+                
+                <!-- 학급 개설 -->
+                <div class="lobby-card">
+                    <div class="lobby-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+                    <h3 style="font-size: 20px;">새 학급 개설 (관리자)</h3>
+                    <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 16px;">선생님 또는 자치회장을 위한 전용 모드입니다.</p>
+                    <div style="background: var(--bg-base); padding: 12px; border-radius: var(--radius-sm); border: 1px dashed var(--primary); margin-bottom: 16px;">
+                        <span style="font-size: 12px; color: var(--text-muted);">발급될 코드 미리보기</span><br>
+                        <strong style="font-size: 18px; letter-spacing: 2px;" id="preview-code">CS-XXXX</strong>
+                    </div>
+                    <button class="btn btn-secondary" style="width: 100%; border-color:var(--primary); color:var(--primary);" onclick="createClass()">학급 생성 및 입장</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-            <div class="nav-category">10대 학급 자치 모듈</div>
-            <div class="nav-item" data-view="bank"><i class="fas fa-piggy-bank"></i> 1. 학급 은행</div>
-            <div class="nav-item" data-view="court"><i class="fas fa-gavel"></i> 2. 학급 법정</div>
-            <div class="nav-item" data-view="lost"><i class="fas fa-search"></i> 3. 분실물 센터</div>
-            <div class="nav-item" data-view="quest"><i class="fas fa-tasks"></i> 4. 퀘스트 센터</div>
-            <div class="nav-item" data-view="lottery"><i class="fas fa-ticket-alt"></i> 5. 주간 복권</div>
-            <div class="nav-item" data-view="suggestion"><i class="fas fa-envelope-open-text"></i> 6. 익명 건의함</div>
-            <div class="nav-item" data-view="manito"><i class="fas fa-user-secret"></i> 7. 비밀 마니또</div>
-            <div class="nav-item" data-view="capsule"><i class="fas fa-hourglass-half"></i> 8. 디지털 타임캡슐</div>
-            <div class="nav-item" data-view="pass"><i class="fas fa-id-card"></i> 9. 스마트 외출증</div>
-            <div class="nav-item" data-view="thermo"><i class="fas fa-thermometer-half"></i> 10. 학급 온도탑</div>
-
-            <div style="margin-top: auto; padding-top:16px;">
-                <button class="btn btn-secondary" style="width: 100%;" onclick="logout()"><i class="fas fa-sign-out-alt"></i> 로그아웃</button>
+    <!-- ================= 3. 대시보드 ================= -->
+    <div id="dashboard-view" class="hidden">
+        <aside class="sidebar">
+            <div class="brand"><i class="fas fa-cubes"></i> ClassSpace</div>
+            <div class="nav-list">
+                <div class="nav-category">Core</div>
+                <div class="nav-item active" data-view="home"><i class="fas fa-home"></i> 대시보드 홈</div>
+                <div class="nav-item" data-view="studio" style="color:var(--primary);"><i class="fas fa-gamepad"></i> 유니버스 스튜디오</div>
+                
+                <div class="nav-category">Modules</div>
+                <div class="nav-item" data-view="bank"><i class="fas fa-piggy-bank"></i> 학급 은행</div>
+                <div class="nav-item" data-view="court"><i class="fas fa-gavel"></i> 학급 법정</div>
+                <div class="nav-item" data-view="lottery"><i class="fas fa-ticket-alt"></i> 주간 복권</div>
+                <div class="nav-item" data-view="pass"><i class="fas fa-id-card"></i> 스마트 외출증</div>
+                <div class="nav-item" data-view="thermo"><i class="fas fa-thermometer-half"></i> 학급 온도탑</div>
+            </div>
+            <div style="padding: 20px; border-top: 1px solid var(--border);">
+                <button class="btn btn-secondary" style="width: 100%;" onclick="returnToLobby()"><i class="fas fa-arrow-left"></i> 로비로 돌아가기</button>
             </div>
         </aside>
 
         <main class="main-content">
             <header class="topbar">
-                <div style="font-size: 15px; font-weight: 800; display:flex; align-items:center; gap:10px;">
-                    <span id="topbar-title">대시보드</span>
-                    <span style="background:var(--primary-light); color:var(--primary); padding:3px 8px; border-radius:10px; font-size:11px;" id="ui-class-code">학급코드: CS-0000</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 14px;">
-                    <button class="btn btn-secondary" style="padding: 8px; border-radius: 50%;" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
-                    <div style="font-weight: 600; font-size:13px;"><span id="ui-role" style="color:var(--primary);">학생</span> <strong id="ui-name">홍길동</strong>님</div>
+                <h2 style="font-size: 18px; font-weight: 800;" id="topbar-title">대시보드 홈</h2>
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <div style="background: var(--bg-base); padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border); font-size: 13px; font-weight: 700;">
+                        코드: <span id="dash-class-code" style="color:var(--primary);">CS-0000</span>
+                    </div>
+                    <div style="font-size: 14px; font-weight: 600;"><span id="dash-user-name">홍길동</span>님</div>
                 </div>
             </header>
 
             <div class="content-body">
                 
-                <!-- 3-1. 홈 대시보드 -->
+                <!-- 3-1. 홈 -->
                 <div id="view-home" class="view-section active animate-pop">
-                    <h1 style="font-size: 26px; font-weight: 900; margin-bottom: 16px;">학급 크리에이터 통합 시스템 📊</h1>
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
-                        <div class="module-card">
-                            <h3 style="font-size:12px; color:var(--text-muted); margin-bottom:6px;">보유 우정 포인트</h3>
-                            <div style="font-size:28px; font-weight:900; color:var(--primary);" id="dash-points">1,000 U</div>
+                    <h1 style="font-size: 28px; font-weight: 900; margin-bottom: 24px;">학급 생태계 현황</h1>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+                        <div class="m-card">
+                            <div style="color:var(--text-muted); font-size:14px; margin-bottom:8px;">내 우정 포인트</div>
+                            <div style="font-size:36px; font-weight:900; color:var(--primary);" id="dash-points">1,000 <span style="font-size:20px;">U</span></div>
                         </div>
-                        <div class="module-card">
-                            <h3 style="font-size:12px; color:var(--text-muted); margin-bottom:6px;">제작 게임 수</h3>
-                            <div style="font-size:28px; font-weight:900; color:var(--secondary);" id="dash-games-count">1개</div>
+                        <div class="m-card">
+                            <div style="color:var(--text-muted); font-size:14px; margin-bottom:8px;">개발 템플릿 코어</div>
+                            <div style="font-size:36px; font-weight:900; color:var(--secondary);">3<span style="font-size:20px;"> Engines</span></div>
                         </div>
-                        <div class="module-card">
-                            <h3 style="font-size:12px; color:var(--text-muted); margin-bottom:6px;">외출 패스 상태</h3>
-                            <div style="font-size:18px; font-weight:800; color:var(--accent);" id="dash-pass-status">착석 중</div>
+                        <div class="m-card">
+                            <div style="color:var(--text-muted); font-size:14px; margin-bottom:8px;">온도탑 달성률</div>
+                            <div style="font-size:36px; font-weight:900; color:var(--success);">45<span style="font-size:20px;">%</span></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- 3-2. 게임 엔진 스튜디오 -->
+                <!-- 3-2. 통합 스튜디오 (핵심) -->
                 <div id="view-studio" class="view-section animate-pop">
                     
-                    <!-- 템플릿 선택 -->
-                    <div id="studio-tmpl-select" style="margin-bottom: 20px;">
-                        <h2 style="font-size: 20px; font-weight: 900; margin-bottom: 12px;">20가지 구동 엔진 선택</h2>
-                        <div class="templates-grid-20" id="studio-tmpl-grid"></div>
+                    <!-- 템플릿 선택기 -->
+                    <div id="studio-selector">
+                        <h2 style="font-size: 24px; font-weight: 900; margin-bottom: 8px;">엔진 템플릿 선택</h2>
+                        <p style="color:var(--text-muted); margin-bottom: 24px;">3가지 핵심 물리 엔진(FPS, 플랫포머, 탑다운)을 기반으로 구동됩니다.</p>
+                        <div class="tmpl-grid" id="tmpl-container">
+                            <!-- JS에서 렌더링 -->
+                        </div>
                     </div>
 
-                    <!-- 에디터 & 메인 스튜디오 -->
-                    <div id="studio-editor-box" class="hidden">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                            <h2 style="font-size: 18px; font-weight: 900;" id="active-tmpl-name">30x30 대형 맵 에디터</h2>
-                            <div style="display:flex; gap:6px;">
-                                <button class="btn btn-secondary" onclick="openPixelModal()"><i class="fas fa-paint-brush"></i> 픽셀 캐릭터</button>
-                                <button class="btn btn-secondary" onclick="toggleGuiEditor()"><i class="fas fa-sliders-h"></i> GUI/HUD 커스텀 에디터</button>
-                                <button class="btn btn-secondary" onclick="closeEditor()"><i class="fas fa-arrow-left"></i> 템플릿 변경</button>
-                            </div>
+                    <!-- 에디터 레이아웃 -->
+                    <div id="studio-editor" class="hidden">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h2 style="font-size: 20px; font-weight: 900;" id="editor-title">에디터</h2>
+                            <button class="btn btn-secondary" onclick="closeEditor()"><i class="fas fa-times"></i> 템플릿 변경</button>
                         </div>
-
-                        <!-- 비주얼 GUI/HUD 커스터마이저 패널 -->
-                        <div id="gui-config-panel" class="hidden module-card" style="margin-bottom:12px; background:var(--bg-body);">
-                            <h4 style="margin-bottom:10px; font-size:13px;"><i class="fas fa-layer-group" style="color:var(--primary)"></i> 실시간 GUI/HUD 디자인 커스텀</h4>
-                            <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:12px; font-size:12px;">
-                                <div>
-                                    <label style="display:block; margin-bottom:4px; font-weight:700;">조준선(Crosshair) 스타일</label>
-                                    <select id="gui-cross-style" onchange="updateGUIConfig()">
-                                        <option value="plus">플러스 (+)</option>
-                                        <option value="dot">네온 도트 (•)</option>
-                                        <option value="circle">원형 (○)</option>
-                                        <option value="none">숨김</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label style="display:block; margin-bottom:4px; font-weight:700;">체력 바 위치</label>
-                                    <select id="gui-hp-pos" onchange="updateGUIConfig()">
-                                        <option value="top-left">상단 좌측</option>
-                                        <option value="bottom-left">하단 좌측</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label style="display:block; margin-bottom:4px; font-weight:700;">HUD 메인 테마 색상</label>
-                                    <input type="color" id="gui-theme-color" value="#6366F1" style="height:35px; padding:0;" onchange="updateGUIConfig()">
-                                </div>
-                                <div>
-                                    <label style="display:block; margin-bottom:4px; font-weight:700;">상단 표시 문구</label>
-                                    <input type="text" id="gui-title-text" value="CLASS SPACE FPS 3D" onchange="updateGUIConfig()">
+                        
+                        <div class="studio-layout">
+                            <!-- 좌측: 배치 툴킷 -->
+                            <div class="panel">
+                                <div class="panel-header">🛠️ 에디터 툴킷</div>
+                                <div class="panel-body">
+                                    <button class="btn tool-btn active" data-tool="wall" onclick="setTool('wall')"><i class="fas fa-cube"></i> 일반 블록 (벽)</button>
+                                    <button class="btn tool-btn" data-tool="quiz" onclick="setTool('quiz')"><i class="fas fa-question-circle" style="color:var(--warning)"></i> 퀴즈 블록</button>
+                                    <button class="btn tool-btn" data-tool="enemy" onclick="setTool('enemy')"><i class="fas fa-ghost" style="color:var(--accent)"></i> 적 AI 스폰</button>
+                                    <button class="btn tool-btn" data-tool="player" onclick="setTool('player')"><i class="fas fa-street-view" style="color:var(--secondary)"></i> 플레이어 시작</button>
+                                    <button class="btn tool-btn" data-tool="eraser" onclick="setTool('eraser')"><i class="fas fa-eraser"></i> 지우개</button>
+                                    
+                                    <hr style="border-color:var(--border); margin: 8px 0;">
+                                    <div style="font-size:12px; font-weight:700; color:var(--text-muted);">퀴즈 설정</div>
+                                    <input type="text" id="quiz-q" value="태양계에서 가장 큰 행성은?" placeholder="문제">
+                                    <input type="text" id="quiz-a" value="목성" placeholder="정답">
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="studio-container">
-                            <!-- 배치 툴바 -->
-                            <div class="studio-tools">
-                                <h4 style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">30x30 배치 블록</h4>
-                                <button class="btn btn-secondary tool-btn active" style="justify-content:flex-start;" data-tool="wall" onclick="setStudioTool('wall')"><i class="fas fa-cube"></i> 일반 벽 블록</button>
-                                <button class="btn btn-secondary tool-btn" style="justify-content:flex-start;" data-tool="quiz" onclick="setStudioTool('quiz')"><i class="fas fa-question-circle" style="color:var(--warning)"></i> 퀴즈 블록</button>
-                                <button class="btn btn-secondary tool-btn" style="justify-content:flex-start;" data-tool="enemy" onclick="setStudioTool('enemy')"><i class="fas fa-ghost" style="color:var(--accent)"></i> 적(Enemy) 스폰</button>
-                                <button class="btn btn-secondary tool-btn" style="justify-content:flex-start;" data-tool="player" onclick="setStudioTool('player')"><i class="fas fa-street-view" style="color:var(--secondary)"></i> 플레이어 시작점</button>
-                                <button class="btn btn-secondary tool-btn" style="justify-content:flex-start;" data-tool="eraser" onclick="setStudioTool('eraser')"><i class="fas fa-eraser"></i> 지우개</button>
-                                
-                                <hr style="border-color:var(--border);">
-                                <h4 style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">퀴즈 로직 속성</h4>
-                                <input type="text" id="tool-quiz-q" value="조선 시대 임진왜란이 일어난 년도는?" placeholder="문제" style="font-size:11px;">
-                                <input type="text" id="tool-quiz-a" value="1592" placeholder="정답" style="font-size:11px;">
+                            <!-- 중앙: 캔버스 -->
+                            <div class="panel">
+                                <div class="panel-header" style="background:var(--bg-hover);">
+                                    <span id="canvas-status">✏️ 30x30 맵 에디터 모드</span>
+                                    <button class="btn btn-primary" style="padding: 6px 12px; font-size:12px;" id="play-btn" onclick="togglePlay()"><i class="fas fa-play"></i> 플레이</button>
+                                </div>
+                                <div class="canvas-container">
+                                    <canvas id="game-canvas" width="600" height="400"></canvas>
+                                    
+                                    <!-- GUI 레이어 -->
+                                    <div class="gui-layer" id="gui-layer">
+                                        <div style="display:flex; justify-content:space-between;">
+                                            <div class="hud-item" id="hud-hp"><i class="fas fa-heart" style="color:var(--accent)"></i> <span id="val-hp">100</span></div>
+                                            <div class="hud-item" id="hud-title">GAME TITLE</div>
+                                            <div class="hud-item" id="hud-score">스코어: <span id="val-score">0</span></div>
+                                        </div>
+                                        <div class="crosshair" id="hud-crosshair" style="display:none; width:16px; height:16px; border:2px solid var(--success); border-radius:50%;"></div>
+                                        <div style="text-align:center; display:none;" id="hud-mobile-hint">
+                                            <span style="background:rgba(0,0,0,0.5); padding:4px 8px; border-radius:4px; font-size:12px; color:white;">WASD: 이동 / 클릭: 사격/점프</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
-                            <!-- 캔버스 및 HUD 오버레이 -->
-                            <div class="canvas-wrapper">
-                                <div class="canvas-toolbar">
-                                    <span style="font-size:12px; font-weight:700;" id="canvas-status-text">✏️ 좌표 오차 교정완료 (마우스 위치 클릭)</span>
-                                    <button class="btn btn-primary" id="btn-play-toggle" onclick="togglePlay()"><i class="fas fa-play"></i> 테스트 플레이 시작</button>
-                                </div>
-                                
-                                <canvas id="game-canvas" width="600" height="400"></canvas>
-
-                                <!-- 커스텀 조준선 HUD -->
-                                <div class="crosshair-hud" id="hud-crosshair"><div class="cross-plus"></div></div>
-
-                                <!-- 실시간 커스텀 HUD 레이어 -->
-                                <div class="gui-overlay" id="hud-overlay">
-                                    <div style="display:flex; justify-content:space-between; width:100%;" id="hud-top-bar">
-                                        <div class="hud-element" id="hud-hp-box"><i class="fas fa-heart" style="color:var(--accent)"></i> <span id="hud-hp-val">100 / 100</span></div>
-                                        <div class="hud-element" id="hud-title-box">CLASS SPACE FPS 3D</div>
-                                        <div class="hud-element" id="hud-score-box"><i class="fas fa-bullseye"></i> 처치: <span id="hud-score-val">0</span></div>
+                            <!-- 우측: 엔진 물리 & GUI 설정 -->
+                            <div class="panel">
+                                <div class="panel-header">⚙️ 엔진 및 GUI 설정</div>
+                                <div class="panel-body">
+                                    <div style="font-size:12px; font-weight:700; color:var(--text-muted);">게임 타이틀 표시</div>
+                                    <input type="text" id="gui-text" value="MY AWESOME GAME" oninput="updateGUI()">
+                                    
+                                    <hr style="border-color:var(--border); margin: 8px 0;">
+                                    <div style="font-size:12px; font-weight:700; color:var(--text-muted);">엔진 특성</div>
+                                    <div style="background:var(--bg-base); padding:12px; border-radius:var(--radius-sm); font-size:13px; line-height:1.5;">
+                                        <strong id="info-engine-name" style="color:var(--primary);">3D FPS Raycast</strong><br>
+                                        <span id="info-engine-desc" style="color:var(--text-muted);">적 추적 AI 및 클릭 사격 로직이 활성화됩니다.</span>
                                     </div>
-                                    <div style="display:flex; justify-content:space-between; align-items:flex-end;">
-                                        <div class="hud-element" id="hud-ammo-box"><i class="fas fa-crosshairs"></i> 탄약: <span id="hud-ammo-val">30 / 30</span></div>
-                                        <div class="hud-element"><i class="fas fa-clock"></i> <span id="hud-timer-val">00:00</span></div>
-                                    </div>
-                                </div>
-
-                                <!-- 모바일 터치 패드 -->
-                                <div class="mobile-controls">
-                                    <div class="dpad">
-                                        <div></div><div class="dbtn" ontouchstart="mobileInput('up')">▲</div><div></div>
-                                        <div class="dbtn" ontouchstart="mobileInput('left')">◄</div><div></div><div class="dbtn" ontouchstart="mobileInput('right')">►</div>
-                                        <div></div><div class="dbtn" ontouchstart="mobileInput('down')">▼</div><div></div>
-                                    </div>
-                                    <div class="action-btns">
-                                        <div class="abtn" ontouchstart="mobileShoot()">🔥</div>
-                                    </div>
-                                </div>
-
-                                <!-- 퀴즈 모달 -->
-                                <div class="quiz-modal hidden" id="game-quiz-modal">
-                                    <h3 style="color:var(--warning); margin-bottom:8px;"><i class="fas fa-question-circle"></i> 퀴즈 블록 충돌!</h3>
-                                    <p id="game-quiz-q" style="font-weight:800; font-size:14px; margin-bottom:12px;">문제 내용</p>
-                                    <input type="text" id="game-quiz-input" placeholder="정답 입력" style="margin-bottom:10px;">
-                                    <button class="btn btn-primary" style="width:100%;" onclick="submitGameQuiz()">정답 확인</button>
                                 </div>
                             </div>
                         </div>
                     </div>
-
                 </div>
 
-                <!-- 3-3. 10대 완벽 동작 모듈들 -->
+                <!-- 3-3. 모듈들 (하이엔드 디자인 적용) -->
                 <div id="view-bank" class="view-section animate-pop">
-                    <div class="module-card">
-                        <h2>🏦 1. 학급 은행 (Class Bank)</h2>
-                        <p style="color:var(--text-muted); margin-bottom:16px;">예금 잔액과 주간 복리 이자를 관리합니다.</p>
-                        <div style="display:flex; gap:16px; align-items:center;">
-                            <div style="font-size:22px; font-weight:800;">예금 잔액: <span id="bank-balance" style="color:var(--primary);">0</span> U</div>
-                            <button class="btn btn-primary" onclick="bankDeposit(500)">500 U 예금</button>
-                            <button class="btn btn-secondary" onclick="bankWithdraw(500)">500 U 출금</button>
+                    <h1 style="font-size: 24px; font-weight: 900; margin-bottom: 24px;">학급 은행</h1>
+                    <div class="module-grid">
+                        <div class="m-card" style="padding:0; border:none; background:transparent;">
+                            <div class="credit-card">
+                                <div style="display:flex; justify-content:space-between; margin-bottom:30px; position:relative; z-index:2;">
+                                    <div style="font-family:var(--font-display); font-size:20px; font-weight:900; color:white;">CLASS SPACE</div>
+                                    <i class="fas fa-wifi" style="transform:rotate(90deg); color:rgba(255,255,255,0.7);"></i>
+                                </div>
+                                <div style="font-size:14px; color:rgba(255,255,255,0.7); margin-bottom:4px; position:relative; z-index:2;">예금 잔액</div>
+                                <div style="font-size:32px; font-weight:900; color:white; margin-bottom:20px; position:relative; z-index:2;" id="val-bank">0 <span style="font-size:16px; font-weight:400;">U</span></div>
+                                <div style="display:flex; justify-content:space-between; color:rgba(255,255,255,0.7); font-size:14px; font-family:monospace; position:relative; z-index:2;">
+                                    <span id="bank-user-name">HONG GIL DONG</span>
+                                    <span>VALID 12/26</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="m-card">
+                            <h3 style="margin-bottom:16px;">입출금 관리</h3>
+                            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                                <input type="number" id="bank-amt" value="500" step="100">
+                                <button class="btn btn-primary" onclick="bankAction('deposit')">예금하기</button>
+                                <button class="btn btn-secondary" onclick="bankAction('withdraw')">출금하기</button>
+                            </div>
+                            <p style="font-size:13px; color:var(--text-muted);">* 예금 시 매주 금요일 5%의 복리 이자가 붙습니다.</p>
                         </div>
                     </div>
                 </div>
 
                 <div id="view-court" class="view-section animate-pop">
-                    <div class="module-card">
-                        <h2>⚖️ 2. 학급 법정 & 규칙 투표</h2>
-                        <div style="display:flex; gap:8px; margin-bottom:16px;">
-                            <input type="text" id="court-input" placeholder="제안할 규칙 문구">
-                            <button class="btn btn-primary" style="width:120px;" onclick="addCourtRule()">규칙 안건 제출</button>
+                    <h1 style="font-size: 24px; font-weight: 900; margin-bottom: 24px;">학급 법정 (규칙 투표)</h1>
+                    <div class="m-card">
+                        <div style="display:flex; gap:10px; margin-bottom:24px;">
+                            <input type="text" id="court-input" placeholder="새로운 학급 규칙 제안하기 (예: 금요일 사복 등교)">
+                            <button class="btn btn-primary" onclick="addCourtRule()"><i class="fas fa-gavel"></i> 상정</button>
                         </div>
-                        <div id="court-list"></div>
-                    </div>
-                </div>
-
-                <div id="view-lost" class="view-section animate-pop">
-                    <div class="module-card">
-                        <h2>🔍 3. 분실물 센터</h2>
-                        <div style="display:flex; gap:8px; margin-bottom:16px;">
-                            <input type="text" id="lost-item-name" placeholder="주운 물건 정보 입력">
-                            <button class="btn btn-primary" style="width:120px;" onclick="addLostItem()">등록</button>
-                        </div>
-                        <div id="lost-list" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;"></div>
-                    </div>
-                </div>
-
-                <div id="view-quest" class="view-section animate-pop">
-                    <div class="module-card">
-                        <h2>📜 4. 퀘스트 센터</h2>
-                        <div id="quest-list"></div>
+                        <div id="court-list" style="display:flex; flex-direction:column; gap:16px;"></div>
                     </div>
                 </div>
 
                 <div id="view-lottery" class="view-section animate-pop">
-                    <div class="module-card">
-                        <h2>🎟️ 5. 주간 복권 실시간 추첨</h2>
-                        <div style="display:flex; gap:10px; align-items:center;">
-                            <input type="number" id="lotto-num" min="1" max="10" value="7" style="width:80px;">
-                            <button class="btn btn-primary" onclick="buyLottery()">복권 구매 (100 U)</button>
-                            <button class="btn btn-secondary" onclick="drawLottery()">실시간 추첨 실행</button>
+                    <h1 style="font-size: 24px; font-weight: 900; margin-bottom: 24px;">주간 럭키 복권</h1>
+                    <div class="m-card" style="text-align:center;">
+                        <i class="fas fa-ticket-alt" style="font-size:48px; color:var(--warning); margin-bottom:16px;"></i>
+                        <h3 style="margin-bottom:16px;">1~10 행운의 번호를 맞추세요!</h3>
+                        <div style="display:inline-flex; gap:10px; align-items:center;">
+                            <input type="number" id="lotto-num" min="1" max="10" value="7" style="width:100px; text-align:center; font-size:20px; font-weight:800;">
+                            <button class="btn btn-primary" onclick="drawLottery()">100 U로 추첨하기</button>
                         </div>
-                    </div>
-                </div>
-
-                <div id="view-suggestion" class="view-section animate-pop">
-                    <div class="module-card">
-                        <h2>📮 6. 익명 건의함</h2>
-                        <textarea id="sugg-text" rows="3" placeholder="선생님에게만 공개되는 비공개 메시지..." style="margin-bottom:10px;"></textarea>
-                        <button class="btn btn-primary" onclick="sendSuggestion()">건의 제출</button>
-                    </div>
-                </div>
-
-                <div id="view-manito" class="view-section animate-pop">
-                    <div class="module-card">
-                        <h2>🎁 7. 비밀 마니또</h2>
-                        <div style="font-size:16px; font-weight:800; margin-bottom:12px;">지정된 마니또: <span style="color:var(--accent);">김민수</span></div>
-                        <input type="text" id="manito-msg" placeholder="익명 메시지 작성을 입력하세요." style="margin-bottom:10px;">
-                        <button class="btn btn-primary" onclick="sendManitoMsg()">비밀 편지 발송</button>
-                    </div>
-                </div>
-
-                <div id="view-capsule" class="view-section animate-pop">
-                    <div class="module-card">
-                        <h2>⌛ 8. 디지털 타임캡슐</h2>
-                        <textarea id="capsule-text" rows="3" placeholder="학년 말에 봉인 해제되는 편지..." style="margin-bottom:10px;"></textarea>
-                        <button class="btn btn-primary" onclick="saveCapsule()">타임캡슐 봉인</button>
                     </div>
                 </div>
 
                 <div id="view-pass" class="view-section animate-pop">
-                    <div class="module-card" style="text-align:center;">
-                        <h2>🪪 9. 스마트 외출 패스</h2>
-                        <div style="font-size:42px; font-weight:900; color:var(--primary); margin:16px 0;" id="pass-timer">10:00</div>
-                        <button class="btn btn-primary" onclick="startPassTimer()">외출 패스 발급 (10분)</button>
+                    <h1 style="font-size: 24px; font-weight: 900; margin-bottom: 24px;">스마트 외출 패스</h1>
+                    <div class="m-card" style="text-align:center;">
+                        <div style="font-size:60px; font-weight:900; font-family:monospace; color:var(--primary); margin:20px 0;" id="pass-timer">10:00</div>
+                        <button class="btn btn-primary" style="padding:16px 32px; font-size:16px;" onclick="startPassTimer()">외출증 발급 (10분 활성화)</button>
                     </div>
                 </div>
 
                 <div id="view-thermo" class="view-section animate-pop">
-                    <div class="module-card">
-                        <h2>🌡️ 10. 학급 온도탑</h2>
-                        <div style="background:var(--border); height:18px; border-radius:9px; overflow:hidden; margin-bottom:10px;">
-                            <div style="background:linear-gradient(90deg, var(--primary), var(--accent)); width:45%; height:100%;"></div>
+                    <h1 style="font-size: 24px; font-weight: 900; margin-bottom: 24px;">학급 온도탑 (기부)</h1>
+                    <div class="m-card">
+                        <h3 style="margin-bottom:8px;">목표: 학급 전체 피자 파티 (10,000 U)</h3>
+                        <div class="progress-track">
+                            <div class="progress-fill" id="thermo-fill" style="width: 45%;"></div>
                         </div>
-                        <button class="btn btn-primary" onclick="donateThermo(100)">100 U 학급 기부하기</button>
+                        <div style="display:flex; justify-content:space-between; font-weight:800; margin-bottom:24px;">
+                            <span>현재: 4,500 U</span> <span>목표: 10,000 U</span>
+                        </div>
+                        <button class="btn btn-primary" onclick="donateThermo(100)">내 포인트 100 U 기부하기</button>
                     </div>
                 </div>
 
@@ -456,457 +375,390 @@
         </main>
     </div>
 
-    <!-- 픽셀 모달 -->
-    <div id="pixel-modal" class="hidden">
-        <div class="pixel-content animate-pop">
-            <div>
-                <h3 style="margin-bottom:8px; font-size:14px;">16x16 픽셀 스 프라이트 디자인</h3>
-                <div class="pixel-grid" id="pixel-grid"></div>
-            </div>
-            <div style="width:130px; display:flex; flex-direction:column; gap:8px;">
-                <label style="font-size:12px;">색상 선택</label>
-                <input type="color" id="pixel-color" value="#6366F1" style="height:35px;">
-                <button class="btn btn-primary" onclick="closePixelModal()">저장 및 적용</button>
-            </div>
+    <!-- 퀴즈 모달 -->
+    <div id="quiz-modal" class="modal-overlay hidden">
+        <div class="modal-box animate-pop">
+            <h3 style="color:var(--warning); margin-bottom:12px; font-size:20px;"><i class="fas fa-exclamation-triangle"></i> 퀴즈 블록 충돌!</h3>
+            <p id="modal-quiz-q" style="font-weight:800; font-size:16px; margin-bottom:20px;">문제 내용</p>
+            <input type="text" id="modal-quiz-a" placeholder="정답을 입력하세요" style="margin-bottom:16px; text-align:center;">
+            <button class="btn btn-primary" style="width:100%;" onclick="submitQuiz()">정답 제출</button>
         </div>
     </div>
 
     <script>
-        // --- Web Audio 사운드 합성 엔진 (사운드 파일 독립 구동) ---
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        let audioCtx = null;
-
-        function playGunSound() {
-            if(!audioCtx) audioCtx = new AudioCtx();
-            const now = audioCtx.currentTime;
-            
-            // Noise buffer
-            const bufferSize = audioCtx.sampleRate * 0.1;
-            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-            const data = buffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-
-            const noise = audioCtx.createBufferSource();
-            noise.buffer = buffer;
-
-            const filter = audioCtx.createBiquadFilter();
-            filter.type = 'bandpass';
-            filter.frequency.value = 1000;
-
-            const gain = audioCtx.createGain();
-            gain.gain.setValueAtTime(1, now);
-            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-
-            noise.connect(filter);
-            filter.connect(gain);
-            gain.connect(audioCtx.destination);
-            noise.start(now);
-        }
-
-        function playHitSound() {
-            if(!audioCtx) audioCtx = new AudioCtx();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.15);
-            gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.15);
-        }
-
-        // --- 20가지 전용 장르 템플릿 ---
-        const templates20 = [
-            { id: 'fps', name: '2.5D 3D FPS 던전', desc: '3D 시점 사격 & 적 AI 시스템', badge: '3D/FPS' },
-            { id: 'platformer', name: '2D 사이드 플랫포머', desc: '중력 점프 및 장애물 돌파', badge: '액션' },
-            { id: 'maze', name: '탑다운 미로 탈출', desc: '4방향 스무스 탐험', badge: '퍼즐' },
-            { id: 'runner', name: '무한 스크롤 러너', desc: '스피드 장애물 점프', badge: '캐주얼' },
-            { id: 'vampire', name: '서바이벌 뱀파이어', desc: '몰려오는 적 무한 퇴치', badge: '생존' },
-            { id: 'shooter', name: '우주 종스크롤 슈팅', desc: '탄막 회피 및 사격', badge: '슈팅' },
-            { id: 'escape', name: '방탈출 추리 RPG', desc: '단서 조합 및 비밀번호', badge: '어드벤처' },
-            { id: 'rhythm', name: '비트 퀴즈 노트', desc: '타이밍 맞춤 노드 클릭', badge: '리듬' },
-            { id: 'defense', name: '타워 디펜스', desc: '경로 타워 건설 방어', badge: '전략' },
-            { id: 'racing', name: '미니 2D 레이싱', desc: '서킷 드리프트 기록', badge: '레이싱' },
-            { id: 'zombie', name: '좀비 서바이벌', desc: '탄약 수집 및 기지 방어', badge: '생존' },
-            { id: 'pinball', name: '핀볼 퀴즈 바운스', desc: '볼 튕기기 퀴즈 점수', badge: '아케이드' },
-            { id: 'arena', name: '픽셀 대전 아레나', desc: '1v1 캐릭터 대전', badge: '격투' },
-            { id: 'clicker', name: '클래스 탭 키우기', desc: '클릭 탭 타이쿤', badge: '방치형' },
-            { id: 'cards', name: '카드 퀴즈 전략배틀', desc: '덱빌딩 퀴즈 대항전', badge: '전략' },
-            { id: 'jumpking', name: '고난도 점프 타워', desc: '낙하 주의 수직 점프', badge: '플랫폼' },
-            { id: 'detective', name: '픽셀 탐정 추리물', desc: '증거 수집 용의자 가리기', badge: '추리' },
-            { id: 'sandbox', name: '샌드박스 크래프트', desc: '자유 블록 건축 모드', badge: '샌드박스' },
-            { id: 'tycoon', name: '매점 타이쿤 경영', desc: '손님 주문 제작 판매', badge: '경영' },
-            { id: 'boss', name: '거대 보스 레이드', desc: '패턴 파악 탄막 공략', badge: '보스전' }
-        ];
-
-        let appData = {
-            role: 'student', user: null, classCode: 'CS-7721', points: 1000, bankBalance: 0,
-            activeTmpl: 'fps', gui: { crossStyle: 'plus', hpPos: 'top-left', themeColor: '#6366F1', titleText: 'CLASS SPACE FPS 3D' }
+        // --- 글로벌 상태 ---
+        let appState = {
+            user: '', code: '', points: 1000, bank: 0,
+            activeEngine: 'fps', // fps | platformer | topdown
         };
 
-        const MAP_SIZE = 30;
-        let mapData = Array(MAP_SIZE).fill().map(() => Array(MAP_SIZE).fill(0));
-        let playerPos = { x: 3.5, y: 3.5, dir: 0 };
-        let enemies = []; // [{x, y, hp: 100, alive: true}]
-        let studioTool = 'wall';
-        let isPlaying = false;
-        let animFrame = null;
-        let scoreCount = 0;
-        let ammoCount = 30;
+        // --- 템플릿 코어 매핑 (3대 물리엔진 기반) ---
+        const templates = [
+            { id: 'fps_dungeon', name: '3D 둠스타일 던전', engine: 'fps', badge: 'FPS 3D', cls: 'badge-fps', desc: '레이캐스팅과 추적 AI' },
+            { id: 'fps_zombie', name: '3D 좀비 서바이벌', engine: 'fps', badge: 'FPS 3D', cls: 'badge-fps', desc: '몰려오는 좀비 사격' },
+            { id: 'plat_mario', name: '점프 어드벤처', engine: 'platformer', badge: '2D 플랫포머', cls: 'badge-plat', desc: '중력 점프와 낙하' },
+            { id: 'plat_jumpking', name: '고난도 점프타워', engine: 'platformer', badge: '2D 플랫포머', cls: 'badge-plat', desc: '수직 상승 맵' },
+            { id: 'top_maze', name: '미로 탈출', engine: 'topdown', badge: '2D 탑다운', cls: 'badge-top', desc: '상하좌우 자유 이동' },
+            { id: 'top_rpg', name: 'RPG 던전 탐험', engine: 'topdown', badge: '2D 탑다운', cls: 'badge-top', desc: '방향 이동 및 상호작용' }
+        ];
 
+        // --- 로비 & 인증 흐름 ---
         window.onload = () => {
+            document.getElementById('preview-code').innerText = 'CS-' + Math.floor(1000 + Math.random() * 9000);
             renderTemplates();
-            initPixelGrid();
-            initCanvasEngine();
         };
 
         function showToast(msg) {
             const box = document.getElementById('toast-container');
             const t = document.createElement('div');
             t.className = 'toast';
-            t.innerHTML = `<i class="fas fa-check-circle" style="color:var(--primary)"></i> ${msg}`;
+            t.innerHTML = `<i class="fas fa-check-circle" style="color:var(--success)"></i> ${msg}`;
             box.appendChild(t);
             setTimeout(() => t.remove(), 2500);
         }
 
-        function toggleTheme() {
-            const b = document.body;
-            b.setAttribute('data-theme', b.getAttribute('data-theme')==='dark'?'light':'dark');
-        }
-
-        function renderTemplates() {
-            const container = document.getElementById('landing-tmpl-list');
-            const studioGrid = document.getElementById('studio-tmpl-grid');
-            const html = templates20.map(t => `
-                <div class="tmpl-card" onclick="openStudioEngine('${t.id}', '${t.name}')">
-                    <span class="tmpl-badge">${t.badge}</span>
-                    <h3 style="font-size:15px; margin-bottom:4px;">${t.name}</h3>
-                    <p style="font-size:12px; color:var(--text-muted);">${t.desc}</p>
-                </div>
-            `).join('');
-            container.innerHTML = html;
-            studioGrid.innerHTML = html;
-        }
-
-        // 인증
-        function showAuth(mode) { document.getElementById('auth-view').classList.remove('hidden'); }
-        function hideAuth() { document.getElementById('auth-view').classList.add('hidden'); }
-
-        function selectRole(role) {
-            appData.role = role;
-            document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
-            document.querySelector(`.role-btn[data-role="${role}"]`).classList.add('active');
-            document.getElementById('create-class-box').classList.toggle('hidden', role === 'student');
-        }
-
-        function generateClassCode() {
-            const code = 'CS-' + Math.floor(1000 + Math.random() * 9000);
-            document.getElementById('auth-code').value = code;
-            showToast(`학급 코드 생성 완료: ${code}`);
-        }
-
-        function handleAuth(e) {
-            e.preventDefault();
+        function doLogin() {
             const name = document.getElementById('auth-name').value.trim();
-            let code = document.getElementById('auth-code').value.trim() || 'CS-7721';
-            appData.user = name; appData.classCode = code;
+            if(!name) return alert('이름을 입력하세요.');
+            appState.user = name;
+            
+            document.getElementById('auth-view').classList.add('hidden');
+            document.getElementById('lobby-view').classList.remove('hidden');
+            document.getElementById('lobby-user-name').innerText = name;
+            document.getElementById('bank-user-name').innerText = name.toUpperCase();
+        }
 
-            hideAuth();
-            document.getElementById('landing-view').classList.add('hidden');
+        function doLogout() {
+            appState.user = '';
+            document.getElementById('lobby-view').classList.add('hidden');
+            document.getElementById('auth-view').classList.remove('hidden');
+        }
+
+        function joinClass() {
+            const code = document.getElementById('join-code').value.trim();
+            if(!code) return alert('코드를 입력하세요.');
+            enterDashboard(code);
+        }
+
+        function createClass() {
+            const code = document.getElementById('preview-code').innerText;
+            enterDashboard(code);
+            showToast(`새 학급 ${code} 개설 완료!`);
+        }
+
+        function enterDashboard(code) {
+            appState.code = code;
+            document.getElementById('lobby-view').classList.add('hidden');
             document.getElementById('dashboard-view').classList.remove('hidden');
-
-            document.getElementById('ui-name').innerText = name;
-            document.getElementById('ui-class-code').innerText = `학급코드: ${code}`;
-            document.getElementById('ui-role').innerText = appData.role === 'teacher' ? '선생님' : (appData.role === 'admin_student' ? '관리자' : '학생');
-            showToast(`${name}님 로그인 성공!`);
+            
+            document.getElementById('dash-user-name').innerText = appState.user;
+            document.getElementById('dash-class-code').innerText = code;
+            updatePointsUI();
+            initEngine(); // 캔버스 초기화
         }
 
-        function logout() {
+        function returnToLobby() {
             document.getElementById('dashboard-view').classList.add('hidden');
-            document.getElementById('landing-view').classList.remove('hidden');
+            document.getElementById('lobby-view').classList.remove('hidden');
+            closeEditor(); // 열려있던 스튜디오 정리
         }
 
+        function updatePointsUI() {
+            document.getElementById('dash-points').innerHTML = `${appState.points} <span style="font-size:20px;">U</span>`;
+        }
+
+        // 사이드바 네비게이션
         document.querySelectorAll('.nav-item[data-view]').forEach(item => {
             item.addEventListener('click', e => {
-                const view = e.currentTarget.dataset.view;
                 document.querySelectorAll('.view-section, .nav-item').forEach(el => el.classList.remove('active'));
-                document.getElementById('view-' + view).classList.add('active');
+                const viewId = e.currentTarget.dataset.view;
+                document.getElementById('view-' + viewId).classList.add('active');
                 e.currentTarget.classList.add('active');
                 document.getElementById('topbar-title').innerText = e.currentTarget.innerText;
             });
         });
 
-        // --- 정확한 Grid 좌표 오차 교정 캔버스 엔진 ---
+        // --- 스튜디오 템플릿 렌더링 ---
+        function renderTemplates() {
+            const box = document.getElementById('tmpl-container');
+            box.innerHTML = templates.map(t => `
+                <div class="tmpl-card" onclick="openEditor('${t.engine}', '${t.name}')">
+                    <span class="engine-badge ${t.cls}">${t.badge}</span>
+                    <h3 style="font-size:16px; margin-bottom:4px;">${t.name}</h3>
+                    <p style="font-size:12px; color:var(--text-muted);">${t.desc}</p>
+                </div>
+            `).join('');
+        }
+
+        // --- 3대 통합 캔버스 물리 엔진 (Core Engine) ---
+        const MAP_SIZE = 30;
+        let mapData = Array(MAP_SIZE).fill().map(() => Array(MAP_SIZE).fill(0));
+        let player = { x: 3.5, y: 3.5, dir: 0, vy: 0 }; // vy for platformer
+        let enemies = [];
+        let studioTool = 'wall';
+        let isPlaying = false;
+        let animFrame;
         let canvas, ctx;
-        function initCanvasEngine() {
+
+        function initEngine() {
             canvas = document.getElementById('game-canvas');
             ctx = canvas.getContext('2d');
-            
-            // 정확한 좌표 산출 (Canvas CSS 크기 vs Intrinsic Pixel 크기 변환 비율 계산)
+
+            // 정확한 좌표 클릭(에디터 모드)
             canvas.addEventListener('click', e => {
                 if(isPlaying) {
-                    mobileShoot(); // 플레이 모드 시 클릭 사격!
+                    if(appState.activeEngine === 'fps') shootFPS();
                     return;
                 }
                 const rect = canvas.getBoundingClientRect();
                 const scaleX = canvas.width / rect.width;
                 const scaleY = canvas.height / rect.height;
+                const mx = (e.clientX - rect.left) * scaleX;
+                const my = (e.clientY - rect.top) * scaleY;
                 
-                const clickX = (e.clientX - rect.left) * scaleX;
-                const clickY = (e.clientY - rect.top) * scaleY;
-                
-                const cellW = canvas.width / MAP_SIZE;
-                const cellH = canvas.height / MAP_SIZE;
-                
-                const c = Math.floor(clickX / cellW);
-                const r = Math.floor(clickY / cellH);
+                const c = Math.floor(mx / (canvas.width/MAP_SIZE));
+                const r = Math.floor(my / (canvas.height/MAP_SIZE));
 
-                if(r >= 0 && r < MAP_SIZE && c >= 0 && c < MAP_SIZE) {
+                if(r>=0 && r<MAP_SIZE && c>=0 && c<MAP_SIZE) {
                     if(studioTool === 'wall') mapData[r][c] = 1;
                     else if(studioTool === 'quiz') mapData[r][c] = 2;
+                    else if(studioTool === 'eraser') mapData[r][c] = 0;
                     else if(studioTool === 'enemy') {
                         mapData[r][c] = 0;
-                        enemies.push({ x: c + 0.5, y: r + 0.5, hp: 100, alive: true });
+                        enemies.push({x: c+0.5, y: r+0.5, hp: 100, alive: true});
                     }
-                    else if(studioTool === 'eraser') mapData[r][c] = 0;
-                    else if(studioTool === 'player') playerPos = { x: c + 0.5, y: r + 0.5, dir: 0 };
-                    
-                    drawEditorMap();
+                    else if(studioTool === 'player') { player.x = c+0.5; player.y = r+0.5; player.vy = 0; }
+                    drawEditor();
                 }
             });
         }
 
-        function openStudioEngine(tmplId, tmplName) {
-            appData.activeTmpl = tmplId;
-            document.getElementById('studio-tmpl-select').classList.add('hidden');
-            document.getElementById('studio-editor-box').classList.remove('hidden');
-            document.getElementById('active-tmpl-name').innerText = `${tmplName} (30x30 그리드 오차 교정)`;
+        function openEditor(engineId, title) {
+            appState.activeEngine = engineId;
+            document.getElementById('studio-selector').classList.add('hidden');
+            document.getElementById('studio-editor').classList.remove('hidden');
+            document.getElementById('editor-title').innerText = `${title} 에디터`;
             
-            // 외곽 테두리 벽 배치
-            for(let i=0; i<MAP_SIZE; i++) {
-                mapData[0][i] = 1; mapData[MAP_SIZE-1][i] = 1;
-                mapData[i][0] = 1; mapData[i][MAP_SIZE-1] = 1;
+            // 엔진 설명 UI 갱신
+            const eName = document.getElementById('info-engine-name');
+            const eDesc = document.getElementById('info-engine-desc');
+            const hudCross = document.getElementById('hud-crosshair');
+            
+            if(engineId === 'fps') {
+                eName.innerText = "3D FPS Raycast"; eDesc.innerText = "적 추적 AI 및 클릭 사격 로직 활성화";
+                hudCross.style.display = "block";
+            } else if(engineId === 'platformer') {
+                eName.innerText = "2D Platformer"; eDesc.innerText = "중력(Gravity) 적용, 스페이스바 점프";
+                hudCross.style.display = "none";
+            } else {
+                eName.innerText = "2D Top-Down"; eDesc.innerText = "중력 없이 4방향 자유 스무스 이동";
+                hudCross.style.display = "none";
             }
-            if(enemies.length === 0) {
-                enemies = [{ x: 8.5, y: 8.5, hp: 100, alive: true }];
-            }
-            drawEditorMap();
+            
+            // 맵 테두리 초기화
+            mapData = Array(MAP_SIZE).fill().map(() => Array(MAP_SIZE).fill(0));
+            for(let i=0; i<MAP_SIZE; i++) { mapData[0][i]=1; mapData[MAP_SIZE-1][i]=1; mapData[i][0]=1; mapData[i][MAP_SIZE-1]=1; }
+            enemies = [{x: 15.5, y: 15.5, hp: 100, alive: true}];
+            player = { x: 3.5, y: 3.5, dir: 0, vy: 0 };
+            
+            updateGUI();
+            drawEditor();
         }
 
         function closeEditor() {
-            document.getElementById('studio-editor-box').classList.add('hidden');
-            document.getElementById('studio-tmpl-select').classList.remove('hidden');
-            isPlaying = false;
-            cancelAnimationFrame(animFrame);
+            document.getElementById('studio-editor').classList.add('hidden');
+            document.getElementById('studio-selector').classList.remove('hidden');
+            if(isPlaying) togglePlay();
         }
 
-        function setStudioTool(tool) {
+        function setTool(tool) {
             studioTool = tool;
             document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
             document.querySelector(`.tool-btn[data-tool="${tool}"]`).classList.add('active');
         }
 
-        function toggleGuiEditor() {
-            document.getElementById('gui-config-panel').classList.toggle('hidden');
+        function updateGUI() {
+            document.getElementById('hud-title').innerText = document.getElementById('gui-text').value;
         }
 
-        function updateGUIConfig() {
-            appData.gui.crossStyle = document.getElementById('gui-cross-style').value;
-            appData.gui.hpPos = document.getElementById('gui-hp-pos').value;
-            appData.gui.themeColor = document.getElementById('gui-theme-color').value;
-            appData.gui.titleText = document.getElementById('gui-title-text').value;
-
-            // Crosshair
-            const ch = document.getElementById('hud-crosshair');
-            if(appData.gui.crossStyle === 'none') ch.style.display = 'none';
-            else {
-                ch.style.display = 'flex';
-                ch.innerHTML = `<div class="cross-${appData.gui.crossStyle}"></div>`;
-            }
-
-            document.getElementById('hud-title-box').innerText = appData.gui.titleText;
-            document.getElementById('hud-top-bar').style.justifyContent = appData.gui.hpPos === 'top-left' ? 'space-between' : 'flex-end';
-        }
-
-        function drawEditorMap() {
+        // --- 렌더링 분기 ---
+        function drawEditor() {
             if(isPlaying) return;
-            ctx.fillStyle = '#050811';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            const cw = canvas.width / MAP_SIZE;
-            const ch = canvas.height / MAP_SIZE;
+            ctx.fillStyle = '#1E293B'; ctx.fillRect(0,0,canvas.width, canvas.height);
+            const cw = canvas.width/MAP_SIZE, ch = canvas.height/MAP_SIZE;
 
             for(let r=0; r<MAP_SIZE; r++) {
                 for(let c=0; c<MAP_SIZE; c++) {
-                    if(mapData[r][c] === 1) {
-                        ctx.fillStyle = '#475569';
-                        ctx.fillRect(c*cw, r*ch, cw-0.5, ch-0.5);
-                    } else if(mapData[r][c] === 2) {
-                        ctx.fillStyle = '#F59E0B';
-                        ctx.fillRect(c*cw, r*ch, cw-0.5, ch-0.5);
-                    }
+                    if(mapData[r][c]===1) { ctx.fillStyle='#475569'; ctx.fillRect(c*cw, r*ch, cw-1, ch-1); }
+                    else if(mapData[r][c]===2) { ctx.fillStyle='#F59E0B'; ctx.fillRect(c*cw, r*ch, cw-1, ch-1); }
                 }
             }
-
-            // 적
             enemies.forEach(e => {
-                if(e.alive) {
-                    ctx.fillStyle = '#F43F5E';
-                    ctx.fillRect(e.x*cw - cw/3, e.y*ch - ch/3, cw*0.7, ch*0.7);
-                }
+                if(e.alive) { ctx.fillStyle='#E11D48'; ctx.fillRect(e.x*cw - cw/3, e.y*ch - ch/3, cw*0.6, ch*0.6); }
             });
-
-            // 플레이어
-            ctx.fillStyle = '#6366F1';
-            ctx.beginPath();
-            ctx.arc(playerPos.x * cw, playerPos.y * ch, cw/2, 0, Math.PI*2);
-            ctx.fill();
+            ctx.fillStyle='#4F46E5';
+            ctx.beginPath(); ctx.arc(player.x*cw, player.y*ch, cw/2, 0, Math.PI*2); ctx.fill();
         }
 
         function togglePlay() {
             isPlaying = !isPlaying;
-            const btn = document.getElementById('btn-play-toggle');
-            const status = document.getElementById('canvas-status-text');
+            const btn = document.getElementById('play-btn');
+            const status = document.getElementById('canvas-status');
+            const hint = document.getElementById('hud-mobile-hint');
 
             if(isPlaying) {
-                btn.innerHTML = '<i class="fas fa-stop"></i> 중지';
+                btn.innerHTML = '<i class="fas fa-stop"></i> 정지';
                 btn.classList.replace('btn-primary', 'btn-danger');
-                status.innerText = '🎮 3D 사격 플레이 중 (클릭: 사격 / WASD: 이동)';
+                status.innerText = `🎮 플레이 모드 (${appState.activeEngine})`;
+                hint.style.display = 'block';
                 
-                window.addEventListener('keydown', handleKeyInput);
+                window.addEventListener('keydown', keyHandler);
                 gameLoop();
             } else {
-                btn.innerHTML = '<i class="fas fa-play"></i> 테스트 플레이 시작';
+                btn.innerHTML = '<i class="fas fa-play"></i> 플레이';
                 btn.classList.replace('btn-danger', 'btn-primary');
-                status.innerText = '✏️ 에디터 모드 (30x30 좌표 정확 클릭)';
+                status.innerText = '✏️ 에디터 모드';
+                hint.style.display = 'none';
                 
-                window.removeEventListener('keydown', handleKeyInput);
+                window.removeEventListener('keydown', keyHandler);
                 cancelAnimationFrame(animFrame);
-                drawEditorMap();
+                drawEditor();
             }
         }
 
-        function mobileShoot() {
-            if(!isPlaying || ammoCount <= 0) return;
-            playGunSound();
-            ammoCount--;
-            document.getElementById('hud-ammo-val').innerText = `${ammoCount} / 30`;
+        // --- 물리 및 조작 분기 ---
+        const keys = { w:false, a:false, s:false, d:false, space:false };
+        window.addEventListener('keydown', e => {
+            const k = e.key.toLowerCase();
+            if(['w','a','s','d',' '].includes(k)) keys[k===' '? 'space':k] = true;
+        });
+        window.addEventListener('keyup', e => {
+            const k = e.key.toLowerCase();
+            if(['w','a','s','d',' '].includes(k)) keys[k===' '? 'space':k] = false;
+        });
 
-            // 정중앙 적 레이캐스트 사격 피격 판정
+        function keyHandler(e) {} // 캡처 방지용
+
+        function shootFPS() {
+            if(appState.activeEngine !== 'fps') return;
             enemies.forEach(e => {
                 if(e.alive) {
-                    let dx = e.x - playerPos.x;
-                    let dy = e.y - playerPos.y;
+                    let dx = e.x - player.x, dy = e.y - player.y;
                     let dist = Math.sqrt(dx*dx + dy*dy);
-                    let angleToEnemy = Math.atan2(dy, dx);
-                    let diffAngle = Math.abs(angleToEnemy - playerPos.dir);
-
-                    if(diffAngle < 0.2 && dist < 12) {
-                        e.hp -= 50;
-                        playHitSound();
-                        if(e.hp <= 0) {
-                            e.alive = false;
-                            scoreCount++;
-                            document.getElementById('hud-score-val').innerText = scoreCount;
-                            showToast('적 처치 성공!');
-                        }
+                    let ang = Math.atan2(dy, dx);
+                    if(Math.abs(ang - player.dir) < 0.2 && dist < 10) {
+                        e.hp -= 100; e.alive = false;
+                        showToast('적 처치!');
+                        document.getElementById('val-score').innerText = parseInt(document.getElementById('val-score').innerText)+1;
                     }
                 }
             });
         }
 
-        function handleKeyInput(e) {
-            if(!isPlaying) return;
-            let moveStep = 0.2;
-            let rotStep = 0.08;
-
-            if(e.key === 'w' || e.key === 'W') movePlayer(moveStep);
-            if(e.key === 's' || e.key === 'S') movePlayer(-moveStep);
-            if(e.key === 'a' || e.key === 'A') playerPos.dir -= rotStep;
-            if(e.key === 'd' || e.key === 'D') playerPos.dir += rotStep;
+        function checkCollision(nx, ny) {
+            let cx = Math.floor(nx), cy = Math.floor(ny);
+            if(cx<0 || cy<0 || cx>=MAP_SIZE || cy>=MAP_SIZE) return true;
+            if(mapData[cy][cx] === 2) { triggerQuiz(); return true; } // 퀴즈 블록
+            return mapData[cy][cx] === 1;
         }
 
-        function mobileInput(action) {
-            if(!isPlaying) return;
-            if(action === 'up') movePlayer(0.3);
-            if(action === 'down') movePlayer(-0.3);
-            if(action === 'left') playerPos.dir -= 0.15;
-            if(action === 'right') playerPos.dir += 0.15;
-        }
+        function updatePhysics() {
+            if(appState.activeEngine === 'fps') {
+                let ms = 0.1, rs = 0.05;
+                if(keys.w) { let nx = player.x + Math.cos(player.dir)*ms, ny = player.y + Math.sin(player.dir)*ms; if(!checkCollision(nx, ny)){player.x=nx; player.y=ny;} }
+                if(keys.s) { let nx = player.x - Math.cos(player.dir)*ms, ny = player.y - Math.sin(player.dir)*ms; if(!checkCollision(nx, ny)){player.x=nx; player.y=ny;} }
+                if(keys.a) player.dir -= rs;
+                if(keys.d) player.dir += rs;
 
-        function movePlayer(step) {
-            let nx = playerPos.x + Math.cos(playerPos.dir) * step;
-            let ny = playerPos.y + Math.sin(playerPos.dir) * step;
-
-            let cellX = Math.floor(nx);
-            let cellY = Math.floor(ny);
-
-            if(mapData[cellY][cellX] === 2) {
-                triggerInGameQuiz();
-                return;
+                // FPS AI (추적)
+                enemies.forEach(e => {
+                    if(e.alive) {
+                        let dx = player.x - e.x, dy = player.y - e.y;
+                        let dist = Math.sqrt(dx*dx + dy*dy);
+                        if(dist > 0.5 && dist < 8) { // 인식 거리
+                            let nx = e.x + (dx/dist)*0.03;
+                            let ny = e.y + (dy/dist)*0.03;
+                            if(!checkCollision(nx, ny)) { e.x = nx; e.y = ny; }
+                        }
+                    }
+                });
+            } 
+            else if(appState.activeEngine === 'topdown') {
+                let ms = 0.15;
+                let nx = player.x, ny = player.y;
+                if(keys.w) ny -= ms; if(keys.s) ny += ms;
+                if(keys.a) nx -= ms; if(keys.d) nx += ms;
+                
+                // X축 이동 체크
+                if(!checkCollision(nx, player.y)) player.x = nx;
+                // Y축 이동 체크
+                if(!checkCollision(player.x, ny)) player.y = ny;
             }
-            if(mapData[cellY][cellX] !== 1) {
-                playerPos.x = nx;
-                playerPos.y = ny;
-            }
-        }
+            else if(appState.activeEngine === 'platformer') {
+                let ms = 0.15;
+                let nx = player.x;
+                if(keys.a) nx -= ms; if(keys.d) nx += ms;
+                if(!checkCollision(nx, player.y)) player.x = nx;
 
-        // 3D FPS 레이캐스터 & 3D 적 AI 스프라이트 렌더러
-        function render3DFPSEngine() {
-            ctx.fillStyle = '#1E293B'; ctx.fillRect(0, 0, canvas.width, canvas.height/2);
-            ctx.fillStyle = '#0F172A'; ctx.fillRect(0, canvas.height/2, canvas.width, canvas.height/2);
-
-            const fov = Math.PI / 3;
-            const numRays = canvas.width;
-            const halfFov = fov / 2;
-
-            for(let i=0; i<numRays; i++) {
-                let rayAngle = (playerPos.dir - halfFov) + (i / numRays) * fov;
-                let distanceToWall = 0;
-                let hitWall = false;
-                let hitQuiz = false;
-
-                let cos = Math.cos(rayAngle);
-                let sin = Math.sin(rayAngle);
-
-                while(!hitWall && distanceToWall < 16) {
-                    distanceToWall += 0.1;
-                    let checkX = Math.floor(playerPos.x + cos * distanceToWall);
-                    let checkY = Math.floor(playerPos.y + sin * distanceToWall);
-
-                    if(checkX < 0 || checkX >= MAP_SIZE || checkY < 0 || checkY >= MAP_SIZE) {
-                        hitWall = true; distanceToWall = 16;
-                    } else if(mapData[checkY][checkX] === 1) { hitWall = true; }
-                    else if(mapData[checkY][checkX] === 2) { hitWall = true; hitQuiz = true; }
+                // 중력
+                player.vy += 0.02; // Gravity
+                let ny = player.y + player.vy;
+                
+                if(checkCollision(player.x, ny)) {
+                    if(player.vy > 0) { // 착지
+                        player.y = Math.floor(ny) - 0.01;
+                        if(keys.space || keys.w) player.vy = -0.3; // 점프
+                        else player.vy = 0;
+                    } else { // 천장 쿵
+                        player.y = Math.ceil(player.y) + 0.01;
+                        player.vy = 0;
+                    }
+                } else {
+                    player.y = ny;
                 }
-
-                let correctedDist = distanceToWall * Math.cos(rayAngle - playerPos.dir);
-                let wallHeight = Math.min(canvas.height, (canvas.height / correctedDist));
-
-                ctx.fillStyle = hitQuiz ? '#F59E0B' : `rgb(${Math.max(10, 180 - correctedDist*10)}, ${Math.max(10, 180 - correctedDist*10)}, ${Math.max(30, 220 - correctedDist*10)})`;
-                ctx.fillRect(i, (canvas.height - wallHeight)/2, 1, wallHeight);
             }
+        }
 
-            // 3D 적 빌보드 스프라이트 렌더링
+        function render3D() {
+            ctx.fillStyle = '#0F172A'; ctx.fillRect(0,0,canvas.width, canvas.height/2); // 천장
+            ctx.fillStyle = '#020617'; ctx.fillRect(0,canvas.height/2,canvas.width, canvas.height/2); // 바닥
+            
+            const fov = Math.PI/3;
+            for(let i=0; i<canvas.width; i+=2) { // 최적화 위해 2픽셀씩 렌더링
+                let rayAngle = (player.dir - fov/2) + (i/canvas.width)*fov;
+                let dist = 0, hitWall=false, hitQuiz=false;
+                let cos=Math.cos(rayAngle), sin=Math.sin(rayAngle);
+                
+                while(!hitWall && dist<16) {
+                    dist += 0.1;
+                    let cx = Math.floor(player.x + cos*dist);
+                    let cy = Math.floor(player.y + sin*dist);
+                    if(cx<0||cy<0||cx>=MAP_SIZE||cy>=MAP_SIZE){ hitWall=true; dist=16; }
+                    else if(mapData[cy][cx]===1){ hitWall=true; }
+                    else if(mapData[cy][cx]===2){ hitWall=true; hitQuiz=true; }
+                }
+                
+                let corr = dist * Math.cos(rayAngle - player.dir);
+                let h = Math.min(canvas.height, canvas.height/corr);
+                
+                ctx.fillStyle = hitQuiz ? '#F59E0B' : `rgb(${Math.max(10, 100-corr*6)}, ${Math.max(20, 120-corr*6)}, ${Math.max(40, 160-corr*6)})`;
+                ctx.fillRect(i, (canvas.height-h)/2, 2, h);
+            }
+            
+            // 3D 적 빌보드 렌더링
             enemies.forEach(e => {
                 if(e.alive) {
-                    let dx = e.x - playerPos.x;
-                    let dy = e.y - playerPos.y;
+                    let dx = e.x - player.x, dy = e.y - player.y;
                     let dist = Math.sqrt(dx*dx + dy*dy);
-                    let spriteAngle = Math.atan2(dy, dx) - playerPos.dir;
-
-                    if(spriteAngle < -Math.PI) spriteAngle += Math.PI*2;
-                    if(spriteAngle > Math.PI) spriteAngle -= Math.PI*2;
-
-                    if(dist > 0.5 && dist < 12 && Math.abs(spriteAngle) < fov) {
-                        let screenX = (canvas.width / 2) + Math.tan(spriteAngle) * (canvas.width / 2);
-                        let spriteSize = Math.min(canvas.height, canvas.height / dist);
-
-                        ctx.fillStyle = '#F43F5E';
-                        ctx.fillRect(screenX - spriteSize/4, (canvas.height - spriteSize)/2 + spriteSize/4, spriteSize/2, spriteSize/2);
+                    let ang = Math.atan2(dy, dx) - player.dir;
+                    if(ang < -Math.PI) ang += Math.PI*2;
+                    if(ang > Math.PI) ang -= Math.PI*2;
+                    
+                    if(dist > 0.5 && dist < 12 && Math.abs(ang) < fov) {
+                        let sx = (canvas.width/2) + Math.tan(ang)*(canvas.width/2);
+                        let sz = canvas.height/dist;
+                        ctx.fillStyle = '#E11D48';
+                        ctx.fillRect(sx - sz/4, (canvas.height - sz)/2 + sz/4, sz/2, sz/2);
                     }
                 }
             });
@@ -914,59 +766,65 @@
 
         function gameLoop() {
             if(!isPlaying) return;
-            if(appData.activeTmpl === 'fps') render3DFPSEngine();
-            else drawEditorMap();
+            updatePhysics();
+            
+            if(appState.activeEngine === 'fps') {
+                render3D();
+            } else {
+                // 2D 렌더링 재사용 (에디터 뷰와 동일)
+                ctx.fillStyle='#0F172A'; ctx.fillRect(0,0,canvas.width, canvas.height);
+                const cw = canvas.width/MAP_SIZE, ch = canvas.height/MAP_SIZE;
+                for(let r=0; r<MAP_SIZE; r++) {
+                    for(let c=0; c<MAP_SIZE; c++) {
+                        if(mapData[r][c]===1) { ctx.fillStyle='#334155'; ctx.fillRect(c*cw, r*ch, cw-1, ch-1); }
+                        else if(mapData[r][c]===2) { ctx.fillStyle='#F59E0B'; ctx.fillRect(c*cw, r*ch, cw-1, ch-1); }
+                    }
+                }
+                ctx.fillStyle='#4F46E5';
+                ctx.beginPath(); ctx.arc(player.x*cw, player.y*ch, cw/2, 0, Math.PI*2); ctx.fill();
+            }
+            
             animFrame = requestAnimationFrame(gameLoop);
         }
 
-        function triggerInGameQuiz() {
-            document.getElementById('game-quiz-modal').classList.remove('hidden');
-            document.getElementById('game-quiz-q').innerText = document.getElementById('tool-quiz-q').value;
+        // --- 퀴즈 로직 ---
+        function triggerQuiz() {
+            keys.w=false; keys.a=false; keys.s=false; keys.d=false; // 멈춤
+            document.getElementById('quiz-modal').classList.remove('hidden');
+            document.getElementById('modal-quiz-q').innerText = document.getElementById('quiz-q').value;
         }
 
-        function submitGameQuiz() {
-            const input = document.getElementById('game-quiz-input').value.trim();
-            const targetA = document.getElementById('tool-quiz-a').value.trim();
-
-            if(input === targetA) {
-                showToast('정답! +100 U 획득');
-                appData.points += 100;
-                document.getElementById('dash-points').innerText = appData.points + ' U';
-                document.getElementById('game-quiz-modal').classList.add('hidden');
-            } else showToast('틀렸습니다.');
-        }
-
-        // 픽셀 모달
-        function openPixelModal() { document.getElementById('pixel-modal').classList.remove('hidden'); }
-        function closePixelModal() { document.getElementById('pixel-modal').classList.add('hidden'); showToast('픽셀이 저장되었습니다.'); }
-        
-        function initPixelGrid() {
-            const grid = document.getElementById('pixel-grid');
-            for(let i=0; i<256; i++) {
-                let cell = document.createElement('div');
-                cell.className = 'pixel-cell';
-                cell.onclick = function() { this.style.backgroundColor = document.getElementById('pixel-color').value; };
-                grid.appendChild(cell);
+        function submitQuiz() {
+            const userA = document.getElementById('modal-quiz-a').value.trim();
+            const realA = document.getElementById('quiz-a').value.trim();
+            if(userA === realA) {
+                showToast('정답! 보상 +100 U');
+                appState.points += 100;
+                updatePointsUI();
+                document.getElementById('quiz-modal').classList.add('hidden');
+                // 충돌 해제 위해 살짝 뒤로
+                player.x -= 0.5; player.y -= 0.5;
+            } else {
+                alert('틀렸습니다!');
             }
         }
 
-        // 10대 모듈 로직
-        function bankDeposit(amt) {
-            if(appData.points >= amt) {
-                appData.points -= amt; appData.bankBalance += amt;
-                document.getElementById('dash-points').innerText = appData.points + ' U';
-                document.getElementById('bank-balance').innerText = appData.bankBalance;
-                showToast(`${amt} U 예금 성공`);
-            } else showToast('포인트 부족');
-        }
-
-        function bankWithdraw(amt) {
-            if(appData.bankBalance >= amt) {
-                appData.bankBalance -= amt; appData.points += amt;
-                document.getElementById('dash-points').innerText = appData.points + ' U';
-                document.getElementById('bank-balance').innerText = appData.bankBalance;
-                showToast(`${amt} U 출금 성공`);
-            } else showToast('예금 잔액 부족');
+        // --- 10대 모듈 기능 구현 ---
+        function bankAction(type) {
+            const amt = parseInt(document.getElementById('bank-amt').value);
+            if(type === 'deposit') {
+                if(appState.points >= amt) {
+                    appState.points -= amt; appState.bank += amt;
+                    showToast(`${amt} U 예금 완료`);
+                } else alert('포인트가 부족합니다.');
+            } else {
+                if(appState.bank >= amt) {
+                    appState.bank -= amt; appState.points += amt;
+                    showToast(`${amt} U 출금 완료`);
+                } else alert('예금 잔액이 부족합니다.');
+            }
+            updatePointsUI();
+            document.getElementById('val-bank').innerHTML = `${appState.bank} <span style="font-size:16px;">U</span>`;
         }
 
         function addCourtRule() {
@@ -974,64 +832,57 @@
             if(!text) return;
             const container = document.getElementById('court-list');
             const item = document.createElement('div');
-            item.className = 'module-card';
-            item.innerHTML = `<strong>${text}</strong> <button class="btn btn-secondary" onclick="this.parentNode.remove()" style="float:right;">투표 진행</button>`;
+            item.style = 'background:var(--bg-base); padding:16px; border-radius:var(--radius-sm); border:1px solid var(--border);';
+            item.innerHTML = `
+                <div style="font-weight:700; margin-bottom:12px;">${text}</div>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn btn-secondary" style="flex:1; border-color:var(--primary); color:var(--primary);" onclick="this.innerHTML='찬성 (1)'">👍 찬성 투표</button>
+                    <button class="btn btn-secondary" style="flex:1;" onclick="this.innerHTML='반대 (1)'">👎 반대 투표</button>
+                </div>
+            `;
             container.appendChild(item);
             document.getElementById('court-input').value = '';
-            showToast('규칙 제출 완료');
-        }
-
-        function addLostItem() {
-            const name = document.getElementById('lost-item-name').value.trim();
-            if(!name) return;
-            const container = document.getElementById('lost-list');
-            const item = document.createElement('div');
-            item.className = 'module-card';
-            item.innerHTML = `<div style="font-weight:700; margin-bottom:8px;">${name}</div><button class="btn btn-primary" style="width:100%;" onclick="this.parentNode.remove(); showToast('주인 전달 완료')">찾기</button>`;
-            container.appendChild(item);
-            document.getElementById('lost-item-name').value = '';
-        }
-
-        function buyLottery() {
-            if(appData.points >= 100) {
-                appData.points -= 100;
-                document.getElementById('dash-points').innerText = appData.points + ' U';
-                showToast('복권 구매 완료');
-            }
+            showToast('새 안건이 법정에 등록되었습니다.');
         }
 
         function drawLottery() {
+            if(appState.points < 100) return alert('포인트가 부족합니다.');
+            appState.points -= 100;
+            updatePointsUI();
+            
             const win = Math.floor(Math.random() * 10) + 1;
-            const userNum = document.getElementById('lotto-num').value;
-            if(parseInt(userNum) === win) {
-                alert(`당첨! 번호: ${win}. 1,000 U 지급!`);
-                appData.points += 1000;
-                document.getElementById('dash-points').innerText = appData.points + ' U';
-            } else alert(`낙첨! 당첨 번호는 ${win}번이었습니다.`);
+            const user = parseInt(document.getElementById('lotto-num').value);
+            
+            if(win === user) {
+                appState.points += 1000;
+                updatePointsUI();
+                alert(`🎉 당첨! 행운의 번호 [${win}]! 상금 1,000 U가 지급되었습니다!`);
+            } else {
+                alert(`아쉽습니다. 당첨 번호는 [${win}]입니다.`);
+            }
         }
-
-        function sendSuggestion() { document.getElementById('sugg-text').value = ''; showToast('선생님에게 전송 완료'); }
-        function sendManitoMsg() { document.getElementById('manito-msg').value = ''; showToast('마니또 편지 전송'); }
-        function saveCapsule() { document.getElementById('capsule-text').value = ''; showToast('타임캡슐 봉인'); }
 
         function startPassTimer() {
             let sec = 600;
             const display = document.getElementById('pass-timer');
-            document.getElementById('dash-pass-status').innerText = '외출 중';
+            showToast('외출증이 발급되었습니다.');
             const timer = setInterval(() => {
                 sec--;
                 let m = Math.floor(sec/60); let s = sec%60;
                 display.innerText = `${m}:${s<10?'0':''}${s}`;
-                if(sec <= 0) { clearInterval(timer); document.getElementById('dash-pass-status').innerText = '착석 중'; showToast('시간 종료'); }
+                if(sec <= 0) { clearInterval(timer); showToast('외출 시간이 종료되었습니다.'); display.innerText="00:00"; }
             }, 1000);
         }
 
         function donateThermo(amt) {
-            if(appData.points >= amt) {
-                appData.points -= amt;
-                document.getElementById('dash-points').innerText = appData.points + ' U';
-                showToast(`${amt} U 기부 완료`);
-            }
+            if(appState.points >= amt) {
+                appState.points -= amt;
+                updatePointsUI();
+                const fill = document.getElementById('thermo-fill');
+                let cur = parseInt(fill.style.width) || 45;
+                if(cur < 100) fill.style.width = (cur + 5) + '%';
+                showToast(`학급 온도탑에 ${amt} U 기부 완료!`);
+            } else alert('포인트가 부족합니다.');
         }
     </script>
 </body>
