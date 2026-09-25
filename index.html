@@ -3,887 +3,495 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ClassSpace | Ultimate Studio SaaS</title>
-    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800;900&family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>NEON MAFIA - 하이퍼 무브먼트 마피아</title>
     
+    <!-- 필수 라이브러리 (PeerJS, NippleJS) -->
+    <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.10.1/nipplejs.min.js"></script>
+    
+    <!-- 고퀄리티 웹 폰트 -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+
     <style>
         :root {
-            --primary: #4F46E5; --primary-hover: #4338CA; --primary-light: rgba(79, 70, 229, 0.15);
-            --secondary: #0EA5E9; --accent: #E11D48; --warning: #F59E0B; --success: #10B981;
-            --bg-base: #0B0F19; --bg-surface: #151E2E; --bg-panel: #1E293B; --bg-hover: #27354D;
-            --text-main: #F8FAFC; --text-muted: #94A3B8; --border: #334155;
-            --radius-sm: 8px; --radius-md: 12px; --radius-lg: 20px;
-            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
-            --font-sans: 'Pretendard', sans-serif; --font-display: 'Montserrat', sans-serif;
-            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --bg-color: #05050a;
+            --neon-cyan: #00f3ff;
+            --neon-pink: #ff0055;
+            --neon-yellow: #ffcc00;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; font-family: var(--font-sans); outline: none; }
-        body { background: var(--bg-base); color: var(--text-main); overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column; }
-        .hidden { display: none !important; }
+
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background-color: var(--bg-color);
+            color: #fff;
+            font-family: 'Pretendard', sans-serif;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        canvas { display: block; width: 100vw; height: 100vh; }
+
+        /* 글래스모피즘 메인 메뉴 UI */
+        #menu-ui {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(15, 15, 25, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            box-shadow: 0 0 50px rgba(0, 243, 255, 0.15);
+            padding: 40px; border-radius: 24px;
+            text-align: center; min-width: 300px; z-index: 100;
+            transition: opacity 0.5s;
+        }
+
+        h1 {
+            margin-top: 0; font-size: 32px; font-weight: 900;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 15px var(--neon-cyan);
+            letter-spacing: 2px;
+        }
+
+        .info-text { color: #aaa; margin-bottom: 25px; font-size: 14px; }
+        .my-id-box { background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; margin-bottom: 20px; font-family: monospace; color: var(--neon-yellow); }
+
+        input {
+            width: 100%; padding: 15px; margin-bottom: 15px;
+            border-radius: 12px; border: 1px solid var(--neon-cyan);
+            background: rgba(0,0,0,0.6); color: #fff; font-size: 16px;
+            box-sizing: border-box; outline: none; transition: 0.3s;
+        }
+        input:focus { box-shadow: 0 0 15px rgba(0, 243, 255, 0.4); }
+
+        .btn {
+            width: 100%; padding: 16px; border-radius: 12px;
+            border: none; font-weight: 800; font-size: 16px;
+            cursor: pointer; transition: 0.2s; margin-bottom: 10px;
+        }
+        .btn-host { background: var(--neon-cyan); color: #000; }
+        .btn-host:hover { box-shadow: 0 0 20px var(--neon-cyan); transform: scale(1.02); }
+        .btn-join { background: transparent; border: 2px solid var(--neon-cyan); color: var(--neon-cyan); }
+        .btn-join:hover { background: rgba(0,243,255,0.1); transform: scale(1.02); }
+
+        /* 인게임 UI */
+        #game-ui {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 50; display: none;
+        }
+
+        .top-bar { position: absolute; top: 20px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; }
         
-        button { cursor: pointer; border: none; background: none; color: inherit; transition: var(--transition); }
-        input, textarea, select { background: var(--bg-base); border: 1px solid var(--border); color: var(--text-main); padding: 12px 16px; border-radius: var(--radius-sm); font-size: 14px; width: 100%; transition: var(--transition); }
-        input:focus, textarea:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+        .role-badge {
+            background: rgba(0,0,0,0.6); border: 2px solid #fff;
+            padding: 10px 25px; border-radius: 30px; font-size: 18px; font-weight: 800;
+            backdrop-filter: blur(5px);
+        }
+        .role-mafia { border-color: var(--neon-pink); color: var(--neon-pink); text-shadow: 0 0 10px var(--neon-pink); }
+        .role-citizen { border-color: var(--neon-cyan); color: var(--neon-cyan); text-shadow: 0 0 10px var(--neon-cyan); }
 
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: var(--bg-base); }
-        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        .event-text {
+            font-size: 24px; font-weight: 900; color: var(--neon-yellow);
+            text-shadow: 0 0 20px var(--neon-yellow);
+        }
 
-        .btn { padding: 12px 20px; border-radius: var(--radius-sm); font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-primary { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; box-shadow: 0 4px 15px rgba(79,70,229,0.4); }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.6); }
-        .btn-secondary { background: var(--bg-panel); border: 1px solid var(--border); color: var(--text-main); }
-        .btn-secondary:hover { background: var(--bg-hover); }
-        .btn-danger { background: var(--accent); color: white; }
-
-        @keyframes popIn { 0% { opacity: 0; transform: scale(0.95) translateY(10px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
-        .animate-pop { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-
-        /* 토스트 */
-        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
-        .toast { background: var(--bg-surface); padding: 16px 24px; border-radius: var(--radius-sm); border-left: 4px solid var(--primary); box-shadow: var(--shadow); font-weight: 600; display: flex; align-items: center; gap: 12px; font-size: 14px; animation: popIn 0.3s forwards; }
-
-        /* ====== 1. Auth & Lobby Layout ====== */
-        .fullscreen-center { min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; background: radial-gradient(circle at center, var(--bg-surface) 0%, var(--bg-base) 100%); }
-        .auth-card { background: var(--bg-panel); padding: 40px; border-radius: var(--radius-lg); width: 100%; max-width: 400px; box-shadow: var(--shadow); border: 1px solid var(--border); text-align: center; }
+        /* 모바일 컨트롤 UI */
+        #joystick-zone { position: absolute; bottom: 30px; left: 30px; width: 150px; height: 150px; pointer-events: auto; }
+        #action-zone { position: absolute; bottom: 40px; right: 40px; display: flex; gap: 20px; pointer-events: auto; }
         
-        .lobby-container { width: 100%; max-width: 900px; }
-        .lobby-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
-        .lobby-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-        .lobby-card { background: var(--bg-panel); padding: 32px; border-radius: var(--radius-lg); border: 1px solid var(--border); transition: var(--transition); text-align: center; display: flex; flex-direction: column; gap: 16px; }
-        .lobby-card:hover { border-color: var(--primary); transform: translateY(-4px); box-shadow: 0 10px 30px rgba(79,70,229,0.15); }
-        .lobby-icon { font-size: 48px; color: var(--primary); margin-bottom: 10px; }
-
-        /* ====== 2. Dashboard Layout ====== */
-        #dashboard-view { display: flex; height: 100vh; background: var(--bg-base); overflow: hidden; }
-        .sidebar { width: 260px; background: var(--bg-surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 10; }
-        .brand { font-family: var(--font-display); font-size: 22px; font-weight: 900; color: white; padding: 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
-        .nav-list { padding: 16px 12px; overflow-y: auto; flex: 1; }
-        .nav-category { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin: 20px 0 8px 12px; letter-spacing: 1px; }
-        .nav-item { padding: 12px 16px; border-radius: var(--radius-sm); display: flex; align-items: center; gap: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; font-size: 14px; margin-bottom: 4px; transition: var(--transition); }
-        .nav-item:hover, .nav-item.active { background: var(--primary-light); color: var(--primary); }
-        
-        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-        .topbar { height: 70px; background: var(--bg-surface); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; justify-content: space-between; align-items: center; }
-        .content-body { flex: 1; overflow-y: auto; padding: 32px; }
-        .view-section { display: none; }
-        .view-section.active { display: block; }
-
-        /* ====== 3. Ultimate Studio Engine Layout ====== */
-        .studio-layout { display: grid; grid-template-columns: 240px 1fr 280px; gap: 20px; height: calc(100vh - 180px); }
-        .panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius-md); display: flex; flex-direction: column; overflow: hidden; }
-        .panel-header { padding: 14px 20px; background: rgba(0,0,0,0.2); border-bottom: 1px solid var(--border); font-weight: 800; font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
-        .panel-body { padding: 16px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 12px; }
-
-        /* Canvas Area */
-        .canvas-container { position: relative; background: #000; flex: 1; display: flex; justify-content: center; align-items: center; overflow: hidden; cursor: crosshair; }
-        #game-canvas { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
-        
-        /* GUI Overlay */
-        .gui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; z-index: 10; }
-        .hud-item { background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); padding: 8px 16px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.1); color: white; font-weight: 800; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; }
-        .crosshair { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; }
-        
-        .tool-btn { justify-content: flex-start; background: var(--bg-base); border: 1px solid transparent; }
-        .tool-btn.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
-
-        /* 템플릿 그리드 */
-        .tmpl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
-        .tmpl-card { background: var(--bg-panel); border: 1px solid var(--border); padding: 20px; border-radius: var(--radius-md); cursor: pointer; transition: var(--transition); }
-        .tmpl-card:hover { border-color: var(--primary); transform: translateY(-4px); }
-        .engine-badge { font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 12px; display: inline-block; margin-bottom: 10px; }
-        .badge-fps { background: rgba(225, 29, 72, 0.2); color: #E11D48; }
-        .badge-plat { background: rgba(14, 165, 233, 0.2); color: #0EA5E9; }
-        .badge-top { background: rgba(16, 185, 129, 0.2); color: #10B981; }
-
-        /* ====== 4. High-End Modules ====== */
-        .module-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
-        .m-card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px; position: relative; overflow: hidden; }
-        
-        /* 은행 카드 UI */
-        .credit-card { background: linear-gradient(135deg, #1E293B, #0F172A); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 15px 30px rgba(0,0,0,0.3); position: relative; }
-        .credit-card::before { content: ''; position: absolute; top:0; right:0; width:150px; height:150px; background: radial-gradient(circle, var(--primary-light), transparent); border-radius: 50%; transform: translate(30%, -30%); }
-        
-        /* 온도탑 바 */
-        .progress-track { background: var(--bg-base); height: 24px; border-radius: 12px; overflow: hidden; margin: 20px 0; border: 1px solid var(--border); }
-        .progress-fill { background: linear-gradient(90deg, var(--secondary), var(--primary)); height: 100%; width: 45%; transition: width 0.5s; }
-
-        /* 퀴즈 모달 */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; justify-content: center; align-items: center; }
-        .modal-box { background: var(--bg-panel); padding: 32px; border-radius: var(--radius-lg); border: 1px solid var(--border); width: 100%; max-width: 400px; text-align: center; box-shadow: var(--shadow); }
+        .action-btn {
+            width: 75px; height: 75px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.5);
+            background: rgba(255,255,255,0.1); backdrop-filter: blur(8px);
+            color: #fff; font-weight: 900; font-size: 14px;
+            display: flex; justify-content: center; align-items: center; cursor: pointer;
+            user-select: none; transition: 0.1s;
+        }
+        .action-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.3); }
+        .btn-danger { border-color: var(--neon-pink); background: rgba(255,0,85,0.1); color: var(--neon-pink); }
+        .btn-danger:active { background: rgba(255,0,85,0.4); }
     </style>
 </head>
 <body>
-    <div id="toast-container"></div>
 
-    <!-- ================= 1. 로그인 뷰 ================= -->
-    <div id="auth-view" class="fullscreen-center">
-        <div class="auth-card animate-pop">
-            <h1 style="font-family: var(--font-display); font-size: 28px; margin-bottom: 8px; color: var(--primary);">ClassSpace</h1>
-            <p style="color: var(--text-muted); margin-bottom: 32px; font-size: 14px;">크리에이터 스튜디오 시스템 로그인</p>
-            <input type="text" id="auth-name" placeholder="이름을 입력하세요" style="margin-bottom: 16px; height: 48px;">
-            <button class="btn btn-primary" style="width: 100%; height: 48px; font-size: 16px;" onclick="doLogin()">로그인 / 시작하기</button>
+    <!-- 메인 메뉴 -->
+    <div id="menu-ui">
+        <h1>NEON MAFIA</h1>
+        <p class="info-text">초고퀄 이동형 마피아 게임</p>
+        <div class="my-id-box">내 ID: <span id="my-id">생성 중...</span></div>
+        <button class="btn btn-host" id="btn-host">방 만들기 (호스트)</button>
+        <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 25px 0;">
+        <input type="text" id="join-id" placeholder="호스트의 ID를 입력하세요">
+        <button class="btn btn-join" id="btn-join">참가하기</button>
+    </div>
+
+    <!-- 인게임 화면 -->
+    <div id="game-ui">
+        <div class="top-bar">
+            <div id="role-display" class="role-badge role-citizen">역할: 시민</div>
+            <div id="event-display" class="event-text">대기 중...</div>
+        </div>
+        
+        <!-- 모바일 컨트롤 영역 -->
+        <div id="joystick-zone"></div>
+        <div id="action-zone">
+            <div class="action-btn btn-danger" id="btn-kill" style="display:none;">KILL</div>
+            <div class="action-btn" id="btn-jump">JUMP</div>
         </div>
     </div>
 
-    <!-- ================= 2. 메인 로비 (학급 개설/참여) ================= -->
-    <div id="lobby-view" class="fullscreen-center hidden">
-        <div class="lobby-container animate-pop">
-            <div class="lobby-header">
-                <div>
-                    <h2 style="font-size: 32px; font-weight: 900; margin-bottom: 8px;">환영합니다, <span id="lobby-user-name" style="color:var(--primary);">사용자</span>님!</h2>
-                    <p style="color: var(--text-muted);">진입할 학급을 선택하거나 새로 개설하세요.</p>
-                </div>
-                <button class="btn btn-secondary" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> 로그아웃</button>
-            </div>
-            
-            <div class="lobby-grid">
-                <!-- 학급 참여 -->
-                <div class="lobby-card">
-                    <div class="lobby-icon"><i class="fas fa-door-open"></i></div>
-                    <h3 style="font-size: 20px;">기존 학급 입장하기</h3>
-                    <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 16px;">선생님이 공유한 코드를 입력하세요.</p>
-                    <input type="text" id="join-code" placeholder="학급 코드 (예: CS-1234)" style="text-align: center; letter-spacing: 2px; font-weight: 700;">
-                    <button class="btn btn-primary" style="width: 100%;" onclick="joinClass()">입장하기</button>
-                </div>
-                
-                <!-- 학급 개설 -->
-                <div class="lobby-card">
-                    <div class="lobby-icon"><i class="fas fa-chalkboard-teacher"></i></div>
-                    <h3 style="font-size: 20px;">새 학급 개설 (관리자)</h3>
-                    <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 16px;">선생님 또는 자치회장을 위한 전용 모드입니다.</p>
-                    <div style="background: var(--bg-base); padding: 12px; border-radius: var(--radius-sm); border: 1px dashed var(--primary); margin-bottom: 16px;">
-                        <span style="font-size: 12px; color: var(--text-muted);">발급될 코드 미리보기</span><br>
-                        <strong style="font-size: 18px; letter-spacing: 2px;" id="preview-code">CS-XXXX</strong>
-                    </div>
-                    <button class="btn btn-secondary" style="width: 100%; border-color:var(--primary); color:var(--primary);" onclick="createClass()">학급 생성 및 입장</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <canvas id="gameCanvas"></canvas>
 
-    <!-- ================= 3. 대시보드 ================= -->
-    <div id="dashboard-view" class="hidden">
-        <aside class="sidebar">
-            <div class="brand"><i class="fas fa-cubes"></i> ClassSpace</div>
-            <div class="nav-list">
-                <div class="nav-category">Core</div>
-                <div class="nav-item active" data-view="home"><i class="fas fa-home"></i> 대시보드 홈</div>
-                <div class="nav-item" data-view="studio" style="color:var(--primary);"><i class="fas fa-gamepad"></i> 유니버스 스튜디오</div>
-                
-                <div class="nav-category">Modules</div>
-                <div class="nav-item" data-view="bank"><i class="fas fa-piggy-bank"></i> 학급 은행</div>
-                <div class="nav-item" data-view="court"><i class="fas fa-gavel"></i> 학급 법정</div>
-                <div class="nav-item" data-view="lottery"><i class="fas fa-ticket-alt"></i> 주간 복권</div>
-                <div class="nav-item" data-view="pass"><i class="fas fa-id-card"></i> 스마트 외출증</div>
-                <div class="nav-item" data-view="thermo"><i class="fas fa-thermometer-half"></i> 학급 온도탑</div>
-            </div>
-            <div style="padding: 20px; border-top: 1px solid var(--border);">
-                <button class="btn btn-secondary" style="width: 100%;" onclick="returnToLobby()"><i class="fas fa-arrow-left"></i> 로비로 돌아가기</button>
-            </div>
-        </aside>
+<script>
+/** 
+ * 1. 기본 설정 및 캔버스 스케일링 
+ * (해상도가 달라도 동일한 물리 공간(1920x1080)을 공유하도록 설정)
+ */
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const GAME_W = 1920, GAME_H = 1080;
+const FLOOR_Y = 950;
 
-        <main class="main-content">
-            <header class="topbar">
-                <h2 style="font-size: 18px; font-weight: 800;" id="topbar-title">대시보드 홈</h2>
-                <div style="display: flex; align-items: center; gap: 16px;">
-                    <div style="background: var(--bg-base); padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border); font-size: 13px; font-weight: 700;">
-                        코드: <span id="dash-class-code" style="color:var(--primary);">CS-0000</span>
-                    </div>
-                    <div style="font-size: 14px; font-weight: 600;"><span id="dash-user-name">홍길동</span>님</div>
-                </div>
-            </header>
+function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
 
-            <div class="content-body">
-                
-                <!-- 3-1. 홈 -->
-                <div id="view-home" class="view-section active animate-pop">
-                    <h1 style="font-size: 28px; font-weight: 900; margin-bottom: 24px;">학급 생태계 현황</h1>
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
-                        <div class="m-card">
-                            <div style="color:var(--text-muted); font-size:14px; margin-bottom:8px;">내 우정 포인트</div>
-                            <div style="font-size:36px; font-weight:900; color:var(--primary);" id="dash-points">1,000 <span style="font-size:20px;">U</span></div>
-                        </div>
-                        <div class="m-card">
-                            <div style="color:var(--text-muted); font-size:14px; margin-bottom:8px;">개발 템플릿 코어</div>
-                            <div style="font-size:36px; font-weight:900; color:var(--secondary);">3<span style="font-size:20px;"> Engines</span></div>
-                        </div>
-                        <div class="m-card">
-                            <div style="color:var(--text-muted); font-size:14px; margin-bottom:8px;">온도탑 달성률</div>
-                            <div style="font-size:36px; font-weight:900; color:var(--success);">45<span style="font-size:20px;">%</span></div>
-                        </div>
-                    </div>
-                </div>
+/** 
+ * 2. 네트워크 및 게임 상태 초기화 
+ */
+const peer = new Peer();
+let myId = null;
+let isHost = false;
+let hostConn = null;
+let clients = {}; // 호스트 전용: 연결된 클라이언트들
 
-                <!-- 3-2. 통합 스튜디오 (핵심) -->
-                <div id="view-studio" class="view-section animate-pop">
-                    
-                    <!-- 템플릿 선택기 -->
-                    <div id="studio-selector">
-                        <h2 style="font-size: 24px; font-weight: 900; margin-bottom: 8px;">엔진 템플릿 선택</h2>
-                        <p style="color:var(--text-muted); margin-bottom: 24px;">3가지 핵심 물리 엔진(FPS, 플랫포머, 탑다운)을 기반으로 구동됩니다.</p>
-                        <div class="tmpl-grid" id="tmpl-container">
-                            <!-- JS에서 렌더링 -->
-                        </div>
-                    </div>
+peer.on('open', id => {
+    myId = id;
+    document.getElementById('my-id').innerText = id;
+});
 
-                    <!-- 에디터 레이아웃 -->
-                    <div id="studio-editor" class="hidden">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                            <h2 style="font-size: 20px; font-weight: 900;" id="editor-title">에디터</h2>
-                            <button class="btn btn-secondary" onclick="closeEditor()"><i class="fas fa-times"></i> 템플릿 변경</button>
-                        </div>
-                        
-                        <div class="studio-layout">
-                            <!-- 좌측: 배치 툴킷 -->
-                            <div class="panel">
-                                <div class="panel-header">🛠️ 에디터 툴킷</div>
-                                <div class="panel-body">
-                                    <button class="btn tool-btn active" data-tool="wall" onclick="setTool('wall')"><i class="fas fa-cube"></i> 일반 블록 (벽)</button>
-                                    <button class="btn tool-btn" data-tool="quiz" onclick="setTool('quiz')"><i class="fas fa-question-circle" style="color:var(--warning)"></i> 퀴즈 블록</button>
-                                    <button class="btn tool-btn" data-tool="enemy" onclick="setTool('enemy')"><i class="fas fa-ghost" style="color:var(--accent)"></i> 적 AI 스폰</button>
-                                    <button class="btn tool-btn" data-tool="player" onclick="setTool('player')"><i class="fas fa-street-view" style="color:var(--secondary)"></i> 플레이어 시작</button>
-                                    <button class="btn tool-btn" data-tool="eraser" onclick="setTool('eraser')"><i class="fas fa-eraser"></i> 지우개</button>
-                                    
-                                    <hr style="border-color:var(--border); margin: 8px 0;">
-                                    <div style="font-size:12px; font-weight:700; color:var(--text-muted);">퀴즈 설정</div>
-                                    <input type="text" id="quiz-q" value="태양계에서 가장 큰 행성은?" placeholder="문제">
-                                    <input type="text" id="quiz-a" value="목성" placeholder="정답">
-                                </div>
-                            </div>
+// 호스트가 관리하는 메인 게임 상태
+let gameState = {
+    players: {}, 
+    event: '평화로운 밤',
+    particles: [] 
+};
 
-                            <!-- 중앙: 캔버스 -->
-                            <div class="panel">
-                                <div class="panel-header" style="background:var(--bg-hover);">
-                                    <span id="canvas-status">✏️ 30x30 맵 에디터 모드</span>
-                                    <button class="btn btn-primary" style="padding: 6px 12px; font-size:12px;" id="play-btn" onclick="togglePlay()"><i class="fas fa-play"></i> 플레이</button>
-                                </div>
-                                <div class="canvas-container">
-                                    <canvas id="game-canvas" width="600" height="400"></canvas>
-                                    
-                                    <!-- GUI 레이어 -->
-                                    <div class="gui-layer" id="gui-layer">
-                                        <div style="display:flex; justify-content:space-between;">
-                                            <div class="hud-item" id="hud-hp"><i class="fas fa-heart" style="color:var(--accent)"></i> <span id="val-hp">100</span></div>
-                                            <div class="hud-item" id="hud-title">GAME TITLE</div>
-                                            <div class="hud-item" id="hud-score">스코어: <span id="val-score">0</span></div>
-                                        </div>
-                                        <div class="crosshair" id="hud-crosshair" style="display:none; width:16px; height:16px; border:2px solid var(--success); border-radius:50%;"></div>
-                                        <div style="text-align:center; display:none;" id="hud-mobile-hint">
-                                            <span style="background:rgba(0,0,0,0.5); padding:4px 8px; border-radius:4px; font-size:12px; color:white;">WASD: 이동 / 클릭: 사격/점프</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+// 클라이언트의 로컬 입력 상태
+let inputState = { dx: 0, jump: false, action: false };
+let myRole = '대기중';
 
-                            <!-- 우측: 엔진 물리 & GUI 설정 -->
-                            <div class="panel">
-                                <div class="panel-header">⚙️ 엔진 및 GUI 설정</div>
-                                <div class="panel-body">
-                                    <div style="font-size:12px; font-weight:700; color:var(--text-muted);">게임 타이틀 표시</div>
-                                    <input type="text" id="gui-text" value="MY AWESOME GAME" oninput="updateGUI()">
-                                    
-                                    <hr style="border-color:var(--border); margin: 8px 0;">
-                                    <div style="font-size:12px; font-weight:700; color:var(--text-muted);">엔진 특성</div>
-                                    <div style="background:var(--bg-base); padding:12px; border-radius:var(--radius-sm); font-size:13px; line-height:1.5;">
-                                        <strong id="info-engine-name" style="color:var(--primary);">3D FPS Raycast</strong><br>
-                                        <span id="info-engine-desc" style="color:var(--text-muted);">적 추적 AI 및 클릭 사격 로직이 활성화됩니다.</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+// 이벤트 프리셋
+const EVENTS = [
+    { name: '평화로운 밤', gravity: 0.8, speed: 8, dark: false },
+    { name: '⚠️ 블랙아웃 (시야 제한)', gravity: 0.8, speed: 6, dark: true },
+    { name: '🌌 저중력 지대', gravity: 0.3, speed: 8, dark: false },
+    { name: '⚡ 스피드 부스트', gravity: 0.8, speed: 15, dark: false }
+];
+let currentEvent = EVENTS[0];
 
-                <!-- 3-3. 모듈들 (하이엔드 디자인 적용) -->
-                <div id="view-bank" class="view-section animate-pop">
-                    <h1 style="font-size: 24px; font-weight: 900; margin-bottom: 24px;">학급 은행</h1>
-                    <div class="module-grid">
-                        <div class="m-card" style="padding:0; border:none; background:transparent;">
-                            <div class="credit-card">
-                                <div style="display:flex; justify-content:space-between; margin-bottom:30px; position:relative; z-index:2;">
-                                    <div style="font-family:var(--font-display); font-size:20px; font-weight:900; color:white;">CLASS SPACE</div>
-                                    <i class="fas fa-wifi" style="transform:rotate(90deg); color:rgba(255,255,255,0.7);"></i>
-                                </div>
-                                <div style="font-size:14px; color:rgba(255,255,255,0.7); margin-bottom:4px; position:relative; z-index:2;">예금 잔액</div>
-                                <div style="font-size:32px; font-weight:900; color:white; margin-bottom:20px; position:relative; z-index:2;" id="val-bank">0 <span style="font-size:16px; font-weight:400;">U</span></div>
-                                <div style="display:flex; justify-content:space-between; color:rgba(255,255,255,0.7); font-size:14px; font-family:monospace; position:relative; z-index:2;">
-                                    <span id="bank-user-name">HONG GIL DONG</span>
-                                    <span>VALID 12/26</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="m-card">
-                            <h3 style="margin-bottom:16px;">입출금 관리</h3>
-                            <div style="display:flex; gap:10px; margin-bottom:10px;">
-                                <input type="number" id="bank-amt" value="500" step="100">
-                                <button class="btn btn-primary" onclick="bankAction('deposit')">예금하기</button>
-                                <button class="btn btn-secondary" onclick="bankAction('withdraw')">출금하기</button>
-                            </div>
-                            <p style="font-size:13px; color:var(--text-muted);">* 예금 시 매주 금요일 5%의 복리 이자가 붙습니다.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="view-court" class="view-section animate-pop">
-                    <h1 style="font-size: 24px; font-weight: 900; margin-bottom: 24px;">학급 법정 (규칙 투표)</h1>
-                    <div class="m-card">
-                        <div style="display:flex; gap:10px; margin-bottom:24px;">
-                            <input type="text" id="court-input" placeholder="새로운 학급 규칙 제안하기 (예: 금요일 사복 등교)">
-                            <button class="btn btn-primary" onclick="addCourtRule()"><i class="fas fa-gavel"></i> 상정</button>
-                        </div>
-                        <div id="court-list" style="display:flex; flex-direction:column; gap:16px;"></div>
-                    </div>
-                </div>
-
-                <div id="view-lottery" class="view-section animate-pop">
-                    <h1 style="font-size: 24px; font-weight: 900; margin-bottom: 24px;">주간 럭키 복권</h1>
-                    <div class="m-card" style="text-align:center;">
-                        <i class="fas fa-ticket-alt" style="font-size:48px; color:var(--warning); margin-bottom:16px;"></i>
-                        <h3 style="margin-bottom:16px;">1~10 행운의 번호를 맞추세요!</h3>
-                        <div style="display:inline-flex; gap:10px; align-items:center;">
-                            <input type="number" id="lotto-num" min="1" max="10" value="7" style="width:100px; text-align:center; font-size:20px; font-weight:800;">
-                            <button class="btn btn-primary" onclick="drawLottery()">100 U로 추첨하기</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="view-pass" class="view-section animate-pop">
-                    <h1 style="font-size: 24px; font-weight: 900; margin-bottom: 24px;">스마트 외출 패스</h1>
-                    <div class="m-card" style="text-align:center;">
-                        <div style="font-size:60px; font-weight:900; font-family:monospace; color:var(--primary); margin:20px 0;" id="pass-timer">10:00</div>
-                        <button class="btn btn-primary" style="padding:16px 32px; font-size:16px;" onclick="startPassTimer()">외출증 발급 (10분 활성화)</button>
-                    </div>
-                </div>
-
-                <div id="view-thermo" class="view-section animate-pop">
-                    <h1 style="font-size: 24px; font-weight: 900; margin-bottom: 24px;">학급 온도탑 (기부)</h1>
-                    <div class="m-card">
-                        <h3 style="margin-bottom:8px;">목표: 학급 전체 피자 파티 (10,000 U)</h3>
-                        <div class="progress-track">
-                            <div class="progress-fill" id="thermo-fill" style="width: 45%;"></div>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; font-weight:800; margin-bottom:24px;">
-                            <span>현재: 4,500 U</span> <span>목표: 10,000 U</span>
-                        </div>
-                        <button class="btn btn-primary" onclick="donateThermo(100)">내 포인트 100 U 기부하기</button>
-                    </div>
-                </div>
-
-            </div>
-        </main>
-    </div>
-
-    <!-- 퀴즈 모달 -->
-    <div id="quiz-modal" class="modal-overlay hidden">
-        <div class="modal-box animate-pop">
-            <h3 style="color:var(--warning); margin-bottom:12px; font-size:20px;"><i class="fas fa-exclamation-triangle"></i> 퀴즈 블록 충돌!</h3>
-            <p id="modal-quiz-q" style="font-weight:800; font-size:16px; margin-bottom:20px;">문제 내용</p>
-            <input type="text" id="modal-quiz-a" placeholder="정답을 입력하세요" style="margin-bottom:16px; text-align:center;">
-            <button class="btn btn-primary" style="width:100%;" onclick="submitQuiz()">정답 제출</button>
-        </div>
-    </div>
-
-    <script>
-        // --- 글로벌 상태 ---
-        let appState = {
-            user: '', code: '', points: 1000, bank: 0,
-            activeEngine: 'fps', // fps | platformer | topdown
-        };
-
-        // --- 템플릿 코어 매핑 (3대 물리엔진 기반) ---
-        const templates = [
-            { id: 'fps_dungeon', name: '3D 둠스타일 던전', engine: 'fps', badge: 'FPS 3D', cls: 'badge-fps', desc: '레이캐스팅과 추적 AI' },
-            { id: 'fps_zombie', name: '3D 좀비 서바이벌', engine: 'fps', badge: 'FPS 3D', cls: 'badge-fps', desc: '몰려오는 좀비 사격' },
-            { id: 'plat_mario', name: '점프 어드벤처', engine: 'platformer', badge: '2D 플랫포머', cls: 'badge-plat', desc: '중력 점프와 낙하' },
-            { id: 'plat_jumpking', name: '고난도 점프타워', engine: 'platformer', badge: '2D 플랫포머', cls: 'badge-plat', desc: '수직 상승 맵' },
-            { id: 'top_maze', name: '미로 탈출', engine: 'topdown', badge: '2D 탑다운', cls: 'badge-top', desc: '상하좌우 자유 이동' },
-            { id: 'top_rpg', name: 'RPG 던전 탐험', engine: 'topdown', badge: '2D 탑다운', cls: 'badge-top', desc: '방향 이동 및 상호작용' }
-        ];
-
-        // --- 로비 & 인증 흐름 ---
-        window.onload = () => {
-            document.getElementById('preview-code').innerText = 'CS-' + Math.floor(1000 + Math.random() * 9000);
-            renderTemplates();
-        };
-
-        function showToast(msg) {
-            const box = document.getElementById('toast-container');
-            const t = document.createElement('div');
-            t.className = 'toast';
-            t.innerHTML = `<i class="fas fa-check-circle" style="color:var(--success)"></i> ${msg}`;
-            box.appendChild(t);
-            setTimeout(() => t.remove(), 2500);
-        }
-
-        function doLogin() {
-            const name = document.getElementById('auth-name').value.trim();
-            if(!name) return alert('이름을 입력하세요.');
-            appState.user = name;
-            
-            document.getElementById('auth-view').classList.add('hidden');
-            document.getElementById('lobby-view').classList.remove('hidden');
-            document.getElementById('lobby-user-name').innerText = name;
-            document.getElementById('bank-user-name').innerText = name.toUpperCase();
-        }
-
-        function doLogout() {
-            appState.user = '';
-            document.getElementById('lobby-view').classList.add('hidden');
-            document.getElementById('auth-view').classList.remove('hidden');
-        }
-
-        function joinClass() {
-            const code = document.getElementById('join-code').value.trim();
-            if(!code) return alert('코드를 입력하세요.');
-            enterDashboard(code);
-        }
-
-        function createClass() {
-            const code = document.getElementById('preview-code').innerText;
-            enterDashboard(code);
-            showToast(`새 학급 ${code} 개설 완료!`);
-        }
-
-        function enterDashboard(code) {
-            appState.code = code;
-            document.getElementById('lobby-view').classList.add('hidden');
-            document.getElementById('dashboard-view').classList.remove('hidden');
-            
-            document.getElementById('dash-user-name').innerText = appState.user;
-            document.getElementById('dash-class-code').innerText = code;
-            updatePointsUI();
-            initEngine(); // 캔버스 초기화
-        }
-
-        function returnToLobby() {
-            document.getElementById('dashboard-view').classList.add('hidden');
-            document.getElementById('lobby-view').classList.remove('hidden');
-            closeEditor(); // 열려있던 스튜디오 정리
-        }
-
-        function updatePointsUI() {
-            document.getElementById('dash-points').innerHTML = `${appState.points} <span style="font-size:20px;">U</span>`;
-        }
-
-        // 사이드바 네비게이션
-        document.querySelectorAll('.nav-item[data-view]').forEach(item => {
-            item.addEventListener('click', e => {
-                document.querySelectorAll('.view-section, .nav-item').forEach(el => el.classList.remove('active'));
-                const viewId = e.currentTarget.dataset.view;
-                document.getElementById('view-' + viewId).classList.add('active');
-                e.currentTarget.classList.add('active');
-                document.getElementById('topbar-title').innerText = e.currentTarget.innerText;
-            });
+/** 
+ * 3. 호스트 (방장) 로직 
+ */
+document.getElementById('btn-host').addEventListener('click', () => {
+    isHost = true;
+    startGameUI();
+    addPlayer(myId);
+    
+    peer.on('connection', conn => {
+        clients[conn.peer] = conn;
+        addPlayer(conn.peer);
+        
+        // 클라이언트로부터 입력 받기
+        conn.on('data', payload => {
+            if(payload.type === 'input') {
+                let p = gameState.players[conn.peer];
+                if(p && p.alive) {
+                    p.dx = payload.data.dx;
+                    if(payload.data.jump && p.grounded) { p.vy = -20; p.grounded = false; }
+                    if(payload.data.action) handleKill(conn.peer);
+                }
+            }
         });
+        
+        conn.on('close', () => { delete gameState.players[conn.peer]; delete clients[conn.peer]; });
+    });
+    
+    // 10초 후 역할 배정 (테스트를 위해 짧게 설정)
+    setTimeout(assignRoles, 10000);
+    // 15초마다 랜덤 이벤트 발생
+    setInterval(triggerRandomEvent, 15000);
+    // 60FPS 물리 엔진 루프
+    setInterval(hostPhysicsLoop, 1000/60);
+});
 
-        // --- 스튜디오 템플릿 렌더링 ---
-        function renderTemplates() {
-            const box = document.getElementById('tmpl-container');
-            box.innerHTML = templates.map(t => `
-                <div class="tmpl-card" onclick="openEditor('${t.engine}', '${t.name}')">
-                    <span class="engine-badge ${t.cls}">${t.badge}</span>
-                    <h3 style="font-size:16px; margin-bottom:4px;">${t.name}</h3>
-                    <p style="font-size:12px; color:var(--text-muted);">${t.desc}</p>
-                </div>
-            `).join('');
-        }
-
-        // --- 3대 통합 캔버스 물리 엔진 (Core Engine) ---
-        const MAP_SIZE = 30;
-        let mapData = Array(MAP_SIZE).fill().map(() => Array(MAP_SIZE).fill(0));
-        let player = { x: 3.5, y: 3.5, dir: 0, vy: 0 }; // vy for platformer
-        let enemies = [];
-        let studioTool = 'wall';
-        let isPlaying = false;
-        let animFrame;
-        let canvas, ctx;
-
-        function initEngine() {
-            canvas = document.getElementById('game-canvas');
-            ctx = canvas.getContext('2d');
-
-            // 정확한 좌표 클릭(에디터 모드)
-            canvas.addEventListener('click', e => {
-                if(isPlaying) {
-                    if(appState.activeEngine === 'fps') shootFPS();
-                    return;
-                }
-                const rect = canvas.getBoundingClientRect();
-                const scaleX = canvas.width / rect.width;
-                const scaleY = canvas.height / rect.height;
-                const mx = (e.clientX - rect.left) * scaleX;
-                const my = (e.clientY - rect.top) * scaleY;
-                
-                const c = Math.floor(mx / (canvas.width/MAP_SIZE));
-                const r = Math.floor(my / (canvas.height/MAP_SIZE));
-
-                if(r>=0 && r<MAP_SIZE && c>=0 && c<MAP_SIZE) {
-                    if(studioTool === 'wall') mapData[r][c] = 1;
-                    else if(studioTool === 'quiz') mapData[r][c] = 2;
-                    else if(studioTool === 'eraser') mapData[r][c] = 0;
-                    else if(studioTool === 'enemy') {
-                        mapData[r][c] = 0;
-                        enemies.push({x: c+0.5, y: r+0.5, hp: 100, alive: true});
-                    }
-                    else if(studioTool === 'player') { player.x = c+0.5; player.y = r+0.5; player.vy = 0; }
-                    drawEditor();
-                }
-            });
-        }
-
-        function openEditor(engineId, title) {
-            appState.activeEngine = engineId;
-            document.getElementById('studio-selector').classList.add('hidden');
-            document.getElementById('studio-editor').classList.remove('hidden');
-            document.getElementById('editor-title').innerText = `${title} 에디터`;
-            
-            // 엔진 설명 UI 갱신
-            const eName = document.getElementById('info-engine-name');
-            const eDesc = document.getElementById('info-engine-desc');
-            const hudCross = document.getElementById('hud-crosshair');
-            
-            if(engineId === 'fps') {
-                eName.innerText = "3D FPS Raycast"; eDesc.innerText = "적 추적 AI 및 클릭 사격 로직 활성화";
-                hudCross.style.display = "block";
-            } else if(engineId === 'platformer') {
-                eName.innerText = "2D Platformer"; eDesc.innerText = "중력(Gravity) 적용, 스페이스바 점프";
-                hudCross.style.display = "none";
-            } else {
-                eName.innerText = "2D Top-Down"; eDesc.innerText = "중력 없이 4방향 자유 스무스 이동";
-                hudCross.style.display = "none";
-            }
-            
-            // 맵 테두리 초기화
-            mapData = Array(MAP_SIZE).fill().map(() => Array(MAP_SIZE).fill(0));
-            for(let i=0; i<MAP_SIZE; i++) { mapData[0][i]=1; mapData[MAP_SIZE-1][i]=1; mapData[i][0]=1; mapData[i][MAP_SIZE-1]=1; }
-            enemies = [{x: 15.5, y: 15.5, hp: 100, alive: true}];
-            player = { x: 3.5, y: 3.5, dir: 0, vy: 0 };
-            
-            updateGUI();
-            drawEditor();
-        }
-
-        function closeEditor() {
-            document.getElementById('studio-editor').classList.add('hidden');
-            document.getElementById('studio-selector').classList.remove('hidden');
-            if(isPlaying) togglePlay();
-        }
-
-        function setTool(tool) {
-            studioTool = tool;
-            document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
-            document.querySelector(`.tool-btn[data-tool="${tool}"]`).classList.add('active');
-        }
-
-        function updateGUI() {
-            document.getElementById('hud-title').innerText = document.getElementById('gui-text').value;
-        }
-
-        // --- 렌더링 분기 ---
-        function drawEditor() {
-            if(isPlaying) return;
-            ctx.fillStyle = '#1E293B'; ctx.fillRect(0,0,canvas.width, canvas.height);
-            const cw = canvas.width/MAP_SIZE, ch = canvas.height/MAP_SIZE;
-
-            for(let r=0; r<MAP_SIZE; r++) {
-                for(let c=0; c<MAP_SIZE; c++) {
-                    if(mapData[r][c]===1) { ctx.fillStyle='#475569'; ctx.fillRect(c*cw, r*ch, cw-1, ch-1); }
-                    else if(mapData[r][c]===2) { ctx.fillStyle='#F59E0B'; ctx.fillRect(c*cw, r*ch, cw-1, ch-1); }
-                }
-            }
-            enemies.forEach(e => {
-                if(e.alive) { ctx.fillStyle='#E11D48'; ctx.fillRect(e.x*cw - cw/3, e.y*ch - ch/3, cw*0.6, ch*0.6); }
-            });
-            ctx.fillStyle='#4F46E5';
-            ctx.beginPath(); ctx.arc(player.x*cw, player.y*ch, cw/2, 0, Math.PI*2); ctx.fill();
-        }
-
-        function togglePlay() {
-            isPlaying = !isPlaying;
-            const btn = document.getElementById('play-btn');
-            const status = document.getElementById('canvas-status');
-            const hint = document.getElementById('hud-mobile-hint');
-
-            if(isPlaying) {
-                btn.innerHTML = '<i class="fas fa-stop"></i> 정지';
-                btn.classList.replace('btn-primary', 'btn-danger');
-                status.innerText = `🎮 플레이 모드 (${appState.activeEngine})`;
-                hint.style.display = 'block';
-                
-                window.addEventListener('keydown', keyHandler);
-                gameLoop();
-            } else {
-                btn.innerHTML = '<i class="fas fa-play"></i> 플레이';
-                btn.classList.replace('btn-danger', 'btn-primary');
-                status.innerText = '✏️ 에디터 모드';
-                hint.style.display = 'none';
-                
-                window.removeEventListener('keydown', keyHandler);
-                cancelAnimationFrame(animFrame);
-                drawEditor();
-            }
-        }
-
-        // --- 물리 및 조작 분기 ---
-        const keys = { w:false, a:false, s:false, d:false, space:false };
-        window.addEventListener('keydown', e => {
-            const k = e.key.toLowerCase();
-            if(['w','a','s','d',' '].includes(k)) keys[k===' '? 'space':k] = true;
+/** 
+ * 4. 클라이언트 (참가자) 로직 
+ */
+document.getElementById('btn-join').addEventListener('click', () => {
+    const hid = document.getElementById('join-id').value;
+    if(!hid) return alert('호스트 ID를 입력하세요.');
+    
+    hostConn = peer.connect(hid);
+    hostConn.on('open', () => {
+        startGameUI();
+        // 호스트로부터 상태 받기
+        hostConn.on('data', payload => {
+            if(payload.type === 'state') gameState = payload.state;
+            if(payload.type === 'role') updateMyRole(payload.role);
         });
-        window.addEventListener('keyup', e => {
-            const k = e.key.toLowerCase();
-            if(['w','a','s','d',' '].includes(k)) keys[k===' '? 'space':k] = false;
+    });
+});
+
+/** 
+ * 5. 게임 핵심 함수 (역할, 킬, 물리)
+ */
+function addPlayer(id) {
+    gameState.players[id] = {
+        x: Math.random() * (GAME_W - 200) + 100,
+        y: 200, vx: 0, vy: 0, dx: 0,
+        color: `hsl(${Math.random()*360}, 100%, 60%)`,
+        role: '시민', alive: true, grounded: false, lastKill: 0
+    };
+}
+
+function assignRoles() {
+    const ids = Object.keys(gameState.players);
+    if(ids.length < 2) {
+        gameState.event = "인원이 부족하여 마피아 배정 대기중...";
+        return;
+    }
+    const mafiaId = ids[Math.floor(Math.random() * ids.length)];
+    ids.forEach(id => {
+        const role = (id === mafiaId) ? '마피아' : '시민';
+        gameState.players[id].role = role;
+        if(id === myId) updateMyRole(role);
+        else clients[id].send({ type: 'role', role: role });
+    });
+    triggerRandomEvent();
+}
+
+function updateMyRole(role) {
+    myRole = role;
+    const rd = document.getElementById('role-display');
+    rd.innerText = `역할: ${role}`;
+    rd.className = role === '마피아' ? 'role-badge role-mafia' : 'role-badge role-citizen';
+    if(role === '마피아') document.getElementById('btn-kill').style.display = 'flex';
+}
+
+function handleKill(attackerId) {
+    const p = gameState.players[attackerId];
+    if(p.role !== '마피아' || !p.alive) return;
+    
+    const now = Date.now();
+    if(now - p.lastKill < 5000) return; // 5초 쿨다운
+    
+    for(let tid in gameState.players) {
+        if(tid === attackerId) continue;
+        const target = gameState.players[tid];
+        if(!target.alive) continue;
+        
+        const dist = Math.hypot(target.x - p.x, target.y - p.y);
+        if(dist < 180) { // 킬 사거리
+            target.alive = false;
+            p.lastKill = now;
+            createExplosion(target.x, target.y, target.color);
+            break;
+        }
+    }
+}
+
+function createExplosion(x, y, color) {
+    for(let i=0; i<20; i++) {
+        gameState.particles.push({
+            x, y, 
+            vx: (Math.random()-0.5)*20, vy: (Math.random()-0.5)*20,
+            life: 1.0, color
         });
+    }
+}
 
-        function keyHandler(e) {} // 캡처 방지용
+function triggerRandomEvent() {
+    currentEvent = EVENTS[Math.floor(Math.random() * EVENTS.length)];
+    gameState.event = currentEvent.name;
+}
 
-        function shootFPS() {
-            if(appState.activeEngine !== 'fps') return;
-            enemies.forEach(e => {
-                if(e.alive) {
-                    let dx = e.x - player.x, dy = e.y - player.y;
-                    let dist = Math.sqrt(dx*dx + dy*dy);
-                    let ang = Math.atan2(dy, dx);
-                    if(Math.abs(ang - player.dir) < 0.2 && dist < 10) {
-                        e.hp -= 100; e.alive = false;
-                        showToast('적 처치!');
-                        document.getElementById('val-score').innerText = parseInt(document.getElementById('val-score').innerText)+1;
-                    }
-                }
-            });
-        }
+// [호스트 전용] 물리 엔진 및 상태 브로드캐스트
+function hostPhysicsLoop() {
+    for(let id in gameState.players) {
+        let p = gameState.players[id];
+        if(!p.alive) continue;
+        
+        p.x += p.dx * currentEvent.speed;
+        p.vy += currentEvent.gravity;
+        p.y += p.vy;
+        
+        // 바닥 충돌
+        if(p.y > FLOOR_Y) { p.y = FLOOR_Y; p.vy = 0; p.grounded = true; }
+        // 벽 충돌
+        if(p.x < 50) p.x = 50;
+        if(p.x > GAME_W - 50) p.x = GAME_W - 50;
+    }
+    
+    // 파티클 업데이트
+    for(let i = gameState.particles.length-1; i>=0; i--) {
+        let pt = gameState.particles[i];
+        pt.x += pt.vx; pt.y += pt.vy;
+        pt.life -= 0.03;
+        if(pt.life <= 0) gameState.particles.splice(i, 1);
+    }
+    
+    // 모든 클라이언트에게 상태 전송
+    const payload = { type: 'state', state: gameState };
+    for(let id in clients) clients[id].send(payload);
+}
 
-        function checkCollision(nx, ny) {
-            let cx = Math.floor(nx), cy = Math.floor(ny);
-            if(cx<0 || cy<0 || cx>=MAP_SIZE || cy>=MAP_SIZE) return true;
-            if(mapData[cy][cx] === 2) { triggerQuiz(); return true; } // 퀴즈 블록
-            return mapData[cy][cx] === 1;
-        }
+/** 
+ * 6. 조작 및 UI 전환 (PC + Mobile 완벽 지원)
+ */
+function startGameUI() {
+    document.getElementById('menu-ui').style.opacity = '0';
+    setTimeout(() => document.getElementById('menu-ui').style.display = 'none', 500);
+    document.getElementById('game-ui').style.display = 'block';
+    
+    initControls();
+    requestAnimationFrame(renderLoop); // 렌더링 시작
+}
 
-        function updatePhysics() {
-            if(appState.activeEngine === 'fps') {
-                let ms = 0.1, rs = 0.05;
-                if(keys.w) { let nx = player.x + Math.cos(player.dir)*ms, ny = player.y + Math.sin(player.dir)*ms; if(!checkCollision(nx, ny)){player.x=nx; player.y=ny;} }
-                if(keys.s) { let nx = player.x - Math.cos(player.dir)*ms, ny = player.y - Math.sin(player.dir)*ms; if(!checkCollision(nx, ny)){player.x=nx; player.y=ny;} }
-                if(keys.a) player.dir -= rs;
-                if(keys.d) player.dir += rs;
-
-                // FPS AI (추적)
-                enemies.forEach(e => {
-                    if(e.alive) {
-                        let dx = player.x - e.x, dy = player.y - e.y;
-                        let dist = Math.sqrt(dx*dx + dy*dy);
-                        if(dist > 0.5 && dist < 8) { // 인식 거리
-                            let nx = e.x + (dx/dist)*0.03;
-                            let ny = e.y + (dy/dist)*0.03;
-                            if(!checkCollision(nx, ny)) { e.x = nx; e.y = ny; }
-                        }
-                    }
-                });
-            } 
-            else if(appState.activeEngine === 'topdown') {
-                let ms = 0.15;
-                let nx = player.x, ny = player.y;
-                if(keys.w) ny -= ms; if(keys.s) ny += ms;
-                if(keys.a) nx -= ms; if(keys.d) nx += ms;
-                
-                // X축 이동 체크
-                if(!checkCollision(nx, player.y)) player.x = nx;
-                // Y축 이동 체크
-                if(!checkCollision(player.x, ny)) player.y = ny;
+function initControls() {
+    // 1. NippleJS (모바일 조이스틱)
+    const joystick = nipplejs.create({
+        zone: document.getElementById('joystick-zone'),
+        mode: 'static', position: { left: '50%', top: '50%' }, color: '#00f3ff'
+    });
+    joystick.on('move', (e, data) => { inputState.dx = Math.cos(data.angle.radian); });
+    joystick.on('end', () => { inputState.dx = 0; });
+    
+    // 2. 키보드 (PC)
+    window.addEventListener('keydown', e => {
+        if(e.key === 'a' || e.key === 'ArrowLeft') inputState.dx = -1;
+        if(e.key === 'd' || e.key === 'ArrowRight') inputState.dx = 1;
+        if(e.key === 'w' || e.key === ' ' || e.key === 'ArrowUp') inputState.jump = true;
+        if(e.key === 'q' || e.key === 'Enter') inputState.action = true;
+    });
+    window.addEventListener('keyup', e => {
+        if(['a','d','ArrowLeft','ArrowRight'].includes(e.key)) inputState.dx = 0;
+    });
+    
+    // 3. 터치 버튼 (점프/킬)
+    const bindBtn = (id, field) => {
+        const btn = document.getElementById(id);
+        btn.addEventListener('touchstart', e => { e.preventDefault(); inputState[field] = true; });
+        btn.addEventListener('mousedown', e => { e.preventDefault(); inputState[field] = true; });
+    };
+    bindBtn('btn-jump', 'jump');
+    bindBtn('btn-kill', 'action');
+    
+    // 60FPS로 호스트에게 입력 전송
+    setInterval(() => {
+        if(isHost) {
+            let p = gameState.players[myId];
+            if(p && p.alive) {
+                p.dx = inputState.dx;
+                if(inputState.jump && p.grounded) { p.vy = -20 * (currentEvent.name.includes('저중력') ? 1.5 : 1); p.grounded = false; }
+                if(inputState.action) handleKill(myId);
             }
-            else if(appState.activeEngine === 'platformer') {
-                let ms = 0.15;
-                let nx = player.x;
-                if(keys.a) nx -= ms; if(keys.d) nx += ms;
-                if(!checkCollision(nx, player.y)) player.x = nx;
-
-                // 중력
-                player.vy += 0.02; // Gravity
-                let ny = player.y + player.vy;
-                
-                if(checkCollision(player.x, ny)) {
-                    if(player.vy > 0) { // 착지
-                        player.y = Math.floor(ny) - 0.01;
-                        if(keys.space || keys.w) player.vy = -0.3; // 점프
-                        else player.vy = 0;
-                    } else { // 천장 쿵
-                        player.y = Math.ceil(player.y) + 0.01;
-                        player.vy = 0;
-                    }
-                } else {
-                    player.y = ny;
-                }
-            }
+        } else if (hostConn) {
+            hostConn.send({ type: 'input', data: inputState });
         }
+        // 트리거 초기화
+        inputState.jump = false; 
+        inputState.action = false;
+    }, 1000/60);
+}
 
-        function render3D() {
-            ctx.fillStyle = '#0F172A'; ctx.fillRect(0,0,canvas.width, canvas.height/2); // 천장
-            ctx.fillStyle = '#020617'; ctx.fillRect(0,canvas.height/2,canvas.width, canvas.height/2); // 바닥
-            
-            const fov = Math.PI/3;
-            for(let i=0; i<canvas.width; i+=2) { // 최적화 위해 2픽셀씩 렌더링
-                let rayAngle = (player.dir - fov/2) + (i/canvas.width)*fov;
-                let dist = 0, hitWall=false, hitQuiz=false;
-                let cos=Math.cos(rayAngle), sin=Math.sin(rayAngle);
-                
-                while(!hitWall && dist<16) {
-                    dist += 0.1;
-                    let cx = Math.floor(player.x + cos*dist);
-                    let cy = Math.floor(player.y + sin*dist);
-                    if(cx<0||cy<0||cx>=MAP_SIZE||cy>=MAP_SIZE){ hitWall=true; dist=16; }
-                    else if(mapData[cy][cx]===1){ hitWall=true; }
-                    else if(mapData[cy][cx]===2){ hitWall=true; hitQuiz=true; }
-                }
-                
-                let corr = dist * Math.cos(rayAngle - player.dir);
-                let h = Math.min(canvas.height, canvas.height/corr);
-                
-                ctx.fillStyle = hitQuiz ? '#F59E0B' : `rgb(${Math.max(10, 100-corr*6)}, ${Math.max(20, 120-corr*6)}, ${Math.max(40, 160-corr*6)})`;
-                ctx.fillRect(i, (canvas.height-h)/2, 2, h);
-            }
-            
-            // 3D 적 빌보드 렌더링
-            enemies.forEach(e => {
-                if(e.alive) {
-                    let dx = e.x - player.x, dy = e.y - player.y;
-                    let dist = Math.sqrt(dx*dx + dy*dy);
-                    let ang = Math.atan2(dy, dx) - player.dir;
-                    if(ang < -Math.PI) ang += Math.PI*2;
-                    if(ang > Math.PI) ang -= Math.PI*2;
-                    
-                    if(dist > 0.5 && dist < 12 && Math.abs(ang) < fov) {
-                        let sx = (canvas.width/2) + Math.tan(ang)*(canvas.width/2);
-                        let sz = canvas.height/dist;
-                        ctx.fillStyle = '#E11D48';
-                        ctx.fillRect(sx - sz/4, (canvas.height - sz)/2 + sz/4, sz/2, sz/2);
-                    }
-                }
-            });
-        }
+/** 
+ * 7. 렌더링 (그래픽) 
+ */
+function renderLoop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    
+    // 화면 크기에 맞게 스케일링 (카메라 뷰)
+    const scale = Math.min(canvas.width / GAME_W, canvas.height / GAME_H);
+    const offsetX = (canvas.width - GAME_W * scale) / 2;
+    const offsetY = (canvas.height - GAME_H * scale) / 2;
+    
+    ctx.translate(offsetX, offsetY);
+    ctx.scale(scale, scale);
+    
+    document.getElementById('event-display').innerText = gameState.event;
+    
+    // 배경 및 바닥 그리기
+    ctx.fillStyle = '#0a0a14';
+    ctx.fillRect(0, 0, GAME_W, GAME_H);
+    
+    ctx.fillStyle = '#112';
+    ctx.fillRect(0, FLOOR_Y, GAME_W, GAME_H - FLOOR_Y);
+    ctx.strokeStyle = '#00f3ff';
+    ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(0, FLOOR_Y); ctx.lineTo(GAME_W, FLOOR_Y); ctx.stroke();
 
-        function gameLoop() {
-            if(!isPlaying) return;
-            updatePhysics();
-            
-            if(appState.activeEngine === 'fps') {
-                render3D();
-            } else {
-                // 2D 렌더링 재사용 (에디터 뷰와 동일)
-                ctx.fillStyle='#0F172A'; ctx.fillRect(0,0,canvas.width, canvas.height);
-                const cw = canvas.width/MAP_SIZE, ch = canvas.height/MAP_SIZE;
-                for(let r=0; r<MAP_SIZE; r++) {
-                    for(let c=0; c<MAP_SIZE; c++) {
-                        if(mapData[r][c]===1) { ctx.fillStyle='#334155'; ctx.fillRect(c*cw, r*ch, cw-1, ch-1); }
-                        else if(mapData[r][c]===2) { ctx.fillStyle='#F59E0B'; ctx.fillRect(c*cw, r*ch, cw-1, ch-1); }
-                    }
-                }
-                ctx.fillStyle='#4F46E5';
-                ctx.beginPath(); ctx.arc(player.x*cw, player.y*ch, cw/2, 0, Math.PI*2); ctx.fill();
-            }
-            
-            animFrame = requestAnimationFrame(gameLoop);
-        }
+    // 파티클 그리기
+    gameState.particles.forEach(pt => {
+        ctx.globalAlpha = pt.life;
+        ctx.fillStyle = pt.color;
+        ctx.beginPath(); ctx.arc(pt.x, pt.y, 8, 0, Math.PI*2); ctx.fill();
+    });
+    ctx.globalAlpha = 1.0;
 
-        // --- 퀴즈 로직 ---
-        function triggerQuiz() {
-            keys.w=false; keys.a=false; keys.s=false; keys.d=false; // 멈춤
-            document.getElementById('quiz-modal').classList.remove('hidden');
-            document.getElementById('modal-quiz-q').innerText = document.getElementById('quiz-q').value;
+    // 플레이어 그리기
+    for(let id in gameState.players) {
+        let p = gameState.players[id];
+        
+        if(!p.alive) {
+            // 시체 그리기 (묘비 또는 쓰러진 네온)
+            ctx.fillStyle = 'rgba(255,0,85,0.5)';
+            ctx.fillRect(p.x - 30, FLOOR_Y - 15, 60, 15);
+            continue;
         }
-
-        function submitQuiz() {
-            const userA = document.getElementById('modal-quiz-a').value.trim();
-            const realA = document.getElementById('quiz-a').value.trim();
-            if(userA === realA) {
-                showToast('정답! 보상 +100 U');
-                appState.points += 100;
-                updatePointsUI();
-                document.getElementById('quiz-modal').classList.add('hidden');
-                // 충돌 해제 위해 살짝 뒤로
-                player.x -= 0.5; player.y -= 0.5;
-            } else {
-                alert('틀렸습니다!');
-            }
+        
+        // 네온 글로우 효과
+        ctx.shadowColor = p.color;
+        ctx.shadowBlur = 20;
+        ctx.fillStyle = p.color;
+        
+        // 캐릭터 본체 (원형)
+        ctx.beginPath();
+        ctx.arc(p.x, p.y - 40, 40, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        
+        // 이름 / 태그
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'center';
+        ctx.font = 'bold 20px Pretendard';
+        ctx.fillText(id === myId ? '나' : 'USER', p.x, p.y - 95);
+        
+        // 마피아 시야 공유 (마피아끼리는 서로 붉게 보임)
+        if(myRole === '마피아' && p.role === '마피아') {
+             ctx.fillStyle = '#ff0055';
+             ctx.fillText('마피아', p.x, p.y - 120);
         }
-
-        // --- 10대 모듈 기능 구현 ---
-        function bankAction(type) {
-            const amt = parseInt(document.getElementById('bank-amt').value);
-            if(type === 'deposit') {
-                if(appState.points >= amt) {
-                    appState.points -= amt; appState.bank += amt;
-                    showToast(`${amt} U 예금 완료`);
-                } else alert('포인트가 부족합니다.');
-            } else {
-                if(appState.bank >= amt) {
-                    appState.bank -= amt; appState.points += amt;
-                    showToast(`${amt} U 출금 완료`);
-                } else alert('예금 잔액이 부족합니다.');
-            }
-            updatePointsUI();
-            document.getElementById('val-bank').innerHTML = `${appState.bank} <span style="font-size:16px;">U</span>`;
-        }
-
-        function addCourtRule() {
-            const text = document.getElementById('court-input').value.trim();
-            if(!text) return;
-            const container = document.getElementById('court-list');
-            const item = document.createElement('div');
-            item.style = 'background:var(--bg-base); padding:16px; border-radius:var(--radius-sm); border:1px solid var(--border);';
-            item.innerHTML = `
-                <div style="font-weight:700; margin-bottom:12px;">${text}</div>
-                <div style="display:flex; gap:10px;">
-                    <button class="btn btn-secondary" style="flex:1; border-color:var(--primary); color:var(--primary);" onclick="this.innerHTML='찬성 (1)'">👍 찬성 투표</button>
-                    <button class="btn btn-secondary" style="flex:1;" onclick="this.innerHTML='반대 (1)'">👎 반대 투표</button>
-                </div>
-            `;
-            container.appendChild(item);
-            document.getElementById('court-input').value = '';
-            showToast('새 안건이 법정에 등록되었습니다.');
-        }
-
-        function drawLottery() {
-            if(appState.points < 100) return alert('포인트가 부족합니다.');
-            appState.points -= 100;
-            updatePointsUI();
-            
-            const win = Math.floor(Math.random() * 10) + 1;
-            const user = parseInt(document.getElementById('lotto-num').value);
-            
-            if(win === user) {
-                appState.points += 1000;
-                updatePointsUI();
-                alert(`🎉 당첨! 행운의 번호 [${win}]! 상금 1,000 U가 지급되었습니다!`);
-            } else {
-                alert(`아쉽습니다. 당첨 번호는 [${win}]입니다.`);
-            }
-        }
-
-        function startPassTimer() {
-            let sec = 600;
-            const display = document.getElementById('pass-timer');
-            showToast('외출증이 발급되었습니다.');
-            const timer = setInterval(() => {
-                sec--;
-                let m = Math.floor(sec/60); let s = sec%60;
-                display.innerText = `${m}:${s<10?'0':''}${s}`;
-                if(sec <= 0) { clearInterval(timer); showToast('외출 시간이 종료되었습니다.'); display.innerText="00:00"; }
-            }, 1000);
-        }
-
-        function donateThermo(amt) {
-            if(appState.points >= amt) {
-                appState.points -= amt;
-                updatePointsUI();
-                const fill = document.getElementById('thermo-fill');
-                let cur = parseInt(fill.style.width) || 45;
-                if(cur < 100) fill.style.width = (cur + 5) + '%';
-                showToast(`학급 온도탑에 ${amt} U 기부 완료!`);
-            } else alert('포인트가 부족합니다.');
-        }
-    </script>
+    }
+    
+    // 블랙아웃 (시야 제한) 이벤트 렌더링
+    const isDark = gameState.event.includes('블랙아웃');
+    if(isDark && gameState.players[myId] && gameState.players[myId].alive) {
+        let myP = gameState.players[myId];
+        let grad = ctx.createRadialGradient(myP.x, myP.y - 40, 100, myP.x, myP.y - 40, 500);
+        grad.addColorStop(0, 'rgba(0,0,0,0)');
+        grad.addColorStop(1, 'rgba(0,0,0,0.98)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, GAME_W, GAME_H);
+    }
+    
+    ctx.restore();
+    requestAnimationFrame(renderLoop);
+}
+</script>
 </body>
 </html>
