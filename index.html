@@ -1,497 +1,671 @@
+```html
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NEON MAFIA - 하이퍼 무브먼트 마피아</title>
-    
-    <!-- 필수 라이브러리 (PeerJS, NippleJS) -->
-    <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.10.1/nipplejs.min.js"></script>
-    
-    <!-- 고퀄리티 웹 폰트 -->
-    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CREAT PORTAL - Bright Premium</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
-    <style>
-        :root {
-            --bg-color: #05050a;
-            --neon-cyan: #00f3ff;
-            --neon-pink: #ff0055;
-            --neon-yellow: #ffcc00;
-        }
-
-        body, html {
-            margin: 0; padding: 0; width: 100%; height: 100%;
-            background-color: var(--bg-color);
-            color: #fff;
-            font-family: 'Pretendard', sans-serif;
-            overflow: hidden;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
-        canvas { display: block; width: 100vw; height: 100vh; }
-
-        /* 글래스모피즘 메인 메뉴 UI */
-        #menu-ui {
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(15, 15, 25, 0.7);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(0, 243, 255, 0.2);
-            box-shadow: 0 0 50px rgba(0, 243, 255, 0.15);
-            padding: 40px; border-radius: 24px;
-            text-align: center; min-width: 300px; z-index: 100;
-            transition: opacity 0.5s;
-        }
-
-        h1 {
-            margin-top: 0; font-size: 32px; font-weight: 900;
-            color: var(--neon-cyan);
-            text-shadow: 0 0 15px var(--neon-cyan);
-            letter-spacing: 2px;
-        }
-
-        .info-text { color: #aaa; margin-bottom: 25px; font-size: 14px; }
-        .my-id-box { background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; margin-bottom: 20px; font-family: monospace; color: var(--neon-yellow); }
-
-        input {
-            width: 100%; padding: 15px; margin-bottom: 15px;
-            border-radius: 12px; border: 1px solid var(--neon-cyan);
-            background: rgba(0,0,0,0.6); color: #fff; font-size: 16px;
-            box-sizing: border-box; outline: none; transition: 0.3s;
-        }
-        input:focus { box-shadow: 0 0 15px rgba(0, 243, 255, 0.4); }
-
-        .btn {
-            width: 100%; padding: 16px; border-radius: 12px;
-            border: none; font-weight: 800; font-size: 16px;
-            cursor: pointer; transition: 0.2s; margin-bottom: 10px;
-        }
-        .btn-host { background: var(--neon-cyan); color: #000; }
-        .btn-host:hover { box-shadow: 0 0 20px var(--neon-cyan); transform: scale(1.02); }
-        .btn-join { background: transparent; border: 2px solid var(--neon-cyan); color: var(--neon-cyan); }
-        .btn-join:hover { background: rgba(0,243,255,0.1); transform: scale(1.02); }
-
-        /* 인게임 UI */
-        #game-ui {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 50; display: none;
-        }
-
-        .top-bar { position: absolute; top: 20px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; }
-        
-        .role-badge {
-            background: rgba(0,0,0,0.6); border: 2px solid #fff;
-            padding: 10px 25px; border-radius: 30px; font-size: 18px; font-weight: 800;
-            backdrop-filter: blur(5px);
-        }
-        .role-mafia { border-color: var(--neon-pink); color: var(--neon-pink); text-shadow: 0 0 10px var(--neon-pink); }
-        .role-citizen { border-color: var(--neon-cyan); color: var(--neon-cyan); text-shadow: 0 0 10px var(--neon-cyan); }
-
-        .event-text {
-            font-size: 24px; font-weight: 900; color: var(--neon-yellow);
-            text-shadow: 0 0 20px var(--neon-yellow);
-        }
-
-        /* 모바일 컨트롤 UI */
-        #joystick-zone { position: absolute; bottom: 30px; left: 30px; width: 150px; height: 150px; pointer-events: auto; }
-        #action-zone { position: absolute; bottom: 40px; right: 40px; display: flex; gap: 20px; pointer-events: auto; }
-        
-        .action-btn {
-            width: 75px; height: 75px; border-radius: 50%;
-            border: 2px solid rgba(255,255,255,0.5);
-            background: rgba(255,255,255,0.1); backdrop-filter: blur(8px);
-            color: #fff; font-weight: 900; font-size: 14px;
-            display: flex; justify-content: center; align-items: center; cursor: pointer;
-            user-select: none; transition: 0.1s;
-        }
-        .action-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.3); }
-        .btn-danger { border-color: var(--neon-pink); background: rgba(255,0,85,0.1); color: var(--neon-pink); }
-        .btn-danger:active { background: rgba(255,0,85,0.4); }
-    </style>
-</head>
-<body>
-
-    <!-- 메인 메뉴 -->
-    <div id="menu-ui">
-        <h1>NEON MAFIA</h1>
-        <p class="info-text">초고퀄 이동형 마피아 게임</p>
-        <div class="my-id-box">내 ID: <span id="my-id">생성 중...</span></div>
-        <button class="btn btn-host" id="btn-host">방 만들기 (호스트)</button>
-        <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 25px 0;">
-        <input type="text" id="join-id" placeholder="호스트의 ID를 입력하세요">
-        <button class="btn btn-join" id="btn-join">참가하기</button>
-    </div>
-
-    <!-- 인게임 화면 -->
-    <div id="game-ui">
-        <div class="top-bar">
-            <div id="role-display" class="role-badge role-citizen">역할: 시민</div>
-            <div id="event-display" class="event-text">대기 중...</div>
-        </div>
-        
-        <!-- 모바일 컨트롤 영역 -->
-        <div id="joystick-zone"></div>
-        <div id="action-zone">
-            <div class="action-btn btn-danger" id="btn-kill" style="display:none;">KILL</div>
-            <div class="action-btn" id="btn-jump">JUMP</div>
-        </div>
-    </div>
-
-    <canvas id="gameCanvas"></canvas>
-
-<script>
-/** 
- * 1. 기본 설정 및 캔버스 스케일링 
- * (해상도가 달라도 동일한 물리 공간(1920x1080)을 공유하도록 설정)
- */
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-const GAME_W = 1920, GAME_H = 1080;
-const FLOOR_Y = 950;
-
-function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-}
-window.addEventListener('resize', resize);
-resize();
-
-/** 
- * 2. 네트워크 및 게임 상태 초기화 
- */
-const peer = new Peer();
-let myId = null;
-let isHost = false;
-let hostConn = null;
-let clients = {}; // 호스트 전용: 연결된 클라이언트들
-
-peer.on('open', id => {
-    myId = id;
-    document.getElementById('my-id').innerText = id;
-});
-
-// 호스트가 관리하는 메인 게임 상태
-let gameState = {
-    players: {}, 
-    event: '평화로운 밤',
-    particles: [] 
-};
-
-// 클라이언트의 로컬 입력 상태
-let inputState = { dx: 0, jump: false, action: false };
-let myRole = '대기중';
-
-// 이벤트 프리셋
-const EVENTS = [
-    { name: '평화로운 밤', gravity: 0.8, speed: 8, dark: false },
-    { name: '⚠️ 블랙아웃 (시야 제한)', gravity: 0.8, speed: 6, dark: true },
-    { name: '🌌 저중력 지대', gravity: 0.3, speed: 8, dark: false },
-    { name: '⚡ 스피드 부스트', gravity: 0.8, speed: 15, dark: false }
-];
-let currentEvent = EVENTS[0];
-
-/** 
- * 3. 호스트 (방장) 로직 
- */
-document.getElementById('btn-host').addEventListener('click', () => {
-    isHost = true;
-    startGameUI();
-    addPlayer(myId);
-    
-    peer.on('connection', conn => {
-        clients[conn.peer] = conn;
-        addPlayer(conn.peer);
-        
-        // 클라이언트로부터 입력 받기
-        conn.on('data', payload => {
-            if(payload.type === 'input') {
-                let p = gameState.players[conn.peer];
-                if(p && p.alive) {
-                    p.dx = payload.data.dx;
-                    if(payload.data.jump && p.grounded) { p.vy = -20; p.grounded = false; }
-                    if(payload.data.action) handleKill(conn.peer);
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans KR', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6', // Bright Blue
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#1e3a8a',
+                        },
+                        surface: {
+                            light: '#ffffff',
+                            muted: '#f9fafb',
+                            border: '#f3f4f6'
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                        'slide-up': 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'modal-in': 'modalIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(30px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        modalIn: {
+                            '0%': { opacity: '0', transform: 'scale(0.95) translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'scale(1) translateY(0)' },
+                        }
+                    }
                 }
             }
-        });
-        
-        conn.on('close', () => { delete gameState.players[conn.peer]; delete clients[conn.peer]; });
-    });
-    
-    // 10초 후 역할 배정 (테스트를 위해 짧게 설정)
-    setTimeout(assignRoles, 10000);
-    // 15초마다 랜덤 이벤트 발생
-    setInterval(triggerRandomEvent, 15000);
-    // 60FPS 물리 엔진 루프
-    setInterval(hostPhysicsLoop, 1000/60);
-});
-
-/** 
- * 4. 클라이언트 (참가자) 로직 
- */
-document.getElementById('btn-join').addEventListener('click', () => {
-    const hid = document.getElementById('join-id').value;
-    if(!hid) return alert('호스트 ID를 입력하세요.');
-    
-    hostConn = peer.connect(hid);
-    hostConn.on('open', () => {
-        startGameUI();
-        // 호스트로부터 상태 받기
-        hostConn.on('data', payload => {
-            if(payload.type === 'state') gameState = payload.state;
-            if(payload.type === 'role') updateMyRole(payload.role);
-        });
-    });
-});
-
-/** 
- * 5. 게임 핵심 함수 (역할, 킬, 물리)
- */
-function addPlayer(id) {
-    gameState.players[id] = {
-        x: Math.random() * (GAME_W - 200) + 100,
-        y: 200, vx: 0, vy: 0, dx: 0,
-        color: `hsl(${Math.random()*360}, 100%, 60%)`,
-        role: '시민', alive: true, grounded: false, lastKill: 0
-    };
-}
-
-function assignRoles() {
-    const ids = Object.keys(gameState.players);
-    if(ids.length < 2) {
-        gameState.event = "인원이 부족하여 마피아 배정 대기중...";
-        return;
-    }
-    const mafiaId = ids[Math.floor(Math.random() * ids.length)];
-    ids.forEach(id => {
-        const role = (id === mafiaId) ? '마피아' : '시민';
-        gameState.players[id].role = role;
-        if(id === myId) updateMyRole(role);
-        else clients[id].send({ type: 'role', role: role });
-    });
-    triggerRandomEvent();
-}
-
-function updateMyRole(role) {
-    myRole = role;
-    const rd = document.getElementById('role-display');
-    rd.innerText = `역할: ${role}`;
-    rd.className = role === '마피아' ? 'role-badge role-mafia' : 'role-badge role-citizen';
-    if(role === '마피아') document.getElementById('btn-kill').style.display = 'flex';
-}
-
-function handleKill(attackerId) {
-    const p = gameState.players[attackerId];
-    if(p.role !== '마피아' || !p.alive) return;
-    
-    const now = Date.now();
-    if(now - p.lastKill < 5000) return; // 5초 쿨다운
-    
-    for(let tid in gameState.players) {
-        if(tid === attackerId) continue;
-        const target = gameState.players[tid];
-        if(!target.alive) continue;
-        
-        const dist = Math.hypot(target.x - p.x, target.y - p.y);
-        if(dist < 180) { // 킬 사거리
-            target.alive = false;
-            p.lastKill = now;
-            createExplosion(target.x, target.y, target.color);
-            break;
         }
-    }
-}
+    </script>
 
-function createExplosion(x, y, color) {
-    for(let i=0; i<20; i++) {
-        gameState.particles.push({
-            x, y, 
-            vx: (Math.random()-0.5)*20, vy: (Math.random()-0.5)*20,
-            life: 1.0, color
-        });
-    }
-}
+    <style>
+        body {
+            background-color: #f8fafc; /* Very light slate */
+            color: #1e293b; /* Slate 800 */
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
 
-function triggerRandomEvent() {
-    currentEvent = EVENTS[Math.floor(Math.random() * EVENTS.length)];
-    gameState.event = currentEvent.name;
-}
+        /* Glass Header */
+        .glass-header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
 
-// [호스트 전용] 물리 엔진 및 상태 브로드캐스트
-function hostPhysicsLoop() {
-    for(let id in gameState.players) {
-        let p = gameState.players[id];
-        if(!p.alive) continue;
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+        /* File Dropzone Styles */
+        .dropzone {
+            transition: all 0.3s ease;
+            background-color: #f8fafc;
+        }
+        .dropzone.dragover {
+            background-color: #eff6ff;
+            border-color: #3b82f6;
+            transform: scale(1.02);
+        }
+
+        /* Admin Panel Transition */
+        #admin-panel {
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+        #admin-panel.revealed {
+            max-height: 200px; /* arbitrary large enough height */
+            opacity: 1;
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+            overflow: visible;
+        }
+
+        /* Tab Transitions */
+        .tab-content { display: none; animation: fadeIn 0.4s ease-out forwards; }
+        .tab-content.active { display: block; }
         
-        p.x += p.dx * currentEvent.speed;
-        p.vy += currentEvent.gravity;
-        p.y += p.vy;
-        
-        // 바닥 충돌
-        if(p.y > FLOOR_Y) { p.y = FLOOR_Y; p.vy = 0; p.grounded = true; }
-        // 벽 충돌
-        if(p.x < 50) p.x = 50;
-        if(p.x > GAME_W - 50) p.x = GAME_W - 50;
-    }
-    
-    // 파티클 업데이트
-    for(let i = gameState.particles.length-1; i>=0; i--) {
-        let pt = gameState.particles[i];
-        pt.x += pt.vx; pt.y += pt.vy;
-        pt.life -= 0.03;
-        if(pt.life <= 0) gameState.particles.splice(i, 1);
-    }
-    
-    // 모든 클라이언트에게 상태 전송
-    const payload = { type: 'state', state: gameState };
-    for(let id in clients) clients[id].send(payload);
-}
+        .tab-btn { position: relative; }
+        .tab-btn::after {
+            content: ''; position: absolute; bottom: -2px; left: 0; width: 100%; height: 2px;
+            background-color: #3b82f6; transform: scaleX(0); transition: transform 0.3s ease;
+        }
+        .tab-btn.active { color: #3b82f6; font-weight: 600; }
+        .tab-btn.active::after { transform: scaleX(1); }
+    </style>
+</head>
+<body class="antialiased font-sans flex flex-col min-h-screen">
 
-/** 
- * 6. 조작 및 UI 전환 (PC + Mobile 완벽 지원)
- */
-function startGameUI() {
-    document.getElementById('menu-ui').style.opacity = '0';
-    setTimeout(() => document.getElementById('menu-ui').style.display = 'none', 500);
-    document.getElementById('game-ui').style.display = 'block';
-    
-    initControls();
-    requestAnimationFrame(renderLoop); // 렌더링 시작
-}
+    <header class="fixed w-full top-0 z-50 glass-header">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center cursor-pointer" onclick="window.scrollTo(0,0)">
+                    <span class="font-serif text-3xl font-bold tracking-tighter text-slate-900 mr-1">CREAT</span>
+                    <span class="font-sans text-xs font-bold tracking-widest text-brand-600 mt-1 uppercase">Portal</span>
+                </div>
 
-function initControls() {
-    // 1. NippleJS (모바일 조이스틱)
-    const joystick = nipplejs.create({
-        zone: document.getElementById('joystick-zone'),
-        mode: 'static', position: { left: '50%', top: '50%' }, color: '#00f3ff'
-    });
-    joystick.on('move', (e, data) => { inputState.dx = Math.cos(data.angle.radian); });
-    joystick.on('end', () => { inputState.dx = 0; });
-    
-    // 2. 키보드 (PC)
-    window.addEventListener('keydown', e => {
-        if(e.key === 'a' || e.key === 'ArrowLeft') inputState.dx = -1;
-        if(e.key === 'd' || e.key === 'ArrowRight') inputState.dx = 1;
-        if(e.key === 'w' || e.key === ' ' || e.key === 'ArrowUp') inputState.jump = true;
-        if(e.key === 'q' || e.key === 'Enter') inputState.action = true;
-    });
-    window.addEventListener('keyup', e => {
-        if(['a','d','ArrowLeft','ArrowRight'].includes(e.key)) inputState.dx = 0;
-    });
-    
-    // 3. 터치 버튼 (점프/킬)
-    const bindBtn = (id, field) => {
-        const btn = document.getElementById(id);
-        btn.addEventListener('touchstart', e => { e.preventDefault(); inputState[field] = true; });
-        btn.addEventListener('mousedown', e => { e.preventDefault(); inputState[field] = true; });
-    };
-    bindBtn('btn-jump', 'jump');
-    bindBtn('btn-kill', 'action');
-    
-    // 60FPS로 호스트에게 입력 전송
-    setInterval(() => {
-        if(isHost) {
-            let p = gameState.players[myId];
-            if(p && p.alive) {
-                p.dx = inputState.dx;
-                if(inputState.jump && p.grounded) { p.vy = -20 * (currentEvent.name.includes('저중력') ? 1.5 : 1); p.grounded = false; }
-                if(inputState.action) handleKill(myId);
+                <!-- Right Side: Auth (Nickname + Move Button) -->
+                <div class="flex items-center space-x-2">
+                    <div class="relative flex items-center bg-white border border-slate-200 rounded-lg px-3 py-1.5 focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-100 transition-all shadow-sm">
+                        <i class="ph ph-user text-slate-400 text-lg"></i>
+                        <input type="text" id="nickname-input" placeholder="닉네임 입력..." 
+                            class="bg-transparent border-none focus:outline-none text-sm w-32 md:w-48 ml-2 placeholder-slate-400 text-slate-800"
+                            onkeypress="if(event.key === 'Enter') handleAuth()">
+                    </div>
+                    <button onclick="handleAuth()" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
+                        이동
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow pt-24 pb-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <div id="admin-panel" class="bg-white rounded-2xl border border-brand-100 shadow-lg shadow-brand-50/50 p-6 relative">
+                <div class="absolute top-0 right-0 bg-brand-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl rounded-tr-xl uppercase tracking-wider">Developer Mode</div>
+                <div class="flex flex-col md:flex-row items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                            <i class="ph-duotone ph-shield-check text-brand-500 mr-2 text-2xl"></i> 관리자 대시보드
+                        </h2>
+                        <p class="text-sm text-slate-500 mt-1">환영합니다, 개발자님. 콘텐츠를 등록하고 관리할 수 있습니다.</p>
+                    </div>
+                    <div class="flex space-x-3 mt-4 md:mt-0">
+                        <button onclick="openModal('newsModal')" class="flex items-center space-x-2 bg-brand-50 hover:bg-brand-100 text-brand-700 border border-brand-200 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all">
+                            <i class="ph ph-newspaper-clipping text-lg"></i>
+                            <span>뉴스 작성</span>
+                        </button>
+                        <button onclick="openModal('eventModal')" class="flex items-center space-x-2 bg-brand-600 hover:bg-brand-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-md shadow-brand-200">
+                            <i class="ph ph-calendar-plus text-lg"></i>
+                            <span>이벤트 등록</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8">
+                <!-- Tabs -->
+                <div class="flex space-x-8 border-b border-slate-200 mb-8">
+                    <button class="tab-btn active pb-4 text-lg font-medium text-slate-500 hover:text-slate-800 transition-colors" onclick="switchTab('news-tab', this)">
+                        최신 뉴스
+                    </button>
+                    <button class="tab-btn pb-4 text-lg font-medium text-slate-500 hover:text-slate-800 transition-colors" onclick="switchTab('events-tab', this)">
+                        이벤트
+                    </button>
+                </div>
+
+                <!-- News Feed -->
+                <div id="news-tab" class="tab-content active">
+                    <div id="news-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <!-- JS injects news here -->
+                    </div>
+                </div>
+
+                <!-- Events Feed -->
+                <div id="events-tab" class="tab-content">
+                    <div id="events-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <!-- JS injects events here -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 py-10 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center">
+                    <span class="font-serif text-xl font-bold text-slate-800 mr-1">CREAT</span>
+                    <span class="font-sans text-[10px] font-bold text-brand-500 mt-1 uppercase">Portal</span>
+                </div>
+                <p class="text-sm text-slate-400">&copy; 2026 CREAT Portal. Bright Premium Edition.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="newsModal" class="fixed inset-0 z-[100] hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+            <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" aria-hidden="true" onclick="closeModal('newsModal')"></div>
+            
+            <div class="relative inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle w-full max-w-2xl border border-slate-100">
+                <div class="px-6 pt-6 pb-4 border-b border-slate-100 flex justify-between items-center">
+                    <h3 class="text-xl font-bold text-slate-800 font-serif flex items-center">
+                        <i class="ph-duotone ph-pencil-line text-brand-500 mr-2 text-2xl"></i> 뉴스 기사 작성
+                    </h3>
+                    <button onclick="closeModal('newsModal')" class="text-slate-400 hover:text-slate-600 transition-colors">
+                        <i class="ph ph-x text-xl"></i>
+                    </button>
+                </div>
+                <div class="p-6 space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">제목</label>
+                        <input type="text" id="news-title" class="block w-full bg-slate-50 border border-slate-200 rounded-lg py-2.5 px-4 text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all" placeholder="기사 제목을 입력하세요">
+                    </div>
+                    
+                    <!-- File Dropzone -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">대표 이미지 (로컬 파일)</label>
+                        <div id="news-dropzone" class="dropzone relative border-2 border-dashed border-slate-300 rounded-xl h-48 flex flex-col items-center justify-center cursor-pointer hover:border-brand-500 transition-all overflow-hidden" onclick="document.getElementById('news-file').click()">
+                            <input type="file" id="news-file" accept="image/*" class="hidden" onchange="handleFileSelect(event, 'news-preview', 'news-dropzone-content', 'news-remove-img', 'newsImageBase64')">
+                            
+                            <div id="news-dropzone-content" class="text-center pointer-events-none">
+                                <div class="bg-white p-3 rounded-full shadow-sm inline-block mb-2">
+                                    <i class="ph-duotone ph-image text-2xl text-brand-500"></i>
+                                </div>
+                                <p class="text-sm font-medium text-slate-600">클릭하거나 이미지를 드래그하여 업로드</p>
+                                <p class="text-xs text-slate-400 mt-1">PNG, JPG, GIF 지원</p>
+                            </div>
+                            
+                            <img id="news-preview" class="hidden absolute inset-0 w-full h-full object-cover z-10">
+                            
+                            <button type="button" id="news-remove-img" class="hidden absolute top-3 right-3 z-20 bg-white/90 text-slate-700 shadow-md rounded-full p-2 hover:bg-red-50 hover:text-red-500 transition-colors backdrop-blur-md" onclick="removeImage(event, 'news-file', 'news-preview', 'news-dropzone-content', 'news-remove-img', 'newsImageBase64')">
+                                <i class="ph ph-trash"></i>
+                            </button>
+                        </div>
+                        <input type="hidden" id="newsImageBase64" value="">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">본문</label>
+                        <textarea id="news-content" rows="6" class="block w-full bg-slate-50 border border-slate-200 rounded-lg py-3 px-4 text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all resize-none" placeholder="기사 본문을 작성해주세요..."></textarea>
+                    </div>
+                </div>
+                <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end space-x-3">
+                    <button type="button" onclick="closeModal('newsModal')" class="px-5 py-2.5 rounded-lg border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 font-medium transition-colors">취소</button>
+                    <button type="button" onclick="submitNews()" class="px-5 py-2.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-medium shadow-md shadow-brand-200 transition-colors flex items-center">
+                        발행하기
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="eventModal" class="fixed inset-0 z-[100] hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+            <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" aria-hidden="true" onclick="closeModal('eventModal')"></div>
+            
+            <div class="relative inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle w-full max-w-lg border border-slate-100">
+                <div class="px-6 pt-6 pb-4 border-b border-slate-100 flex justify-between items-center">
+                    <h3 class="text-xl font-bold text-slate-800 font-serif flex items-center">
+                        <i class="ph-duotone ph-calendar-plus text-indigo-500 mr-2 text-2xl"></i> 새 이벤트 등록
+                    </h3>
+                    <button onclick="closeModal('eventModal')" class="text-slate-400 hover:text-slate-600 transition-colors">
+                        <i class="ph ph-x text-xl"></i>
+                    </button>
+                </div>
+                <div class="p-6 space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">이벤트 명</label>
+                        <input type="text" id="event-title" class="block w-full bg-slate-50 border border-slate-200 rounded-lg py-2.5 px-4 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all" placeholder="이벤트 명을 입력하세요">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">포스터 이미지 (로컬 파일)</label>
+                        <div id="event-dropzone" class="dropzone relative border-2 border-dashed border-slate-300 rounded-xl h-64 flex flex-col items-center justify-center cursor-pointer hover:border-indigo-500 transition-all overflow-hidden" onclick="document.getElementById('event-file').click()">
+                            <input type="file" id="event-file" accept="image/*" class="hidden" onchange="handleFileSelect(event, 'event-preview', 'event-dropzone-content', 'event-remove-img', 'eventImageBase64')">
+                            
+                            <div id="event-dropzone-content" class="text-center pointer-events-none">
+                                <div class="bg-white p-3 rounded-full shadow-sm inline-block mb-2">
+                                    <i class="ph-duotone ph-upload-simple text-2xl text-indigo-500"></i>
+                                </div>
+                                <p class="text-sm font-medium text-slate-600">포스터 이미지 업로드</p>
+                            </div>
+                            
+                            <img id="event-preview" class="hidden absolute inset-0 w-full h-full object-cover z-10">
+                            
+                            <button type="button" id="event-remove-img" class="hidden absolute top-3 right-3 z-20 bg-white/90 text-slate-700 shadow-md rounded-full p-2 hover:bg-red-50 hover:text-red-500 transition-colors backdrop-blur-md" onclick="removeImage(event, 'event-file', 'event-preview', 'event-dropzone-content', 'event-remove-img', 'eventImageBase64')">
+                                <i class="ph ph-trash"></i>
+                            </button>
+                        </div>
+                        <input type="hidden" id="eventImageBase64" value="">
+                    </div>
+                </div>
+                <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end space-x-3">
+                    <button type="button" onclick="closeModal('eventModal')" class="px-5 py-2.5 rounded-lg border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 font-medium transition-colors">취소</button>
+                    <button type="button" onclick="submitEvent()" class="px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-medium shadow-md shadow-indigo-200 transition-colors">
+                        등록하기
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container" class="fixed bottom-5 right-5 z-[200] flex flex-col space-y-3 pointer-events-none"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Local State (Always starts empty)
+        window.localNewsData = [];
+        window.localEventsData = [];
+        window.isAdmin = false;
+
+        // UI Utilities
+        window.switchTab = (tabId, btn) => {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            btn.classList.add('active');
+        };
+
+        window.showToast = (message, type = 'success') => {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bgColor = type === 'success' ? 'bg-white border-green-500' : 'bg-white border-red-500';
+            const icon = type === 'success' ? 'ph-check-circle text-green-500' : 'ph-warning-circle text-red-500';
+
+            toast.className = `flex items-center w-full max-w-xs p-4 rounded-xl border shadow-xl ${bgColor} text-slate-800 animate-modal-in pointer-events-auto`;
+            toast.innerHTML = `
+                <i class="ph-fill ${icon} text-2xl mr-3"></i>
+                <div class="text-sm font-medium">${message}</div>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(10px)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        };
+
+        window.openModal = (modalId) => {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.querySelector('.fixed.inset-0').style.opacity = '1';
+                modal.querySelector('.inline-block').classList.add('animate-modal-in');
+            }, 10);
+        };
+
+        window.closeModal = (modalId) => {
+            const modal = document.getElementById(modalId);
+            modal.classList.add('hidden');
+            modal.querySelectorAll('input[type="text"], textarea').forEach(input => input.value = '');
+            if(modalId === 'newsModal') resetImageDropzone('news-file', 'news-preview', 'news-dropzone-content', 'news-remove-img', 'newsImageBase64');
+            if(modalId === 'eventModal') resetImageDropzone('event-file', 'event-preview', 'event-dropzone-content', 'event-remove-img', 'eventImageBase64');
+        };
+
+        const formatDate = (timestamp) => {
+            const date = new Date(timestamp);
+            return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
+        };
+
+        window.handleAuth = () => {
+            const val = document.getElementById('nickname-input').value.trim();
+            const adminPanel = document.getElementById('admin-panel');
+            
+            if (val === 'I am a creat') {
+                if (!window.isAdmin) {
+                    window.isAdmin = true;
+                    adminPanel.classList.add('revealed');
+                    showToast('개발자 모드가 활성화되었습니다. 등록 권한이 부여됩니다.', 'success');
+                }
+            } else {
+                if (window.isAdmin) {
+                    window.isAdmin = false;
+                    adminPanel.classList.remove('revealed');
+                    showToast('일반 사용자 모드로 전환되었습니다.', 'success');
+                } else if (val !== '') {
+                    showToast(`'${val}'님 환영합니다.`, 'success');
+                }
             }
-        } else if (hostConn) {
-            hostConn.send({ type: 'input', data: inputState });
-        }
-        // 트리거 초기화
-        inputState.jump = false; 
-        inputState.action = false;
-    }, 1000/60);
-}
+        };
 
-/** 
- * 7. 렌더링 (그래픽) 
- */
-function renderLoop() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.save();
-    
-    // 화면 크기에 맞게 스케일링 (카메라 뷰)
-    const scale = Math.min(canvas.width / GAME_W, canvas.height / GAME_H);
-    const offsetX = (canvas.width - GAME_W * scale) / 2;
-    const offsetY = (canvas.height - GAME_H * scale) / 2;
-    
-    ctx.translate(offsetX, offsetY);
-    ctx.scale(scale, scale);
-    
-    document.getElementById('event-display').innerText = gameState.event;
-    
-    // 배경 및 바닥 그리기
-    ctx.fillStyle = '#0a0a14';
-    ctx.fillRect(0, 0, GAME_W, GAME_H);
-    
-    ctx.fillStyle = '#112';
-    ctx.fillRect(0, FLOOR_Y, GAME_W, GAME_H - FLOOR_Y);
-    ctx.strokeStyle = '#00f3ff';
-    ctx.lineWidth = 3;
-    ctx.beginPath(); ctx.moveTo(0, FLOOR_Y); ctx.lineTo(GAME_W, FLOOR_Y); ctx.stroke();
+        const compressImage = (file) => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = event => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 1200; const MAX_HEIGHT = 1200;
+                        let width = img.width; let height = img.height;
 
-    // 파티클 그리기
-    gameState.particles.forEach(pt => {
-        ctx.globalAlpha = pt.life;
-        ctx.fillStyle = pt.color;
-        ctx.beginPath(); ctx.arc(pt.x, pt.y, 8, 0, Math.PI*2); ctx.fill();
-    });
-    ctx.globalAlpha = 1.0;
+                        if (width > height) {
+                            if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                        } else {
+                            if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                        }
+                        canvas.width = width; canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL('image/jpeg', 0.8));
+                    };
+                    img.onerror = error => reject(error);
+                };
+                reader.onerror = error => reject(error);
+            });
+        };
 
-    // 플레이어 그리기
-    for(let id in gameState.players) {
-        let p = gameState.players[id];
-        
-        if(!p.alive) {
-            // 시체 그리기 (묘비 또는 쓰러진 네온)
-            ctx.fillStyle = 'rgba(255,0,85,0.5)';
-            ctx.fillRect(p.x - 30, FLOOR_Y - 15, 60, 15);
-            continue;
-        }
-        
-        // 네온 글로우 효과
-        ctx.shadowColor = p.color;
-        ctx.shadowBlur = 20;
-        ctx.fillStyle = p.color;
-        
-        // 캐릭터 본체 (원형)
-        ctx.beginPath();
-        ctx.arc(p.x, p.y - 40, 40, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.shadowBlur = 0;
-        
-        // 이름 / 태그
-        ctx.fillStyle = '#fff';
-        ctx.textAlign = 'center';
-        ctx.font = 'bold 20px Pretendard';
-        ctx.fillText(id === myId ? '나' : 'USER', p.x, p.y - 95);
-        
-        // 마피아 시야 공유 (마피아끼리는 서로 붉게 보임)
-        if(myRole === '마피아' && p.role === '마피아') {
-             ctx.fillStyle = '#ff0055';
-             ctx.fillText('마피아', p.x, p.y - 120);
-        }
-    }
-    
-    // 블랙아웃 (시야 제한) 이벤트 렌더링
-    const isDark = gameState.event.includes('블랙아웃');
-    if(isDark && gameState.players[myId] && gameState.players[myId].alive) {
-        let myP = gameState.players[myId];
-        let grad = ctx.createRadialGradient(myP.x, myP.y - 40, 100, myP.x, myP.y - 40, 500);
-        grad.addColorStop(0, 'rgba(0,0,0,0)');
-        grad.addColorStop(1, 'rgba(0,0,0,0.98)');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, GAME_W, GAME_H);
-    }
-    
-    ctx.restore();
-    requestAnimationFrame(renderLoop);
-}
-</script>
+        window.handleFileSelect = async (event, previewId, contentId, removeBtnId, hiddenInputId) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (!file.type.startsWith('image/')) return showToast('이미지 파일만 업로드 가능합니다.', 'error');
+
+            try {
+                const base64Image = await compressImage(file);
+                document.getElementById(hiddenInputId).value = base64Image;
+                const previewImg = document.getElementById(previewId);
+                previewImg.src = base64Image;
+                previewImg.classList.remove('hidden');
+                document.getElementById(contentId).classList.add('hidden');
+                document.getElementById(removeBtnId).classList.remove('hidden');
+            } catch (error) {
+                showToast('이미지 처리 중 오류가 발생했습니다.', 'error');
+            }
+        };
+
+        window.removeImage = (event, fileInputId, previewId, contentId, removeBtnId, hiddenInputId) => {
+            event.stopPropagation();
+            resetImageDropzone(fileInputId, previewId, contentId, removeBtnId, hiddenInputId);
+        };
+
+        const resetImageDropzone = (fileInputId, previewId, contentId, removeBtnId, hiddenInputId) => {
+            document.getElementById(fileInputId).value = '';
+            document.getElementById(hiddenInputId).value = '';
+            document.getElementById(previewId).src = '';
+            document.getElementById(previewId).classList.add('hidden');
+            document.getElementById(contentId).classList.remove('hidden');
+            document.getElementById(removeBtnId).classList.add('hidden');
+        };
+
+        const setupDropzone = (dropzoneId, fileInputId) => {
+            const dropzone = document.getElementById(dropzoneId);
+            const fileInput = document.getElementById(fileInputId);
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => {
+                dropzone.addEventListener(evt, e => { e.preventDefault(); e.stopPropagation(); }, false);
+            });
+            ['dragenter', 'dragover'].forEach(evt => dropzone.addEventListener(evt, () => dropzone.classList.add('dragover'), false));
+            ['dragleave', 'drop'].forEach(evt => dropzone.addEventListener(evt, () => dropzone.classList.remove('dragover'), false));
+            dropzone.addEventListener('drop', e => {
+                const dt = e.dataTransfer;
+                if(dt.files && dt.files.length > 0) {
+                    fileInput.files = dt.files;
+                    fileInput.dispatchEvent(new Event('change'));
+                }
+            }, false);
+        };
+
+        setupDropzone('news-dropzone', 'news-file');
+        setupDropzone('event-dropzone', 'event-file');
+
+        const renderEmptyState = (containerId, title, message, iconClass) => {
+            const container = document.getElementById(containerId);
+            container.innerHTML = `
+                <div class="col-span-full py-20 flex flex-col items-center justify-center bg-white rounded-2xl border border-slate-200 border-dashed animate-fade-in">
+                    <div class="bg-slate-50 p-4 rounded-full mb-4 shadow-inner">
+                        <i class="ph-duotone ${iconClass} text-5xl text-slate-400"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-700 mb-1">${title}</h3>
+                    <p class="text-sm text-slate-500 text-center font-light">${message}</p>
+                </div>
+            `;
+        };
+
+        const renderNews = (newsArray) => {
+            const container = document.getElementById('news-grid');
+            if (newsArray.length === 0) {
+                renderEmptyState('news-grid', '등록된 뉴스가 없습니다', '새로운 소식이 올라오기를 기다려주세요.', 'ph-newspaper-clipping');
+                return;
+            }
+
+            let html = '';
+            newsArray.forEach((news, index) => {
+                html += `
+                    <article class="flex flex-col bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-brand-200 overflow-hidden transition-all duration-300 animate-slide-up group" style="animation-delay: ${index * 0.1}s; opacity: 0;">
+                        <div class="h-52 w-full relative overflow-hidden bg-slate-100">
+                            <img class="h-full w-full object-cover transform transition-transform duration-700 group-hover:scale-105" src="${news.imageBase64}" alt="${news.title}">
+                        </div>
+                        <div class="p-6 flex-1 flex flex-col">
+                            <h3 class="text-xl font-bold text-slate-800 font-serif line-clamp-2 leading-tight group-hover:text-brand-600 transition-colors mb-3">${news.title}</h3>
+                            <p class="text-sm text-slate-600 line-clamp-3 leading-relaxed flex-1">${news.content}</p>
+                            <div class="mt-6 flex items-center justify-between border-t border-slate-100 pt-4">
+                                <div class="flex items-center space-x-2">
+                                    <div class="h-6 w-6 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center text-[10px] font-bold">
+                                        ${news.author.charAt(0).toUpperCase()}
+                                    </div>
+                                    <span class="text-xs font-medium text-slate-600">${news.author}</span>
+                                </div>
+                                <div class="text-xs text-slate-400 flex items-center">
+                                    <i class="ph ph-clock mr-1"></i> ${formatDate(news.timestamp)}
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                `;
+            });
+            container.innerHTML = html;
+        };
+
+        const renderEvents = (eventsArray) => {
+            const container = document.getElementById('events-grid');
+            if (eventsArray.length === 0) {
+                renderEmptyState('events-grid', '예정된 이벤트가 없습니다', '다양한 행사가 곧 준비될 예정입니다.', 'ph-calendar-blank');
+                return;
+            }
+
+            let html = '';
+            eventsArray.forEach((event, index) => {
+                html += `
+                    <div class="group relative rounded-2xl overflow-hidden aspect-[3/4] bg-slate-100 border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 animate-slide-up" style="animation-delay: ${index * 0.1}s; opacity: 0;">
+                        <img src="${event.imageBase64}" alt="${event.title}" class="absolute inset-0 w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-105">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent"></div>
+                        
+                        <div class="absolute inset-0 p-5 flex flex-col justify-end">
+                            <div class="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full w-fit mb-3 border border-white/30">
+                                <span class="text-[10px] font-bold text-white uppercase tracking-wider">Event</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white leading-tight font-serif mb-2">${event.title}</h3>
+                            <div class="flex items-center justify-between mt-1 border-t border-white/20 pt-3">
+                                <div class="flex items-center text-xs text-slate-200">
+                                    <i class="ph ph-calendar-check mr-1"></i> ${formatDate(event.timestamp)}
+                                </div>
+                                <span class="text-[10px] text-slate-300">By ${event.author}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        };
+
+        window.submitNews = async () => {
+            const title = document.getElementById('news-title').value.trim();
+            const imageBase64 = document.getElementById('newsImageBase64').value;
+            const content = document.getElementById('news-content').value.trim();
+            const author = 'CREAT Developer'; // Fixed author for Admin
+
+            if (!title || !imageBase64 || !content) return showToast('모든 필드를 입력해주세요.', 'error');
+
+            const newArticle = { title, imageBase64, content, author, timestamp: Date.now() };
+
+            try {
+                if (useFirebase && auth.currentUser) {
+                    await addDoc(newsCollection, newArticle);
+                } else {
+                    window.localNewsData.unshift(newArticle);
+                    renderNews(window.localNewsData);
+                }
+                showToast('기사가 성공적으로 발행되었습니다.');
+                closeModal('newsModal');
+            } catch (e) {
+                window.localNewsData.unshift(newArticle);
+                renderNews(window.localNewsData);
+                showToast('발행 완료 (Local 저장)');
+                closeModal('newsModal');
+            }
+        };
+
+        window.submitEvent = async () => {
+            const title = document.getElementById('event-title').value.trim();
+            const imageBase64 = document.getElementById('eventImageBase64').value;
+            const author = 'CREAT Developer'; // Fixed author for Admin
+
+            if (!title || !imageBase64) return showToast('이벤트 명과 포스터를 등록해주세요.', 'error');
+
+            const newEvent = { title, imageBase64, author, timestamp: Date.now() };
+
+            try {
+                if (useFirebase && auth.currentUser) {
+                    await addDoc(eventsCollection, newEvent);
+                } else {
+                    window.localEventsData.unshift(newEvent);
+                    renderEvents(window.localEventsData);
+                }
+                showToast('이벤트가 성공적으로 등록되었습니다.');
+                closeModal('eventModal');
+                switchTab('events-tab', document.querySelectorAll('.tab-btn')[1]); // Switch to events tab
+            } catch (e) {
+                window.localEventsData.unshift(newEvent);
+                renderEvents(window.localEventsData);
+                showToast('등록 완료 (Local 저장)');
+                closeModal('eventModal');
+                switchTab('events-tab', document.querySelectorAll('.tab-btn')[1]);
+            }
+        };
+
+        // Initialize App State
+        let useFirebase = true;
+        let auth, db, newsCollection, eventsCollection;
+
+        const init = async () => {
+            // Render initial empty states
+            renderNews(window.localNewsData);
+            renderEvents(window.localEventsData);
+
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'creat-bright-premium';
+            const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "mock" };
+
+            try {
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                newsCollection = collection(db, 'artifacts', appId, 'public', 'data', 'news');
+                eventsCollection = collection(db, 'artifacts', appId, 'public', 'data', 'events');
+                
+                await signInAnonymously(auth);
+                
+                onSnapshot(newsCollection, (snapshot) => {
+                    window.localNewsData = [];
+                    snapshot.forEach((doc) => window.localNewsData.push({ id: doc.id, ...doc.data() }));
+                    window.localNewsData.sort((a, b) => b.timestamp - a.timestamp);
+                    renderNews(window.localNewsData);
+                });
+
+                onSnapshot(eventsCollection, (snapshot) => {
+                    window.localEventsData = [];
+                    snapshot.forEach((doc) => window.localEventsData.push({ id: doc.id, ...doc.data() }));
+                    window.localEventsData.sort((a, b) => b.timestamp - a.timestamp);
+                    renderEvents(window.localEventsData);
+                });
+            } catch (e) {
+                console.warn("Operating in Local State Only mode.");
+                useFirebase = false;
+            }
+        };
+
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
 </body>
 </html>
+```
